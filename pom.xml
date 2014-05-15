@@ -289,10 +289,10 @@
 		</plugins>
 	</build>
 
-	<scm>
-		<url>ssvn:svn://svn.anotheria.net/opensource/ano-photoserver/trunk</url>
-		<connection>scm:svn:svn://svn.anotheria.net/opensource/ano-photoserver/trunk</connection>
-		<developerConnection>scm:svn:svn://svn.anotheria.net/opensource/ano-photoserver/trunk</developerConnection>
-	</scm>
+    <scm>
+             <url>https://github.com/anotheria/ano-photoserver</url>
+             <connection>scm:git:git@github.com:anotheria/ano-photoserver.git</connection>
+             <developerConnection>scm:git:git@github.com:anotheria/ano-photoserver.git</developerConnection>
+     </scm>
 
 </project>
