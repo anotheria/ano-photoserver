@@ -1,0 +1,22 @@
+
+.SI-FILES-STYLIZED label.cabinet {
+    background: url("images/upload_file.gif") no-repeat scroll 0 0 transparent;
+    cursor: pointer;
+    display: block;
+    height: 39px;
+    overflow: hidden;
+    width: 187px;
+}
+.SI-FILES-STYLIZED label.cabinet input.file {
+    height: 100%;
+    position: relative;
+    width: auto;
+
+    /* IE 8 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=00)";
+
+    /* IE 5-7 */
+    filter: alpha(opacity=0);
+
+    opacity: 0;
+}

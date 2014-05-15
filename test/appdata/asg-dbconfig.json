@@ -1,0 +1,17 @@
+{
+	idRecoveryAttempts:10,
+    startId : 0,
+
+    test:{
+
+        junit: {
+                driver: "org.h2.jdbcx.JdbcDataSource",
+                preconfiguredJdbcUrl: "jdbc:h2:mem:moses;IGNORECASE=TRUE",
+                vendor: "h2",
+                host: "localhost",
+                username: "moses",
+                password: "",
+        },
+	},
+}
+

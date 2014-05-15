@@ -1,0 +1,65 @@
+
+.ano_phototool_phototool {
+    border: 1px solid black;
+    margin-top: 20px;
+}
+.ano_phototool_workbench {
+    border: 1px solid black;
+    height: 400px;
+    margin: 5px;
+}
+.ano_phototool_col1 {
+    float: left;
+    width: 400px;
+}
+.ano_phototool_col2 {
+    float: left;
+    width: 120px;
+}
+.ano_phototool_button {
+    margin: 5px 30px;
+}
+.ano_phototool_preview {
+    background: none repeat scroll 0 0 #CCCCCC;
+    border: 1px solid black;
+    height: 100px;
+    margin: 30px;
+    position: absolute;
+    width: 100px;
+    overflow: hidden;
+}
+.ano_phototool_rotateleft {
+    padding-top: 200px;
+}
+
+.imageAddBlock{
+    overflow: hidden;
+    position: relative;
+    background-color: #EEEEEE;
+    border: 1px solid #666666;
+    height: 300px;
+    margin: 0 0 10px 10px;
+    overflow: hidden;
+    width: 300px;
+}
+.button
+{
+    background: -moz-linear-gradient(center bottom , #BADBFF 0%, #FFFFFF 100%) repeat scroll 0 0 white;
+    border: 1px solid #336296;
+    border-radius: 3px 3px 3px 3px;
+    color: black;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Tahoma,sans-serif;
+    font-size: 12px;
+    line-height: 18px;
+    padding: 0 10px;
+    text-decoration: none;
+}
+.flr {
+    float: right;
+}
+#uploadPictureDialog
+{
+    width:800px;
+}

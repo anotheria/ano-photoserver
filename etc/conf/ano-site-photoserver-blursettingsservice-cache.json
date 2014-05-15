@@ -1,0 +1,19 @@
+{
+    cacheOn: true,
+    startSize: 1000,
+    maxSize: 5000,
+
+    dev:{
+
+    },
+
+    test:{
+       startSize: 2000,
+       maxSize: 5000,
+    },
+
+    prod:{
+
+    },
+
+}

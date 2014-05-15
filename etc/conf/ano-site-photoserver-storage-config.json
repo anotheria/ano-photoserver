@@ -1,0 +1,14 @@
+{
+	storageRoot: "/work/data/photoserver",
+	tmpStorageRoot: "/work/data/photoserver/tmp/",
+	maxOwnerIdLength: 10,
+	fragmentLegth: 2,
+	
+	test: {
+		storageRoot: "/work/data/test/photoserver",
+		tmpStorageRoot: "/work/data/test/photoserver/tmp/",
+		maxOwnerIdLength: 10,
+		fragmentLegth: 2,
+	},
+	
+}
