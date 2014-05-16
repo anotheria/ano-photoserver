@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.APIFinder;
@@ -54,7 +55,11 @@ public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAP
     @Override
     public PhotoUploader createPhotoUploader(final String userId) throws APIException{
         String uploaderId = IdCodeGenerator.generateCode(16);
-        PhotoUploader uploader = new PhotoUploader(uploaderId, StringUtils.isEmpty(userId)?loginAPI.getLogedUserId():userId);
+        String uploaderUserId = userId;
+        if (StringUtils.isEmpty(uploaderUserId)){
+            uploaderUserId = loginAPI.isLogedIn() ? loginAPI.getLogedUserId() : UUID.randomUUID().toString();
+        }
+        PhotoUploader uploader = new PhotoUploader(uploaderId, uploaderUserId);
         getMyUploaderRegistry().put(uploaderId, uploader);
         return uploader;
     }
