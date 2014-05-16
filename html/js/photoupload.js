@@ -54,6 +54,9 @@ $(function () {
                             $imgSelected.append("<img src=' " + imgSrc + " '/>");
                         }
                         $('.imageAddBlock').children('img').imgScaleCut('fixImages', false);
+
+                        $('#shadowId').val(data.userId);
+                        $('#pictureId').val(data.encodedPhotoId);
                     }
                     else
                         alert(data.error);
