@@ -1,11 +1,5 @@
 package net.anotheria.anosite.photoserver.api.photoupload;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import junit.framework.Assert;
 import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.APIFinder;
@@ -13,9 +7,16 @@ import net.anotheria.anoplass.api.generic.login.LoginAPI;
 import net.anotheria.anosite.photoserver.TestingContextInitializer;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPI;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploader;
-
+import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class FileUploadTest  {
@@ -36,15 +37,20 @@ public class FileUploadTest  {
 		TestingContextInitializer.init();
 		loginAPI.logInUser("1234");
 	}
-	
-	@BeforeClass
-	public static void deInit() {
+
+	@Before
+	public void before() throws APIException {
+		init();
+	}
+
+	@AfterClass
+	public static void afterClass() {
 		TestingContextInitializer.deInit();
 	}
-	
+
 	@Test
 	public void addMyPhotoUploadUniqueIdTest() throws APIException {
-		
+
 		PhotoUploadAPI photoUploadAPI = APIFinder.findAPI(PhotoUploadAPI.class);
 		
 		
@@ -59,7 +65,7 @@ public class FileUploadTest  {
 	
 	@Test
 	public void photoUploadTest() throws IOException, APIException {
-		
+
 		if(!GOOD_TEST_FILE.exists()) {
 			return;
 		}
