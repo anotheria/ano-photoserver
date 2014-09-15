@@ -25,10 +25,11 @@ public class PhotoUploadAPIConfig implements Serializable {
 	private static PhotoUploadAPIConfig INSTANCE;
 
 	/**
-	 * PREFIX of ImageFiles
+	 * Image format of the uploaded photo, which will be used during saving it on disk.
+	 * Currently supports only jpg and png formats.
 	 */
-	@DontConfigure
-	private static final String FILE_PREFIX = ".jpg";
+	@Configure
+	private String imageWriteFormat = "jpg";
 
 	/**
 	 * Maximal size of uploaded file
@@ -65,6 +66,12 @@ public class PhotoUploadAPIConfig implements Serializable {
 	 */
 	@Configure
 	private int JpegQuality = 85;
+
+	/**
+	 * If {@code true} - transparent background color will be allowed, otherwise - Color.WHITE will be used as background color.
+	 */
+	@Configure
+	private boolean allowTransparentBackground = false;
 
 	public long getMaxUploadFileSize() {
 		return maxUploadFileSize;
@@ -132,8 +139,29 @@ public class PhotoUploadAPIConfig implements Serializable {
         return false;
     }
 
+	public boolean isAllowTransparentBackground() {
+		return allowTransparentBackground;
+	}
+
+	public void setAllowTransparentBackground(boolean allowTransparentBackground) {
+		this.allowTransparentBackground = allowTransparentBackground;
+	}
+
+	public String getImageWriteFormat() {
+		return imageWriteFormat;
+	}
+
+	public void setImageWriteFormat(String imageWriteFormat) {
+		this.imageWriteFormat = imageWriteFormat;
+	}
+
+	/**
+	 * Get file prefix.
+	 *
+	 * @return file prefix
+	 */
 	public String getFilePrefix() {
-		return FILE_PREFIX;
+		return "." + imageWriteFormat;
 	}
 
 	/**

@@ -1,5 +1,11 @@
 package net.anotheria.anosite.photoserver.presentation.shared;
 
+import net.anotheria.anoplass.api.APIFinder;
+import net.anotheria.anoplass.api.generic.login.LoginAPI;
+import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -8,11 +14,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import net.anotheria.anoplass.api.APIFinder;
-import net.anotheria.anoplass.api.generic.login.LoginAPI;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the base functions for a photo server servlets.
@@ -101,7 +102,7 @@ public class BaseServlet extends HttpServlet {
 	 * @param in
 	 */
 	protected void stream(HttpServletResponse response, InputStream in) throws IOException {
-		writeJpegHeaders(response);
+		writeImageHeaders(response);
 		byte[] buffer = new byte[65536];
 		try {
 			OutputStream out = response.getOutputStream();
@@ -119,11 +120,12 @@ public class BaseServlet extends HttpServlet {
 	 * Write headers for a jpeg response
 	 * 
 	 */
-	protected void writeJpegHeaders(HttpServletResponse response) throws IOException {
+	protected void writeImageHeaders(HttpServletResponse response) throws IOException {
 		response.setHeader("Pragma", "no-cache");
 		response.setHeader("Cacheable", "false");
 		response.setDateHeader("Last-Modified", System.currentTimeMillis());
 		response.setDateHeader("Expires", 0);
-		response.setContentType("image/jpeg");
+		final String contentType = ImageWriteFormat.getByValue(PhotoUploadAPIConfig.getInstance().getImageWriteFormat()).getContentType();
+		response.setContentType(contentType);
 	}
 }

@@ -231,7 +231,7 @@ public class DeliveryServlet extends BaseServlet {
 				debug("Returning original photo: " + photo.getFilePath());
 
 				File photoFile = new File(photo.getFilePath());
-				writeJpegHeaders(resp);
+				writeImageHeaders(resp);
 				streamImageFile(resp, photoFile);
 				return;
 			}
@@ -284,7 +284,7 @@ public class DeliveryServlet extends BaseServlet {
 		File cachedPhoto = new File(photoPath);
 		if (cachedPhoto.exists() && cachedPhoto.length() > 0) {
 			LOGGER.debug("Returning cached photo: " + photoPath);
-			writeJpegHeaders(resp);
+			writeImageHeaders(resp);
 			streamImageFile(resp, cachedPhoto);
 			return true;
 		}
