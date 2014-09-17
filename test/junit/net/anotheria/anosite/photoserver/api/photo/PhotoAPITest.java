@@ -13,7 +13,9 @@ import net.anotheria.anosite.photoserver.service.storage.StorageServiceException
 import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
 import net.anotheria.anosite.photoserver.shared.PhotoServerConfig;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -81,6 +83,16 @@ public class PhotoAPITest {
 		defaultAlbum.setUserId(USER1_ID);
 		defaultAlbum.setDefault(true);
 
+	}
+
+	@Before
+	public void before() throws APIException {
+		init();
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		TestingContextInitializer.deInit();
 	}
 
 	@Test
