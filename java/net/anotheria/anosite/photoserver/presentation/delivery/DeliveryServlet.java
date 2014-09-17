@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Servlet for delivering photos by request.
@@ -74,7 +76,14 @@ public class DeliveryServlet extends BaseServlet {
      * Parameter name for source.
      */
     private static final String PARAM_SOURCE= "s";
-
+	/**
+	 * Pattern for single size parameter - number.
+	 */
+	private static Pattern sizePattern = Pattern.compile("\\d+|-1");
+	/**
+	 * Pattern for bounding area sizes - two numbers comma separated.
+	 */
+	private static Pattern boundingAreaPattern = Pattern.compile("(\\d+),(\\d+)|-1");
 	// APIs
 	/**
 	 * {@link AccessAPI} instance.
@@ -148,20 +157,21 @@ public class DeliveryServlet extends BaseServlet {
 			return;
 		}
 
-		int size = -1;
+		final ModifyPhotoSettings modifyPhotoSettings = new ModifyPhotoSettings();
+
 		// getting size for requested photo
 		if (params.length > 1) {
-			try {
-				size = Integer.parseInt(params[1]);
-			} catch (NumberFormatException nfe) {
+			boolean sizeDataValid = buildSizeParametersAndValidate(modifyPhotoSettings, params[1]);
+			if(!sizeDataValid){
 				String message = "Wrong size[" + params[1] + "] parameter.";
 				LOGGER.info("doGet(req, resp) fail. " + message);
 
 				responseSetNotFound(resp);
 				return;
 			}
+
 			// check is requested size is allowed
-			if (!photoAPIConfig.isIgnoreAllowedSizes() && !photoAPIConfig.isAllowedSize(size)) {
+			if (!photoAPIConfig.isIgnoreAllowedSizes() && !photoAPIConfig.isAllowedSize(modifyPhotoSettings.getSize()) ) {
 				LOGGER.info("doGet(req, resp) fail. " + "Requested size[" + params[1] + "] not allowed.");
 				responseSetNotFound(resp);
 				return;
@@ -192,7 +202,7 @@ public class DeliveryServlet extends BaseServlet {
         }
 
 		boolean cropped = req.getParameter(PARAM_PREVIEW) != null;
-		boolean resized = size != -1;
+		boolean resized = modifyPhotoSettings.isResized();
 		boolean blurred = req.getParameter(PARAM_BLUR) != null || photo.isBlurred();
 
         Map<AccessParameter, String> optionalParameters = new HashMap<AccessParameter, String>();
@@ -239,7 +249,16 @@ public class DeliveryServlet extends BaseServlet {
 			// preparing cached photo postfix
 			String cachedFile = photo.getFilePath();
 			cachedFile += cropped ? "_c_t" + croppingType : "";
-			cachedFile += resized ? "_s" + size : "";
+			if (resized) {
+				switch (modifyPhotoSettings.getResizeType()) {
+					case SIZE:
+						cachedFile += "_s" + modifyPhotoSettings.getSize();
+						break;
+					case BOUNDING_AREA:
+						cachedFile += "_ba" + modifyPhotoSettings.getBoundaryWidth() + "_" + modifyPhotoSettings.getBoundaryHeight();
+						break;
+				}
+			}
 			cachedFile += blurred ? "_b" : "";
 
 			// checking cached photo and steaming it if exist
@@ -255,8 +274,12 @@ public class DeliveryServlet extends BaseServlet {
 				if (streamPhoto(cachedFile, resp))
 					return;
 
+				modifyPhotoSettings.setCropped(cropped);
+				modifyPhotoSettings.setBlurred(blurred);
+				modifyPhotoSettings.setCroppingType(CroppingType.valueOf(croppingType));
+
 				// modifying photo and storing to new photo file
-				modifyPhoto(photo.getFilePath(), cachedFile, cropped, photo.getPreviewSettings(), blurred, resized, size, croppingType);
+				modifyPhoto(photo.getFilePath(), cachedFile, photo.getPreviewSettings(), modifyPhotoSettings);
 			} finally {
 				lock.unlock();
 			}
@@ -293,28 +316,44 @@ public class DeliveryServlet extends BaseServlet {
 	}
 
 	/**
+	 * Validate incoming size data and populate photo settings holder with it.
+	 *
+	 * @param modifyPhotoSettings {@link ModifyPhotoSettings}
+	 * @param params              size data - single number or two comma separated numbers
+	 * @return {@code true} - if incoming size data is valid, {@code false} - otherwise
+	 */
+	private boolean buildSizeParametersAndValidate(final ModifyPhotoSettings modifyPhotoSettings, final String params) {
+		if (StringUtils.isEmpty(params))
+			return false;
+
+		Matcher m = sizePattern.matcher(params);
+		if (m.matches()) {
+			modifyPhotoSettings.setSize(Integer.valueOf(params));
+			modifyPhotoSettings.setResizeType(ResizeType.SIZE);
+			return true;
+		}
+
+		m = boundingAreaPattern.matcher(params);
+		if (m.matches()) {
+			modifyPhotoSettings.setBoundaryWidth(Integer.valueOf(m.group(1)));
+			modifyPhotoSettings.setBoundaryHeight(Integer.valueOf(m.group(2)));
+			modifyPhotoSettings.setResizeType(ResizeType.BOUNDING_AREA);
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Modify photo with some settings and store it to some file.
 	 *
-	 * @param photoPath
-	 * 		- full photo file path
-	 * @param resultPhotoPath
-	 * 		- full result photo file path
-	 * @param croped
-	 * 		- is need crop
-	 * @param pvSettings
-	 * 		- crop settings
-	 * @param blurred
-	 * 		- is blur
-	 * @param resized
-	 * 		- is resize
-	 * @param size
-	 * 		- size
-     * 	@param croppingType
-     * 		- value of {@link CroppingType} enum
-	 * @throws java.io.IOException
+	 * @param photoPath  full photo file path
+	 * @param resultPhotoPath  full result photo file path
+	 * @param pvSettings crop settings
+	 * @param modifyPhotoSettings {@link ModifyPhotoSettings}
+	 * @throws java.io.IOException on errors
 	 */
-	private void modifyPhoto(final String photoPath, final String resultPhotoPath, final boolean croped, final PreviewSettingsVO pvSettings,
-							 final boolean blurred, final boolean resized, final int size, final int croppingType) throws IOException {
+	private void modifyPhoto(final String photoPath, final String resultPhotoPath, final PreviewSettingsVO pvSettings, final ModifyPhotoSettings modifyPhotoSettings) throws IOException {
 		debug("Changing original photo: " + photoPath);
 
 		// read photo file
@@ -322,7 +361,7 @@ public class DeliveryServlet extends BaseServlet {
 		putil.read(new File(photoPath));
 
 		// if preview param is present we have to crop image first
-		if (croped) {
+		if (modifyPhotoSettings.isCropped()) {
 			PhotoDimension move = new PhotoDimension(pvSettings.getX(), pvSettings.getY());
 			PhotoDimension crop = new PhotoDimension(pvSettings.getWidth(), pvSettings.getHeight());
 			PhotoDimension originalDimension = new PhotoDimension(putil.getWidth(), putil.getHeight());
@@ -347,40 +386,51 @@ public class DeliveryServlet extends BaseServlet {
 		}
 
 		// scale photo if needed
-		if (resized){
-            int height = putil.getHeight();
-            int width = putil.getWidth();
+		if (modifyPhotoSettings.isResized()) {
+			int height = putil.getHeight();
+			int width = putil.getWidth();
 
-            switch (CroppingType.valueOf(croppingType)){
-                case HEIGHT:
-                    putil.scale((int)((double)size/height*width), size);
-                    break;
-                case NATURAL_HEIGHT:
-                    height = height<size?height:size;
-                    width = (int)((double)height/putil.getHeight()*width);
+			switch (modifyPhotoSettings.getResizeType()) {
+				// scale by size
+				case SIZE:
+					int size = modifyPhotoSettings.getSize();
+					switch (modifyPhotoSettings.getCroppingType()) {
+						case HEIGHT:
+							putil.scale((int) ((double) size / height * width), size);
+							break;
+						case NATURAL_HEIGHT:
+							height = height < size ? height : size;
+							width = (int) ((double) height / putil.getHeight() * width);
 
-                    putil.scale(width, height);
-                    break;
-                case WIDTH:
-                    putil.scale(size,(int)((double)size/width*height));
-                    break;
-                case NATURAL_WIDTH:
-                    width = width<size?width:size;
-                    height = (int)((double)width/putil.getWidth()*height);
+							putil.scale(width, height);
+							break;
+						case WIDTH:
+							putil.scale(size, (int) ((double) size / width * height));
+							break;
+						case NATURAL_WIDTH:
+							width = width < size ? width : size;
+							height = (int) ((double) width / putil.getWidth() * height);
 
-                    putil.scale(width, height);
-                    break;
-                case BOTH:
-                    putil.scale(size);
-                    break;
-                case NATURAL_BOTH:
-                    if(width>size&&height>size)
-                        putil.scale(size);
-            }
+							putil.scale(width, height);
+							break;
+						case BOTH:
+							putil.scale(size);
+							break;
+						case NATURAL_BOTH:
+							if (width > size && height > size)
+								putil.scale(size);
+							break;
+					}
+					break;
+				// scale along the bounding area
+				case BOUNDING_AREA:
+					scaleAlongBoundary(putil, width, height, modifyPhotoSettings.getBoundaryWidth(), modifyPhotoSettings.getBoundaryHeight());
+					break;
+			}
         }
 
 		// if blur param is present or photo should be blurred for user we have to blur image
-		if (blurred)
+		if (modifyPhotoSettings.isBlurred())
 			putil.blur();
 
 
@@ -388,6 +438,34 @@ public class DeliveryServlet extends BaseServlet {
 		debug("Storing changed photo: " + resultPhotoPath);
 		File cachedPhoto = new File(resultPhotoPath);
 		putil.write(photoAPIConfig.getJpegQuality(), cachedPhoto);
+	}
+
+	/**
+	 * Scale width and height of the original image along the incoming width and height of the bounding area .
+	 *
+	 * @param photoUtil      {@link PhotoUtil}
+	 * @param width          original image width
+	 * @param height         original image height
+	 * @param boundaryWidth  width of the bounding area
+	 * @param boundaryHeight height of the bounding area
+	 */
+	private void scaleAlongBoundary(final PhotoUtil photoUtil, int width, int height, int boundaryWidth, int boundaryHeight) {
+		double boundaryAspectRatio = (double) boundaryWidth / boundaryHeight;
+		double originalImageAspectRatio = (double) width / height;
+
+		if (boundaryAspectRatio < originalImageAspectRatio) {
+			photoUtil.scale(boundaryWidth, (int) ((double) boundaryWidth / width * height));
+			return;
+		}
+
+		if (boundaryAspectRatio > originalImageAspectRatio) {
+			photoUtil.scale((int) ((double) boundaryHeight / height * width), boundaryHeight);
+			return;
+		}
+
+		// case when aspect ratio is the same
+		int size = boundaryWidth >= boundaryHeight ? boundaryWidth : boundaryHeight;
+		photoUtil.scale(size);
 	}
 
 	/**
