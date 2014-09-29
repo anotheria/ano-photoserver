@@ -94,7 +94,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             AlbumBO album = storageService.getAlbum(albumId);
 
-            isAllowedToMe(AlbumAction.VIEW, albumId, album.getUserId(), null); // security check
+            isAllowedForAction(AlbumAction.VIEW, albumId, album.getUserId(), null); // security check
 
             album.setPhotosOrder(filterNotApproved(album.getUserId(), album.getId(), album.getPhotosOrder(), filtering)); // filtering not approved photos from
             // order
@@ -124,7 +124,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (StringUtils.isEmpty(userId))
             throw new IllegalArgumentException("UserId is not valid");
 
-        isAllowedToMe(AlbumAction.VIEW, 0, userId, authorId); // security check
+        isAllowedForAction(AlbumAction.VIEW, 0, userId, authorId); // security check
 
         try {
             List<AlbumAO> result = new ArrayList<AlbumAO>();
@@ -161,7 +161,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             AlbumBO album = storageService.getDefaultAlbum(userId);
 
-            isAllowedToMe(AlbumAction.VIEW, album.getId(), album.getUserId(), authorId); // security check
+            isAllowedForAction(AlbumAction.VIEW, album.getId(), album.getUserId(), authorId); // security check
             album.setPhotosOrder(filterNotApproved(album.getUserId(), album.getId(), album.getPhotosOrder(), filtering)); // filtering not approved photos from
             // order
 
@@ -183,7 +183,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (album == null)
             throw new IllegalArgumentException("Null album");
 
-        isAllowedToMe(AlbumAction.CREATE, 0, album.getUserId(), authorId); // security check
+        isAllowedForAction(AlbumAction.CREATE, 0, album.getUserId(), authorId); // security check
 
         try {
             return new AlbumAO(storageService.createAlbum(new AlbumBO(album)));
@@ -204,7 +204,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (album == null)
             throw new IllegalArgumentException("Null album");
 
-        isAllowedToMe(AlbumAction.EDIT, album.getId(), album.getUserId(), authorId); // security check
+        isAllowedForAction(AlbumAction.EDIT, album.getId(), album.getUserId(), authorId); // security check
 
         try {
             return new AlbumAO(storageService.updateAlbum(new AlbumBO(album)));
@@ -224,7 +224,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     public AlbumAO removeAlbum(long albumId, String authorId) throws PhotoAPIException{
         AlbumAO result = getAlbum(albumId, PhotosFiltering.DISABLED);
 
-        isAllowedToMe(AlbumAction.EDIT, albumId, result.getUserId(), authorId); // security check
+        isAllowedForAction(AlbumAction.REMOVE_PHOTO, albumId, result.getUserId(), authorId); // security check
 
         try {
             return new AlbumAO(storageService.removeAlbum(albumId));
@@ -591,7 +591,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 	 * @param albumOwnerId - album owner id
 	 * @throws PhotoAPIException
 	 */
-	private void isAllowedToMe(AlbumAction albumAction, long albumId, String albumOwnerId, String authorId) throws PhotoAPIException {
+	private void isAllowedForAction(AlbumAction albumAction, long albumId, String albumOwnerId, String authorId) throws PhotoAPIException {
 		// TODO: fix this ugly method in future
 
 		boolean result = false;
@@ -602,6 +602,9 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 			case CREATE:
 				result = !StringUtils.isEmpty(authorId) || loginAPI.isLogedIn(); // logged in users can add albums
 				break;
+            case REMOVE_PHOTO:
+                result = albumOwnerId != null;
+                break;
 			default:
 				result = (!StringUtils.isEmpty(authorId )&& albumOwnerId != null && authorId.equals(albumOwnerId) || loginAPI.isLogedIn() && albumOwnerId != null && getMyUserId().equals(albumOwnerId)); // logged in users can do anything with own albums
 				break;
@@ -690,7 +693,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
 
         isAllowedToMe(PhotoAction.EDIT, photo.getId(), photo.getUserId(), photo.getUserId(), photo.getApprovalStatus()); // security check
-        isAllowedToMe(AlbumAction.EDIT, album.getId(), album.getUserId(), photo.getUserId()); // security check
+        isAllowedForAction(AlbumAction.EDIT, album.getId(), album.getUserId(), photo.getUserId()); // security check
 
         try {
             PhotoAO updatedPhoto = new PhotoAO(storageService.movePhoto(photoId, newAlbumId));
