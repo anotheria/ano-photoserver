@@ -1,21 +1,19 @@
 package net.anotheria.anosite.photoserver.presentation.upload;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.APIFinder;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPI;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploader;
 import net.anotheria.anosite.photoserver.presentation.shared.BaseServlet;
 import net.anotheria.util.StringUtils;
-
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * This is a generic fileupload servlet. You need to extend it and implement the getFileReceiver-Method in order to do whatever is neccessary with the uploaded
@@ -115,5 +113,11 @@ public class UploadServlet extends BaseServlet {
 
 		PhotoUploader uploader = photoUploadAPI.getMyPhotoUploader(uploadId);
 		uploader.doUpload(request);
+
+		// Response is empty. However, to prevent situations some browsers use default
+		// content type (application/octet-stream) and open save file dialog
+		// on this response.
+		response.setContentType("text/html");
+		response.setCharacterEncoding("UTF-8");
 	}
 }
