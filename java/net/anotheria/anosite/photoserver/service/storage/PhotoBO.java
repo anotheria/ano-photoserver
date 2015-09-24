@@ -39,6 +39,7 @@ public class PhotoBO extends PhotoVO implements Cloneable {
 		setModificationTime(photo.getModificationTime());
 		setPreviewSettings(new PreviewSettingsVO(photo.getPreviewSettings()));
 		setApprovalStatus(photo.getApprovalStatus());
+		setType(photo.getType());
 	}
 
 

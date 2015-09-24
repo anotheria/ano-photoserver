@@ -66,11 +66,17 @@ public class PhotoVO implements Serializable, Cloneable {
 	 * Preview settings.
 	 */
 	private PreviewSettingsVO previewSettings;
-	
+
 	/**
 	 * Photo approval status. WAITING_APPROVAL by default.
 	 */
 	private ApprovalStatus approvalStatus = ApprovalStatus.WAITING_APPROVAL;
+
+	/**
+	 * Type of the photo.
+	 * E.g. the cover photo or the profile photo.
+	 */
+	private String type;
 
 	public void setId(long id) {
 		this.id = id;
@@ -168,11 +174,31 @@ public class PhotoVO implements Serializable, Cloneable {
 	public ApprovalStatus getApprovalStatus() {
 		return approvalStatus;
 	}
-	
+
+	public String getType() {
+		return type != null ? type : "";
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	@Override
 	public String toString() {
-		return "PhotoVO [id=" + id + ", userId=" + userId + ", albumId=" + albumId + ", fileLocation=" + fileLocation + ", extension=" + extension + ", name="
-				+ name + ", description=" + description + ", modificationTime=" + modificationTime + ", previewSettings=" + previewSettings + ", approvalStatus=" + approvalStatus + "]";
+		return "PhotoVO[" +
+				"id=" + id +
+				", userId=" + userId +
+				", albumId=" + albumId +
+				", restricted=" + restricted +
+				", fileLocation=" + fileLocation +
+				", extension=" + extension +
+				", name=" + name +
+				", description='" + description + '\'' +
+				", modificationTime=" + modificationTime +
+				", previewSettings=" + previewSettings +
+				", approvalStatus=" + approvalStatus +
+				", type='" + type + '\'' +
+				']';
 	}
 
 	@Override

@@ -1,12 +1,5 @@
 package net.anotheria.anosite.photoserver.api.upload;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.APIFinder;
 import net.anotheria.anoplass.api.AbstractAPIImpl;
@@ -17,6 +10,13 @@ import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtil;
 import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
 import net.anotheria.util.IdCodeGenerator;
 import net.anotheria.util.StringUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 
@@ -93,7 +93,7 @@ public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAP
 	public TempPhotoVO rotatePhoto(TempPhotoVO photo, int n) throws APIException {
 		try {
 			TempPhotoVO result = new TempPhotoVO();
-			PhotoUtil photoUtil = new PhotoUtil();
+			PhotoUtil photoUtil = new PhotoUtil(photo.getPhotoType());
 			FileInputStream in = new FileInputStream(photo.getFile());
 
 			photoUtil.read(in);
@@ -104,8 +104,9 @@ public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAP
 			}
 			File output = File.createTempFile(TEMP_PHOTO_PREFIX, TEMP_PHOTO_SUFFIX, photo.getFile().getParentFile());
 			result.setDimension(new PhotoDimension(photoUtil.getWidth(), photoUtil.getHeight()));
-			photoUtil.write(uploadAPIConfig.getJpegQuality(), output);
+			photoUtil.write(uploadAPIConfig.resolvePhotoTypeConfig(photo.getPhotoType()).getJpegQuality(), output);
 			result.setFile(output);
+			result.setPhotoType(photo.getPhotoType());
 			return result;
 
 		} catch (IOException e) {

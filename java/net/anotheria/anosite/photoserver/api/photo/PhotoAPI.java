@@ -253,7 +253,7 @@ public interface PhotoAPI extends API {
 	 * @return {@link PhotoAO} created
 	 * @throws PhotoAPIException
 	 */
-	PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException;
+	PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, String type) throws PhotoAPIException;
 
 	/**
 	 * Create new photo in default album.
@@ -264,7 +264,7 @@ public interface PhotoAPI extends API {
 	 * @return {@link PhotoAO} created
 	 * @throws PhotoAPIException
 	 */
-	PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, boolean restricted) throws PhotoAPIException;
+	PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, boolean restricted, String type) throws PhotoAPIException;
 
 	/**
 	 * Create new photo.
@@ -273,10 +273,11 @@ public interface PhotoAPI extends API {
 	 * @param albumId		 - album id
 	 * @param tempFile		- temporary photo file
 	 * @param previewSettings - photo preview settings
+	 * @param type    photo type
 	 * @return {@link PhotoAO} created
 	 * @throws PhotoAPIException
 	 */
-	PhotoAO createPhoto(String userId, long albumId, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException;
+	PhotoAO createPhoto(String userId, long albumId, File tempFile, PreviewSettingsVO previewSettings, String type) throws PhotoAPIException;
 
 	/**
 	 * Create new photo.
@@ -286,10 +287,11 @@ public interface PhotoAPI extends API {
 	 * @param restricted    - if access for this photo will be restricted
 	 * @param tempFile		- temporary photo file
 	 * @param previewSettings - photo preview settings
+	 * @param type    photo type
 	 * @return {@link PhotoAO} created
 	 * @throws PhotoAPIException
 	 */
-	PhotoAO createPhoto(String userId, long albumId, boolean restricted, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException;
+	PhotoAO createPhoto(String userId, long albumId, boolean restricted, File tempFile, PreviewSettingsVO previewSettings, String type) throws PhotoAPIException;
 
 	/**
 	 * Update photo. ApprovalStatus is not updated by this method.

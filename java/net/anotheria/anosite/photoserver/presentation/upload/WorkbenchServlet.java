@@ -156,7 +156,7 @@ public class WorkbenchServlet extends BaseServlet {
 			if (StringUtils.isEmpty(userId))
 				throw new NoLoggedInUserException("No logged in user found");
 
-			PhotoAO createdPhoto = photoAPI.createPhoto(userId, rotatedPhoto.getFile(), previewSettings);
+			PhotoAO createdPhoto = photoAPI.createPhoto(userId, rotatedPhoto.getFile(), previewSettings, rotatedPhoto.getPhotoType());
 			resultJson.put("encodedPhotoId", createdPhoto.getEncodedId());
 			resultJson.put("status", "OK");
 

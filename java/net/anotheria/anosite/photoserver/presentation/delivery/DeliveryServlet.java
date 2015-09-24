@@ -8,6 +8,7 @@ import net.anotheria.anosite.photoserver.api.photo.PhotoAPI;
 import net.anotheria.anosite.photoserver.api.photo.PhotoAPIConfig;
 import net.anotheria.anosite.photoserver.api.photo.PhotoAPIException;
 import net.anotheria.anosite.photoserver.api.photo.PhotoNotFoundPhotoAPIException;
+import net.anotheria.anosite.photoserver.api.upload.PhotoTypeConfig;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig;
 import net.anotheria.anosite.photoserver.presentation.shared.BaseServlet;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoDimension;
@@ -279,7 +280,7 @@ public class DeliveryServlet extends BaseServlet {
 				modifyPhotoSettings.setCroppingType(CroppingType.valueOf(croppingType));
 
 				// modifying photo and storing to new photo file
-				modifyPhoto(photo.getFilePath(), cachedFile, photo.getPreviewSettings(), modifyPhotoSettings);
+				modifyPhoto(photo, cachedFile, photo.getPreviewSettings(), modifyPhotoSettings);
 			} finally {
 				lock.unlock();
 			}
@@ -347,18 +348,21 @@ public class DeliveryServlet extends BaseServlet {
 	/**
 	 * Modify photo with some settings and store it to some file.
 	 *
-	 * @param photoPath  full photo file path
+	 * @param photo {@link PhotoAO}
 	 * @param resultPhotoPath  full result photo file path
 	 * @param pvSettings crop settings
 	 * @param modifyPhotoSettings {@link ModifyPhotoSettings}
 	 * @throws java.io.IOException on errors
 	 */
-	private void modifyPhoto(final String photoPath, final String resultPhotoPath, final PreviewSettingsVO pvSettings, final ModifyPhotoSettings modifyPhotoSettings) throws IOException {
-		debug("Changing original photo: " + photoPath);
+	private void modifyPhoto(final PhotoAO photo, final String resultPhotoPath, final PreviewSettingsVO pvSettings, final ModifyPhotoSettings modifyPhotoSettings) throws IOException {
+		debug("Changing original photo: " + photo.getFilePath());
+
+
+		final PhotoTypeConfig photoTypeConfig = photoUploadAPIConfig.resolvePhotoTypeConfig(photo.getType());
 
 		// read photo file
-		PhotoUtil putil = new PhotoUtil();
-		putil.read(new File(photoPath));
+		PhotoUtil putil = new PhotoUtil(photo.getType());
+		putil.read(new File(photo.getFilePath()));
 
 		// if preview param is present we have to crop image first
 		if (modifyPhotoSettings.isCropped()) {
@@ -367,10 +371,10 @@ public class DeliveryServlet extends BaseServlet {
 			PhotoDimension originalDimension = new PhotoDimension(putil.getWidth(), putil.getHeight());
 			PhotoDimension workbenchDimension;
 			if (putil.getHeight() > putil.getWidth()) {
-				workbenchDimension = new PhotoDimension(photoUploadAPIConfig.getWorkbenchWidth() * putil.getWidth() / putil.getHeight(),
-						photoUploadAPIConfig.getWorkbenchWidth());
+				workbenchDimension = new PhotoDimension(photoTypeConfig.getWorkbenchWidth() * putil.getWidth() / putil.getHeight(),
+						photoTypeConfig.getWorkbenchWidth());
 			} else {
-				workbenchDimension = new PhotoDimension(photoUploadAPIConfig.getWorkbenchWidth(), photoUploadAPIConfig.getWorkbenchWidth() * putil.getHeight()
+				workbenchDimension = new PhotoDimension(photoTypeConfig.getWorkbenchWidth(), photoTypeConfig.getWorkbenchWidth() * putil.getHeight()
 						/ putil.getWidth());
 			}
 			PhotoDimension xy = move.getRelationTo(workbenchDimension, originalDimension);

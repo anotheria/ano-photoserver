@@ -41,17 +41,19 @@ public class PhotoWorkbench {
 
 		workbenchFile[rotation] = new File(photo.getFile().getParentFile(), photo.getFile().getName() + "-" + rotation + ".jpg");
 
+		final PhotoTypeConfig photoTypeConfig = uploadConfig.resolvePhotoTypeConfig(photo.getPhotoType());
+
 		if (rotation == 0) {
-			PhotoUtil photoUtil = new PhotoUtil();
+			PhotoUtil photoUtil = new PhotoUtil(photo.getPhotoType());
 			photoUtil.read(photo.getFile());
-			photoUtil.scale(uploadConfig.getWorkbenchWidth());
-			photoUtil.write(uploadConfig.getJpegQuality(), workbenchFile[rotation]);
+			photoUtil.scale(photoTypeConfig.getWorkbenchWidth());
+			photoUtil.write(photoTypeConfig.getJpegQuality(), workbenchFile[rotation]);
 		} else {
 			File prevRotatedFile = getWorkbenchFile(rotation - 1);
-			PhotoUtil photoUtil = new PhotoUtil();
+			PhotoUtil photoUtil = new PhotoUtil(photo.getPhotoType());
 			photoUtil.read(prevRotatedFile);
 			photoUtil.rotate();
-			photoUtil.write(uploadConfig.getJpegQuality(), workbenchFile[rotation]);
+			photoUtil.write(photoTypeConfig.getJpegQuality(), workbenchFile[rotation]);
 		}
 
 		return workbenchFile[rotation];

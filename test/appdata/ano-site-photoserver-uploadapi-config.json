@@ -1,0 +1,29 @@
+{
+    "imageWriteFormat": "JPEG",
+    "@photoTypes": [
+        {
+            "type": "privatePhoto",
+            "allowedMimeTypes": "image/jpeg",
+            "maxUploadFileSize": 2097152,
+            "workbenchWidth": 450,
+            "maxWidth": 1200,
+            "maxHeight": 800,
+            "minWidth": 100,
+            "minHeight": 50,
+            "allowTransparentBackground": "true",
+            "jpegQuality": 100
+        },
+        {
+            "type": "coverPhoto",
+            "allowedMimeTypes": "image/jpeg,image/png,image/gif,image/jpg",
+            "maxUploadFileSize": 6291456,
+            "workbenchWidth": 355,
+            "maxWidth": 2560,
+            "maxHeight": 1440,
+            "minWidth": 500,
+            "minHeight": 200,
+            "allowTransparentBackground": "false",
+            "jpegQuality": 90
+        }
+    ]
+}

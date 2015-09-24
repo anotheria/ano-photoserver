@@ -26,9 +26,24 @@ import java.util.Iterator;
  *
  */
 public class PhotoUtil {
-	
-	protected BufferedImage image;
-	
+	/**
+	 * Image container.
+	 */
+	private BufferedImage image;
+	/**
+	 * Type of the photo.
+	 */
+	private String photoType;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param photoType type of the photo
+	 */
+	public PhotoUtil(final String photoType) {
+		this.photoType = photoType;
+	}
+
 	/**
 	 * Crop a rectanguar area out of the original image. 
 	 * 
@@ -92,7 +107,7 @@ public class PhotoUtil {
 		File input = new File(filename);
 		read(input);
     }
-	
+
 	/**
 	 * Read image from an InputStream
 	 * @param in
@@ -143,7 +158,7 @@ public class PhotoUtil {
 		graphics.drawImage(scaledImage, 0, 0, null);
 		graphics.dispose();
 	}
-		
+
 	/**
 	 * Blur the image
 	 */
@@ -160,7 +175,7 @@ public class PhotoUtil {
 		graphics.drawImage(blurredImage, 0, 0, getSelectedBackground(), null);
 		graphics.dispose();	
 	}
-	
+
 	/**
 	 * Pixelize the image
 	 */
@@ -262,14 +277,13 @@ public class PhotoUtil {
 	 * @return {@link Color}
 	 */
 	private Color getSelectedBackground() {
-		boolean transparentBg = PhotoUploadAPIConfig.getInstance().isAllowTransparentBackground();
+		boolean transparentBg = PhotoUploadAPIConfig.getInstance().resolvePhotoTypeConfig(photoType).isAllowTransparentBackground();
 		return transparentBg ? null : Color.WHITE;
 	}
 	
 	public static void main(String[] args) throws IOException {
 		PhotoUploadAPIConfig.getInstance().setImageWriteFormat("png");
-		PhotoUploadAPIConfig.getInstance().setAllowTransparentBackground(true);
-		PhotoUtil photo = new PhotoUtil();
+		PhotoUtil photo = new PhotoUtil(null);
 		//photo.read("/home/oliver/Desktop/102702439_55cec15215.jpg");
 		photo.read("/Users/kapkan/Downloads/motorhead-band-vector-logo-400x400.png");
 		//photo.read("/home/oliver/Desktop/demo1.jpg");

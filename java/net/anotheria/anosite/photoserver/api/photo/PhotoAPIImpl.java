@@ -417,12 +417,12 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     }
 
     @Override
-    public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException {
-        return createPhoto(userId, tempFile, previewSettings, false);
+    public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, String type) throws PhotoAPIException {
+        return createPhoto(userId, tempFile, previewSettings, false, type);
     }
 
     @Override
-    public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, boolean restricted) throws PhotoAPIException {
+    public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, boolean restricted, String type) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
             throw new IllegalArgumentException("UserId is not valid");
         if (tempFile == null)
@@ -431,16 +431,16 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         isAllowedToMe(PhotoAction.ADD, 0, userId, userId, ApprovalStatus.DEFAULT); // security check
 
         long albumId = getDefaultAlbum(userId, PhotosFiltering.DISABLED).getId();
-        return createPhoto(userId, albumId, restricted, tempFile, previewSettings);
+        return createPhoto(userId, albumId, restricted, tempFile, previewSettings, type);
     }
 
     @Override
-    public PhotoAO createPhoto(String userId, long albumId, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException {
-        return createPhoto(userId, albumId, false, tempFile, previewSettings);
+    public PhotoAO createPhoto(String userId, long albumId, File tempFile, PreviewSettingsVO previewSettings, String type) throws PhotoAPIException {
+        return createPhoto(userId, albumId, false, tempFile, previewSettings, type);
     }
 
     @Override
-    public PhotoAO createPhoto(String userId, long albumId, boolean restricted, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException {
+    public PhotoAO createPhoto(String userId, long albumId, boolean restricted, File tempFile, PreviewSettingsVO previewSettings, String type) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
             throw new IllegalArgumentException("UserId is not valid");
         if (tempFile == null)
@@ -456,6 +456,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         photo.setRestricted(restricted);
         photo.setExtension(PhotoUploadAPIConfig.getInstance().getFilePrefix());
         photo.setPreviewSettings(previewSettings);
+		photo.setType(type);
+
         try {
             // creating photo
             photo = storageService.createPhoto(photo);
