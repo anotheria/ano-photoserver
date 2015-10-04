@@ -1,6 +1,5 @@
 package net.anotheria.anosite.photoserver.api.photo;
 
-import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.APIFinder;
 import net.anotheria.anoplass.api.APIInitException;
 import net.anotheria.anoplass.api.AbstractAPIImpl;
@@ -721,19 +720,11 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled())
             return photos;
 
-        List<PhotoAO> result = new ArrayList<PhotoAO>();
-        try {
-            for (PhotoAO photo : photos) {
-                if (loginAPI.isLogedIn() && loginAPI.getLogedUserId().equalsIgnoreCase(String.valueOf(photo.getUserId()))) {
-                    result.add(photo);
-                    continue;
-                }
-                if (filtering.allowedStatuses.contains(photo.getApprovalStatus()))
-                    result.add(photo);
-            }
-        } catch (APIException e) {
-            throw new PhotoAPIException("filterNotApproved(" + photos + ") fail.", e);
-        }
+		List<PhotoAO> result = new ArrayList<PhotoAO>();
+		for (PhotoAO photo : photos) {
+			if (filtering.allowedStatuses.contains(photo.getApprovalStatus()))
+				result.add(photo);
+		}
 
         return result;
     }
@@ -741,17 +732,10 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     private List<Long> filterNotApproved(String ownerId, long albumId, List<Long> photosIds, PhotosFiltering filtering) throws PhotoAPIException {
         if (StringUtils.isEmpty(ownerId))
             throw new IllegalArgumentException("ownerId is not valid");
-
         if (filtering == null)
             filtering = PhotosFiltering.DEFAULT;
         if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled())
             return photosIds;
-        try {
-            if (loginAPI.isLogedIn() && loginAPI.getLogedUserId().equalsIgnoreCase(ownerId))
-                return photosIds;
-        } catch (APIException e) {
-            throw new PhotoAPIException("filterNotApproved(" + albumId + ", " + photosIds + ") fail.", e);
-        }
 
         try {
             Map<Long, ApprovalStatus> approvalStatuses = storageService.getAlbumPhotosApprovalStatus(albumId);

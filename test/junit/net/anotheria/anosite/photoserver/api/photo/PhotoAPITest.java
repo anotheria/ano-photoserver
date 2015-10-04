@@ -354,6 +354,7 @@ public class PhotoAPITest {
         photoAPI = APIFinder.findAPI(PhotoAPI.class);
         try {
             PhotoAO photo = photoAPI.movePhoto(photoId, album2Id);
+			photoAPI.setApprovalStatus(photoId, ApprovalStatus.APPROVED);
             AlbumAO album1 = photoAPI.getAlbum(album1Id);
             AlbumAO album2 = photoAPI.getAlbum(album2Id);
             Assert.assertEquals(photo.getAlbumId(), album2Id);
