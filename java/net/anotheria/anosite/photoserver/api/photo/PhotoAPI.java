@@ -375,4 +375,11 @@ public interface PhotoAPI extends API {
      */
     PhotoAO movePhoto(long photoId, long newAlbumId) throws PhotoAPIException;
 
+	/**
+	 * Removes all user photos and albums.
+	 *
+	 * @param userId user account id.
+	 * @throws PhotoAPIException
+	 */
+	void removeAllPhotosAndAlbums(String userId) throws PhotoAPIException;
 }

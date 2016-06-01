@@ -714,6 +714,27 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    @Override
+    public void removeAllPhotosAndAlbums(String userId) throws PhotoAPIException {
+        //delete photos, related to user.
+        // NOTE: all users pins will be skipped
+        List<AlbumAO> albums = getAlbums(userId, PhotosFiltering.DISABLED);
+        for (AlbumAO album : albums) {
+
+            for (PhotoAO photoAO : getPhotos(album.getId(), PhotosFiltering.DISABLED, false))
+                try {
+                    removePhoto(userId, photoAO.getId());
+                } catch (PhotoAPIException e) {
+                    LOG.error(" Unable to remove photo[" + photoAO.getId() + "] for album[" + album.getId() + "] for user[" + userId + "]. Skipping.", e);
+                }
+            try {
+                removeAlbum(album.getId());
+            } catch (PhotoAPIException e) {
+                LOG.error("Unable to remove album with id=[" + album.getId() + "] for user[" + userId + "]. Skipping.", e);
+            }
+        }
+    }
+
     private List<PhotoAO> filterNotApproved(List<PhotoAO> photos, PhotosFiltering filtering) throws PhotoAPIException {
         if (filtering == null)
             filtering = PhotosFiltering.DEFAULT;
