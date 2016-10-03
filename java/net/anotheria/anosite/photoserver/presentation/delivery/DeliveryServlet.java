@@ -153,7 +153,7 @@ public class DeliveryServlet extends BaseServlet {
 			photoId = IdCrypter.decodeToLong(rawPhotoId); // decode encoded photo id
 		} catch (RuntimeException re) {
 			String message = "Wrong photo id[" + rawPhotoId + "] parameter.";
-			LOGGER.info("doGet(req, resp) fail. " + message);
+			LOGGER.info("doGet(req, resp) fail. " + message, re);
 			responseSetNotFound(resp);
 			return;
 		}
