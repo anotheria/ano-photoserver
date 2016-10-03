@@ -4,8 +4,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Enumeration holding all possible statuses related to photo/album approving or rejecting by responsible persons.
- * 
+ *
  * @author dzhmud
+ * @version $Id: $Id
  */
 public enum ApprovalStatus {
 
@@ -36,16 +37,27 @@ public enum ApprovalStatus {
 		this.code = code;
 	}
 
+	/**
+	 * <p>Getter for the field <code>code</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getCode() {
 		return code;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return this.name() + "(" + code + ")";
 	}
 
-	/** Get ApprovalStatus by its code. */
+	/**
+	 * Get ApprovalStatus by its code.
+	 *
+	 * @param code a int.
+	 * @return a {@link net.anotheria.anosite.photoserver.shared.ApprovalStatus} object.
+	 */
 	public static ApprovalStatus getStatusByCode(int code) {
 		for (ApprovalStatus status : values())
 			if (status.code == code)

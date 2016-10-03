@@ -19,21 +19,27 @@ import net.anotheria.util.IdCodeGenerator;
 import net.anotheria.util.StringUtils;
 
 /**
- * 
+ * <p>PhotoUploadAPIImpl class.</p>
+ *
  * @author otoense
- * 
+ * @version $Id: $Id
  */
 public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAPI {
 
+	/** Constant <code>ATTR_UPLOADER_REGISTRY="uploaderRegistry"</code> */
 	public static final String ATTR_UPLOADER_REGISTRY = "uploaderRegistry";
+	/** Constant <code>ATTR_WORKBENCH_REGISTRY="workbenchRegistry"</code> */
 	public static final String ATTR_WORKBENCH_REGISTRY = "workbenchRegistry";
 
+	/** Constant <code>TEMP_PHOTO_PREFIX="uploaded-"</code> */
 	public static final String TEMP_PHOTO_PREFIX = "uploaded-";
+	/** Constant <code>TEMP_PHOTO_SUFFIX=".jpg"</code> */
 	public static final String TEMP_PHOTO_SUFFIX = ".jpg";
 
 	private static final LoginAPI loginAPI = APIFinder.findAPI(LoginAPI.class);
 	private static final PhotoUploadAPIConfig uploadAPIConfig = PhotoUploadAPIConfig.getInstance();
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoWorkbench createMyPhotoWorkbench(TempPhotoVO photo) {
 		String workbenchId = IdCodeGenerator.generateCode(16);
@@ -42,16 +48,19 @@ public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAP
 		return workbench;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoWorkbench getMyPhotoWorkbench(String workbenchId) {
 		return getMyWorkbenchRegistry().get(workbenchId);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoUploader createMyPhotoUploader() throws APIException {
 		return createPhotoUploader(null);
 	}
 
+    /** {@inheritDoc} */
     @Override
     public PhotoUploader createPhotoUploader(final String userId) throws APIException{
         String uploaderId = IdCodeGenerator.generateCode(16);
@@ -64,6 +73,7 @@ public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAP
         return uploader;
     }
 
+    /** {@inheritDoc} */
     @Override
 	public PhotoUploader getMyPhotoUploader(String uploaderId) {
 		return getMyUploaderRegistry().get(uploaderId);
@@ -89,6 +99,7 @@ public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAP
 		return registry;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public TempPhotoVO rotatePhoto(TempPhotoVO photo, int n) throws APIException {
 		try {
@@ -113,6 +124,7 @@ public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAP
 		}
 	}
 
+    /** {@inheritDoc} */
     @Override
     public void finishWorkbench(final String workbenchId) {
         if (workbenchId == null || workbenchId.isEmpty())

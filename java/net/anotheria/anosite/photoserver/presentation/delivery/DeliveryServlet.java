@@ -35,6 +35,9 @@ import java.util.regex.Pattern;
 
 /**
  * Servlet for delivering photos by request.
+ *
+ * @author another
+ * @version $Id: $Id
  */
 public class DeliveryServlet extends BaseServlet {
 
@@ -132,6 +135,7 @@ public class DeliveryServlet extends BaseServlet {
 				LOGGER.debug(message);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String[] params = parsePathParameters(req);
@@ -487,6 +491,13 @@ public class DeliveryServlet extends BaseServlet {
 		return null;
 	}
 
+	/**
+	 * <p>getCookieByName.</p>
+	 *
+	 * @param req a {@link javax.servlet.http.HttpServletRequest} object.
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link javax.servlet.http.Cookie} object.
+	 */
 	public static Cookie getCookieByName(HttpServletRequest req, String name) {
 		Cookie result = null;
 		Cookie[] cookies = req.getCookies();
@@ -500,6 +511,13 @@ public class DeliveryServlet extends BaseServlet {
 		return result;
 	}
 
+	/**
+	 * <p>getCookieValue.</p>
+	 *
+	 * @param req a {@link javax.servlet.http.HttpServletRequest} object.
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getCookieValue(HttpServletRequest req, String name) {
 		Cookie cookie = getCookieByName(req, name);
 

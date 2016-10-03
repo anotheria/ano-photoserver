@@ -9,10 +9,12 @@ import org.configureme.annotations.ConfigureMe;
 import org.configureme.annotations.DontConfigure;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
+ *
  * Configuration bean of the PhotoServer storage.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 @ConfigureMe(name = "ano-site-photoserver-storage-config")
 public final class StorageConfig implements Serializable {
@@ -85,7 +87,7 @@ public final class StorageConfig implements Serializable {
 
 	/**
 	 * Get instance method.
-	 * 
+	 *
 	 * @return {@link net.anotheria.anosite.photoserver.service.storage.StorageConfig}
 	 */
 	public static synchronized StorageConfig getInstance() {
@@ -106,49 +108,99 @@ public final class StorageConfig implements Serializable {
 		}
 	}
 
+	/**
+	 * <p>Setter for the field <code>storageRoot</code>.</p>
+	 *
+	 * @param aStorageRoot a {@link java.lang.String} object.
+	 */
 	public void setStorageRoot(String aStorageRoot) {
 		this.storageRoot = aStorageRoot;
 	}
 
+	/**
+	 * <p>Getter for the field <code>storageRoot</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getStorageRoot() {
 		return storageRoot;
 	}
 
+	/**
+	 * <p>Setter for the field <code>tmpStorageRoot</code>.</p>
+	 *
+	 * @param tmpStorageRoot a {@link java.lang.String} object.
+	 */
 	public void setTmpStorageRoot(String tmpStorageRoot) {
 		this.tmpStorageRoot = tmpStorageRoot;
 	}
 
+	/**
+	 * <p>Getter for the field <code>tmpStorageRoot</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getTmpStorageRoot() {
 		return tmpStorageRoot;
 	}
 
+	/**
+	 * <p>Setter for the field <code>maxOwnerIdLength</code>.</p>
+	 *
+	 * @param maxOwnerIdLength a int.
+	 */
 	public void setMaxOwnerIdLength(int maxOwnerIdLength) {
 		this.maxOwnerIdLength = maxOwnerIdLength;
 	}
 
+	/**
+	 * <p>Getter for the field <code>maxOwnerIdLength</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getMaxOwnerIdLength() {
 		return maxOwnerIdLength;
 	}
 
+	/**
+	 * <p>Setter for the field <code>fragmentLegth</code>.</p>
+	 *
+	 * @param fragmentLegth a int.
+	 */
 	public void setFragmentLegth(int fragmentLegth) {
 		this.fragmentLegth = fragmentLegth;
 	}
 
+	/**
+	 * <p>Getter for the field <code>fragmentLegth</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getFragmentLegth() {
 		return fragmentLegth;
 	}
 
+	/**
+	 * <p>isReplaceSpecCharacters.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isReplaceSpecCharacters() {
 		return replaceSpecCharacters;
 	}
 
+	/**
+	 * <p>Setter for the field <code>replaceSpecCharacters</code>.</p>
+	 *
+	 * @param aReplaceSpecCharacters a boolean.
+	 */
 	public void setReplaceSpecCharacters(boolean aReplaceSpecCharacters) {
 		this.replaceSpecCharacters = aReplaceSpecCharacters;
 	}
 
 	/**
 	 * Return store folder path.
-	 * 
+	 *
 	 * @param ownerId
 	 *            - owner id
 	 * @return folder path
@@ -159,7 +211,7 @@ public final class StorageConfig implements Serializable {
 
 	/**
 	 * Return temporary store folder path.
-	 * 
+	 *
 	 * @param ownerId
 	 *            - owner id
 	 * @return folder path
@@ -261,6 +313,7 @@ public final class StorageConfig implements Serializable {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "StorageConfig [storageRoot=" + storageRoot + ", tmpStorageRoot=" + tmpStorageRoot + ", maxOwnerIdLength=" + maxOwnerIdLength

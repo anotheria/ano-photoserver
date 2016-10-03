@@ -4,8 +4,9 @@ import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
 
 /**
  * PhotoUpdated Event.
- * 
+ *
  * @author vkazhdan
+ * @version $Id: $Id
  */
 public class PhotoUpdatedEvent extends StorageServiceEvent {
 	/**
@@ -27,19 +28,31 @@ public class PhotoUpdatedEvent extends StorageServiceEvent {
 		this.newPhoto = newObject;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Operation getOperation() {
 		return Operation.UPDATE;
 	}
 
+	/**
+	 * <p>getUpdatedPhoto.</p>
+	 *
+	 * @return a {@link net.anotheria.anosite.photoserver.service.storage.PhotoBO} object.
+	 */
 	public PhotoBO getUpdatedPhoto() {
 		return newPhoto;
 	}
 
+	/**
+	 * <p>getOriginalPhoto.</p>
+	 *
+	 * @return a {@link net.anotheria.anosite.photoserver.service.storage.PhotoBO} object.
+	 */
 	public PhotoBO getOriginalPhoto() {
 		return oldPhoto;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String describePhotos() {
 		return oldPhoto.toString() + " -> " + newPhoto.toString();

@@ -4,6 +4,7 @@ package net.anotheria.anosite.photoserver.service.blur.persistence;
  * AlbumIsBlurred exception.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class AlbumIsBlurredPersistenceException extends BlurSettingsPersistenceServiceException {
 

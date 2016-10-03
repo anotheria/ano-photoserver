@@ -23,8 +23,9 @@ import static net.anotheria.anosite.photoserver.service.storage.persistence.Stor
 
 /**
  * Implementation of the StoragePersistenceService.
- * 
+ *
  * @author dzhmud
+ * @version $Id: $Id
  */
 public class StoragePersistenceServiceImpl extends GenericPersistenceService implements StoragePersistenceService {
 
@@ -45,22 +46,26 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		initialize();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected List<String> getDDL() {
 		return Arrays.asList(SQL_META_CREATE_TABLE, SQL_META_CREATE_OWNER_INDEX, SQL_META_CREATE_ALBUM_ID_INDEX, SQL_META_CREATE_STATUS_INDEX,
 				SQL_META_CREATE_MODIFICATION_TIME_INDEX, SQL_META_ADD_RIGHTS);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String getPKFieldName() {
 		return FIELD_NAME_ID;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String getTableName() {
 		return TABLE_NAME;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoBO createPhoto(final PhotoBO photoBO) throws StoragePersistenceServiceException {
 		Connection conn = null;
@@ -94,6 +99,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void deletePhoto(final long photoId) throws StoragePersistenceServiceException {
 		Connection conn = null;
@@ -117,6 +123,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoBO getPhoto(final long photoId) throws StoragePersistenceServiceException {
 		Connection conn = null;
@@ -142,6 +149,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void updatePhoto(final PhotoBO photo) throws StoragePersistenceServiceException {
 		Connection conn = null;
@@ -167,6 +175,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getUserPhotos(final String userId, final long albumId) throws StoragePersistenceServiceException {
 		Connection conn = null;
@@ -195,6 +204,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getAllUserPhotos(String userId) throws StoragePersistenceServiceException {
 		Connection conn = null;
@@ -222,6 +232,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getUserPhotos(String userId, List<Long> photoIDs) throws StoragePersistenceServiceException {
 		if (photoIDs == null)
@@ -254,6 +265,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getPhotosWithStatus(int amount, ApprovalStatus status) throws StoragePersistenceServiceException {
 		if (status == null)
@@ -287,6 +299,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getPhotosWithStatusCount(ApprovalStatus status) throws StoragePersistenceServiceException {
 		if (status == null)
@@ -313,6 +326,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void updatePhotoApprovalStatuses(Map<Long, ApprovalStatus> statuses) throws StoragePersistenceServiceException {
 		Connection conn = null;
@@ -351,6 +365,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Map<Long, ApprovalStatus> getAlbumPhotosApprovalStatus(long albumId) throws StoragePersistenceServiceException {
 		Connection conn = null;
@@ -378,6 +393,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void movePhoto(long photoId, long newAlbumId, long modificationTime) throws StoragePersistenceServiceException {
 		Connection conn = null;

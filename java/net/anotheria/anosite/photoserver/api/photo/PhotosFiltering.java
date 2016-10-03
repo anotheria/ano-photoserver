@@ -9,11 +9,12 @@ import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
 import net.anotheria.anosite.photoserver.shared.PhotoServerConfig;
 
 /**
- * Bean, containing additional photos filtering configuration. 
+ * Bean, containing additional photos filtering configuration.
  * Can be passed by PhotoAPI caller to control filtering photos by their ApprovalStatus.
- * If {@link PhotoServerConfig} is configured to ignore photo approving, this bean will be ignored. 
- * 
+ * If {@link net.anotheria.anosite.photoserver.shared.PhotoServerConfig} is configured to ignore photo approving, this bean will be ignored.
+ *
  * @author dzhmud
+ * @version $Id: $Id
  */
 public final class PhotosFiltering implements Serializable {
 	/**
@@ -44,8 +45,9 @@ public final class PhotosFiltering implements Serializable {
 	
 	/**
 	 * Public constructor.
-	 * @param enabled
-	 * @param allowedStatuses
+	 *
+	 * @param enabled a boolean.
+	 * @param allowedStatuses a {@link net.anotheria.anosite.photoserver.shared.ApprovalStatus} object.
 	 */
 	public PhotosFiltering(boolean enabled, ApprovalStatus... allowedStatuses) {
 		this.filteringEnabled = enabled;
@@ -64,6 +66,7 @@ public final class PhotosFiltering implements Serializable {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "PhotosFiltering [filteringEnabled=" + filteringEnabled

@@ -1,11 +1,5 @@
 package net.anotheria.anosite.photoserver.presentation.migration;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.APIFinder;
 import net.anotheria.anosite.photoserver.api.photo.AlbumAO;
@@ -19,37 +13,44 @@ import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 /**
  * This is a generic photo import servlet.
- * <p>{@link javax.servlet.http.HttpServletRequest} should contain such parameters.
+ * {@link javax.servlet.http.HttpServletRequest} should contain such parameters.
  * <ul>
  * <li>
- *   {@link String} pLink - link on photo location for loading by link (example: http://my.server.com/).
+ *   {@link java.lang.String} pLink - link on photo location for loading by link (example: http://my.server.com/).
  * </li>
  * <li>
- *   {@link String} userId - id of photo owner.
+ *   {@link java.lang.String} userId - id of photo owner.
  * </li>
  * <li>
- *   {@link Long} albumId - id of photo album, create new album if there aer no photo with such album.
+ *   {@link java.lang.Long} albumId - id of photo album, create new album if there aer no photo with such album.
  * </li>
  * <li>
- *   {@link String} albumName - name of photo album, create new album if there aer no photo with such album.
+ *   {@link java.lang.String} albumName - name of photo album, create new album if there aer no photo with such album.
  * </li>
  * <li>
- *   {@link JSONObject} previewSettings - photo preview settings, setting of photo cropping in JSON format (example {"x": 0, "y": 0, "width": 100, "height": 100}).
+ *   {@link org.json.JSONObject} previewSettings - photo preview settings, setting of photo cropping in JSON format (example {"x": 0, "y": 0, "width": 100, "height": 100}).
  * </li>
  * <li>
- *   {@link String} callback - callback method name.
+ *   {@link java.lang.String} callback - callback method name.
  * </li>
- * </ul></p>
+ * </ul>
  * Can get error in creating process that return in JSON answer in global error parameter.<br>
- * In success case Servlet returns JSON answer with {@link String }encodedPhotoId and {@link Long}photoId.
+ * In success case Servlet returns JSON answer with {@link java.lang.String}encodedPhotoId and {@link java.lang.Long}photoId.
  * <br>
  * Method GET use JSONP answer for cross domain call
  * <br>
  * Method POST use JSON answer
  *
  * @author rkapushchak
+ * @version $Id: $Id
  */
 public class ImportServlet extends BaseServlet {
 	/**
@@ -90,12 +91,14 @@ public class ImportServlet extends BaseServlet {
 	 */
 	private PhotoAPI photoAPI;
 
+	/** {@inheritDoc} */
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		photoUploadAPI = APIFinder.findAPI(PhotoUploadAPI.class);
 		photoAPI = APIFinder.findAPI(PhotoAPI.class);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
@@ -209,6 +212,7 @@ public class ImportServlet extends BaseServlet {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {

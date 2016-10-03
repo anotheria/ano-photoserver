@@ -5,8 +5,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Actions on album's.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public enum AlbumAction {
 
@@ -55,6 +56,12 @@ public enum AlbumAction {
 	 */
 	public static final AlbumAction DEFAULT = LIST;
 
+	/**
+	 * <p>getAction.</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link net.anotheria.anosite.photoserver.presentation.actions.AlbumAction} object.
+	 */
 	public static AlbumAction getAction(String name) {
 		for (AlbumAction action : AlbumAction.values())
 			if (action.name().equalsIgnoreCase(name))

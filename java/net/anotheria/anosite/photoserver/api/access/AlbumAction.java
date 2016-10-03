@@ -2,8 +2,9 @@ package net.anotheria.anosite.photoserver.api.access;
 
 /**
  * Action's on photo album for managing access.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public enum AlbumAction {
 

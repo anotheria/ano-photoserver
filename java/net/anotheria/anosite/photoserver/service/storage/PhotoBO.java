@@ -7,6 +7,7 @@ import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
  * User photo information.
  *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class PhotoBO extends PhotoVO implements Cloneable {
 
@@ -25,7 +26,7 @@ public class PhotoBO extends PhotoVO implements Cloneable {
 	/**
 	 * Constructor.
 	 *
-	 * @param photo {@link PhotoVO}
+	 * @param photo {@link net.anotheria.anosite.photoserver.shared.vo.PhotoVO}
 	 */
 	public PhotoBO(PhotoVO photo) {
 		super();
@@ -42,6 +43,7 @@ public class PhotoBO extends PhotoVO implements Cloneable {
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoBO clone() {
 		return PhotoBO.class.cast(super.clone());

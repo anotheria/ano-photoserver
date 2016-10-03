@@ -9,14 +9,17 @@ import java.util.Map;
  * Default access provider.
  *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class DefaultAccessProvider implements AccessProvider {
 
+	/** {@inheritDoc} */
 	@Override
 	public ViewAccessResponse isViewAllowed(final long photoId, final Map<AccessParameter, String> parameters) {
 		return DeliveryConfig.getInstance().getDefaultViewAccessResponse();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public ViewAccessResponse isViewAllowed(final PhotoVO photo, final Map<AccessParameter, String> parameters) {
 		return DeliveryConfig.getInstance().getDefaultViewAccessResponse();

@@ -6,8 +6,9 @@ import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
 
 /**
  * User photo information.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class PhotoAO extends PhotoVO {
 
@@ -29,7 +30,9 @@ public class PhotoAO extends PhotoVO {
 	}
 
 	/**
-	 * Public constructor. Creates new PhotoAO and fills it with information from PhotoVO. 
+	 * Public constructor. Creates new PhotoAO and fills it with information from PhotoVO.
+	 *
+	 * @param photo a {@link net.anotheria.anosite.photoserver.shared.vo.PhotoVO} object.
 	 */
 	public PhotoAO(PhotoVO photo) {
 		super();
@@ -48,21 +51,32 @@ public class PhotoAO extends PhotoVO {
 
 	/**
 	 * Method encodes ID for use in the frontend.
-	 * 
-	 * @return {@link String} encoded id
+	 *
+	 * @return {@link java.lang.String} encoded id
 	 */
 	public String getEncodedId() {
 		return IdCrypter.encode(getId());
 	}
 
+	/**
+	 * <p>isBlurred.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isBlurred() {
 		return isBlurred;
 	}
 
+	/**
+	 * <p>setBlurred.</p>
+	 *
+	 * @param aIsBlurred a boolean.
+	 */
 	public void setBlurred(boolean aIsBlurred) {
 		this.isBlurred = aIsBlurred;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "PhotoAO [getEncodedId()=" + getEncodedId() + ", isBlurred()=" + isBlurred() + ", toString()=" + super.toString() + "]";

@@ -1,9 +1,5 @@
 package net.anotheria.anosite.photoserver.service.blur.cache;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import net.anotheria.anoprise.cache.Cache;
 import net.anotheria.anoprise.cache.CacheProducerWrapper;
 import net.anotheria.anoprise.cache.Caches;
@@ -12,22 +8,25 @@ import net.anotheria.moskito.core.logging.DefaultStatsLogger;
 import net.anotheria.moskito.core.logging.IntervalStatsLogger;
 import net.anotheria.moskito.core.logging.SL4JLogOutput;
 import net.anotheria.moskito.core.stats.DefaultIntervals;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Cache for BlurSettingsService. Current Cache maps albumId to internal
  * {@link net.anotheria.anosite.photoserver.service.blur.cache.BlurSettingsCache.AlbumBlurSetting}, and represented by
- * {@link net.anotheria.anoprise.cache.RoundRobinHardwiredCache <Long, AlbumBlurSetting></>}. Inside - internal
+ * {@link net.anotheria.anoprise.cache.RoundRobinHardwiredCache}. Inside - internal
  * {@link net.anotheria.anosite.photoserver.service.blur.cache.BlurSettingsCache.AlbumBlurSetting} class - there is another mapping picture - to
  * {@link net.anotheria.anosite.photoserver.service.blur.cache.BlurSettingsCache.PictureBlurSetting}.
- * <p/>
- * {@link net.anotheria.anosite.photoserver.service.blur.cache.BlurSettingsCache.PictureBlurSetting } internally contains mapping for userId -
- * {@link BlurSettingBO}. Each cache update - will replace {@link BlurSettingBO} in selected hierarchy object. If some object does not exists in cache - it will
+ * {@link net.anotheria.anosite.photoserver.service.blur.cache.BlurSettingsCache.PictureBlurSetting} internally contains mapping for userId -
+ * {@link net.anotheria.anosite.photoserver.service.blur.BlurSettingBO}. Each cache update - will replace {@link net.anotheria.anosite.photoserver.service.blur.BlurSettingBO} in selected hierarchy object. If some object does not exists in cache - it will
  * be created on update operation. Etc.
- * 
+ *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class BlurSettingsCache {
 
@@ -63,7 +62,7 @@ public class BlurSettingsCache {
 
 	/**
 	 * Get instance method.
-	 * 
+	 *
 	 * @return {@link net.anotheria.anosite.photoserver.service.blur.cache.BlurSettingsCache}
 	 */
 	public static synchronized BlurSettingsCache getInstance() {
@@ -81,15 +80,15 @@ public class BlurSettingsCache {
 	}
 
 	/**
-	 * Return cached {@link BlurSettingBO} if such exists. Null otherwise.
-	 * 
+	 * Return cached {@link net.anotheria.anosite.photoserver.service.blur.BlurSettingBO} if such exists. Null otherwise.
+	 *
 	 * @param albumId
 	 *            id of album
 	 * @param pictureId
 	 *            id of picture
 	 * @param userId
 	 *            id of user
-	 * @return {@link BlurSettingBO} if exists
+	 * @return {@link net.anotheria.anosite.photoserver.service.blur.BlurSettingBO} if exists
 	 */
 	public BlurSettingBO getCachedSetting(long albumId, long pictureId, String userId) {
 		if (albumCache.get(albumId) == null)
@@ -100,7 +99,7 @@ public class BlurSettingsCache {
 
 	/**
 	 * Update cached value.
-	 * 
+	 *
 	 * @param albumId
 	 *            id of album
 	 * @param pictureId
@@ -108,7 +107,7 @@ public class BlurSettingsCache {
 	 * @param userId
 	 *            id of user
 	 * @param cacheableValue
-	 *            {@link BlurSettingBO}
+	 *            {@link net.anotheria.anosite.photoserver.service.blur.BlurSettingBO}
 	 */
 	public void updateCacheableItem(long albumId, long pictureId, String userId, BlurSettingBO cacheableValue) {
 		if (cacheableValue == null) {
@@ -130,7 +129,7 @@ public class BlurSettingsCache {
 
 	/**
 	 * Invalidating cached data for selected album.
-	 * 
+	 *
 	 * @param albumId
 	 *            id of album
 	 */
@@ -140,7 +139,7 @@ public class BlurSettingsCache {
 
 	/**
 	 * Remove picture cached data.
-	 * 
+	 *
 	 * @param albumId
 	 *            id of album
 	 * @param pictureId

@@ -6,8 +6,9 @@ import java.util.List;
 
 /**
  * Album meta information.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class AlbumVO implements Serializable, Cloneable {
 
@@ -47,46 +48,101 @@ public class AlbumVO implements Serializable, Cloneable {
 	 */
 	private List<Long> photosOrder = new ArrayList<Long>();
 
+	/**
+	 * <p>Getter for the field <code>id</code>.</p>
+	 *
+	 * @return a long.
+	 */
 	public long getId() {
 		return id;
 	}
 
+	/**
+	 * <p>Setter for the field <code>id</code>.</p>
+	 *
+	 * @param aId a long.
+	 */
 	public void setId(long aId) {
 		this.id = aId;
 	}
 
+	/**
+	 * <p>Getter for the field <code>userId</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getUserId() {
 		return userId;
 	}
 
+	/**
+	 * <p>Setter for the field <code>userId</code>.</p>
+	 *
+	 * @param aUserId a {@link java.lang.String} object.
+	 */
 	public void setUserId(String aUserId) {
 		this.userId = aUserId;
 	}
 
+	/**
+	 * <p>isDefault.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isDefault() {
 		return isDefault;
 	}
 
+	/**
+	 * <p>setDefault.</p>
+	 *
+	 * @param aIsDefault a boolean.
+	 */
 	public void setDefault(boolean aIsDefault) {
 		this.isDefault = aIsDefault;
 	}
 
+	/**
+	 * <p>Getter for the field <code>name</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getName() {
 		return name != null ? name : "";
 	}
 
+	/**
+	 * <p>Setter for the field <code>name</code>.</p>
+	 *
+	 * @param aName a {@link java.lang.String} object.
+	 */
 	public void setName(String aName) {
 		this.name = aName;
 	}
 
+	/**
+	 * <p>Setter for the field <code>description</code>.</p>
+	 *
+	 * @param aDescription a {@link java.lang.String} object.
+	 */
 	public void setDescription(String aDescription) {
 		this.description = aDescription;
 	}
 
+	/**
+	 * <p>Getter for the field <code>description</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getDescription() {
 		return description != null ? description : "";
 	}
 
+	/**
+	 * <p>Setter for the field <code>photosOrder</code>.</p>
+	 *
+	 * @param aPhotosOrder a {@link java.util.List} object.
+	 */
 	public void setPhotosOrder(List<Long> aPhotosOrder) {
 		if (aPhotosOrder == null)
 			throw new IllegalArgumentException("Null photos argument.");
@@ -94,18 +150,38 @@ public class AlbumVO implements Serializable, Cloneable {
 		this.photosOrder = aPhotosOrder;
 	}
 
+	/**
+	 * <p>Getter for the field <code>photosOrder</code>.</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<Long> getPhotosOrder() {
 		return new ArrayList<Long>(photosOrder);
 	}
 
+	/**
+	 * <p>getPhotosCount.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getPhotosCount() {
 		return photosOrder.size();
 	}
 
+	/**
+	 * <p>addPhotoToPhotoOrder.</p>
+	 *
+	 * @param photoId a long.
+	 */
 	public void addPhotoToPhotoOrder(long photoId) {
 		photosOrder.add(photoId);
 	}
 
+	/**
+	 * <p>removePhotofromPhotoOrder.</p>
+	 *
+	 * @param photoId a long.
+	 */
 	public void removePhotofromPhotoOrder(long photoId) {
 		List<Long> newOrder = new ArrayList<Long>();
 		for (Long photo : photosOrder)
@@ -115,12 +191,14 @@ public class AlbumVO implements Serializable, Cloneable {
 		this.photosOrder = newOrder;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "AlbumVO [id=" + id + ", userId=" + userId + ", isDefault=" + isDefault + ", name=" + name + ", description=" + description + ", photosOrder="
 				+ photosOrder + "]";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -129,6 +207,7 @@ public class AlbumVO implements Serializable, Cloneable {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -143,6 +222,7 @@ public class AlbumVO implements Serializable, Cloneable {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Object clone() {
 		try {

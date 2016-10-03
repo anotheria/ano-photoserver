@@ -4,6 +4,7 @@ package net.anotheria.anosite.photoserver.api.photo;
  * Exception which indicates that for some reason Default photo was not found.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class DefaultPhotoNotFoundAPIException extends PhotoAPIException {
 	/**

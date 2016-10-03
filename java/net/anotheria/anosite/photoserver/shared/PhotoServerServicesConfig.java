@@ -9,10 +9,12 @@ import org.configureme.annotations.DontConfigure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/***
+/**
+ *
  * Configuration of photo server tier services.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 @ConfigureMe(name = "ano-site-photoserver-services-config")
 public final class PhotoServerServicesConfig implements Serializable {
@@ -55,7 +57,7 @@ public final class PhotoServerServicesConfig implements Serializable {
 
 	/**
 	 * Get instance method.
-	 * 
+	 *
 	 * @return {@link net.anotheria.anosite.photoserver.shared.PhotoServerServicesConfig}
 	 */
 	public static synchronized PhotoServerServicesConfig getInstance() {
@@ -77,46 +79,97 @@ public final class PhotoServerServicesConfig implements Serializable {
 		}
 	}
 
+	/**
+	 * <p>isRemoteServices.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isRemoteServices() {
 		return remoteServices;
 	}
 
+	/**
+	 * <p>Setter for the field <code>remoteServices</code>.</p>
+	 *
+	 * @param remoteServices a boolean.
+	 */
 	public void setRemoteServices(boolean remoteServices) {
 		this.remoteServices = remoteServices;
 	}
 
+	/**
+	 * <p>isStorageServiceRemote.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isStorageServiceRemote() {
 		return storageServiceRemote;
 	}
 
+	/**
+	 * <p>Setter for the field <code>storageServiceRemote</code>.</p>
+	 *
+	 * @param storageServiceRemote a boolean.
+	 */
 	public void setStorageServiceRemote(boolean storageServiceRemote) {
 		this.storageServiceRemote = storageServiceRemote;
 	}
 
+	/**
+	 * <p>Getter for the field <code>storageServiceRemoteFactory</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getStorageServiceRemoteFactory() {
 		return storageServiceRemoteFactory;
 	}
 
+	/**
+	 * <p>Setter for the field <code>storageServiceRemoteFactory</code>.</p>
+	 *
+	 * @param storageServiceRemoteFactory a {@link java.lang.String} object.
+	 */
 	public void setStorageServiceRemoteFactory(String storageServiceRemoteFactory) {
 		this.storageServiceRemoteFactory = storageServiceRemoteFactory;
 	}
 
+	/**
+	 * <p>isBlurSettingsServiceRemote.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isBlurSettingsServiceRemote() {
 		return blurSettingsServiceRemote;
 	}
 
+	/**
+	 * <p>Setter for the field <code>blurSettingsServiceRemote</code>.</p>
+	 *
+	 * @param blurSettingsServiceRemote a boolean.
+	 */
 	public void setBlurSettingsServiceRemote(boolean blurSettingsServiceRemote) {
 		this.blurSettingsServiceRemote = blurSettingsServiceRemote;
 	}
 
+	/**
+	 * <p>Getter for the field <code>blurSettingsServiceRemoteFactory</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getBlurSettingsServiceRemoteFactory() {
 		return blurSettingsServiceRemoteFactory;
 	}
 
+	/**
+	 * <p>Setter for the field <code>blurSettingsServiceRemoteFactory</code>.</p>
+	 *
+	 * @param blurSettingsServiceRemoteFactory a {@link java.lang.String} object.
+	 */
 	public void setBlurSettingsServiceRemoteFactory(String blurSettingsServiceRemoteFactory) {
 		this.blurSettingsServiceRemoteFactory = blurSettingsServiceRemoteFactory;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

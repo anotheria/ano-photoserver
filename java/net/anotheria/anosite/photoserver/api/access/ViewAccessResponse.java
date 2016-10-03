@@ -4,6 +4,7 @@ package net.anotheria.anosite.photoserver.api.access;
  * View Access Response type.
  *
  * @author Alex Osadchy
+ * @version $Id: $Id
  */
 public enum ViewAccessResponse {
 

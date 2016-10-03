@@ -21,31 +21,34 @@ import java.awt.image.WritableRaster;
 
 /**
  * A Filter to pixellate images.
+ *
+ * @author another
+ * @version $Id: $Id
  */
 public class BlockFilter extends AbstractBufferedImageOp {
 	
 	private int blockSize = 2;
 
-    /**
-     * Construct a BlockFilter.
-     */
+	/**
+	 * Construct a BlockFilter.
+	 */
 	public BlockFilter() {
 	}
 
-    /**
-     * Construct a BlockFilter (block size can't be lowwer than 1, if block size come lowwer than one it set to default value).
+	/**
+	 * Construct a BlockFilter (block size can't be lowwer than 1, if block size come lowwer than one it set to default value).
+	 *
 	 * @param blockSize the number of pixels along each block edge
-     */
+	 */
 	public BlockFilter( int blockSize ) {
 		this.blockSize = blockSize <1?this.blockSize:blockSize;
 	}
 
 	/**
 	 * Set the pixel block size.
+	 *
 	 * @param blockSize the number of pixels along each block edge
-     * @min-value 1
-     * @max-value 100+
-     * @see #getBlockSize
+	 * @see #getBlockSize
 	 */
 	public void setBlockSize(int blockSize) {
 		this.blockSize = blockSize;
@@ -53,13 +56,15 @@ public class BlockFilter extends AbstractBufferedImageOp {
 
 	/**
 	 * Get the pixel block size.
+	 *
 	 * @return the number of pixels along each block edge
-     * @see #setBlockSize
+	 * @see #setBlockSize
 	 */
 	public int getBlockSize() {
 		return blockSize;
 	}
 
+    /** {@inheritDoc} */
     public BufferedImage filter( BufferedImage src, BufferedImage dst ) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -103,6 +108,11 @@ public class BlockFilter extends AbstractBufferedImageOp {
         return dst;
     }
 
+	/**
+	 * <p>toString.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String toString() {
 		return "Pixellate/Mosaic...";
 	}

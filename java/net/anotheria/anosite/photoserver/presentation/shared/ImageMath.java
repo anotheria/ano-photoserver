@@ -18,6 +18,9 @@ package net.anotheria.anosite.photoserver.presentation.shared;
 
 /**
  * A class containing static math methods useful for image processing.
+ *
+ * @author another
+ * @version $Id: $Id
  */
 public class ImageMath {
 
@@ -44,6 +47,7 @@ public class ImageMath {
 	/**
 	 * Apply a bias to a number in the unit interval, moving numbers towards 0 or 1
 	 * according to the bias parameter.
+	 *
 	 * @param a the number to bias
 	 * @param b the bias parameter. 0.5 means no change, smaller values bias towards 0, larger towards 1.
 	 * @return the output value
@@ -55,6 +59,7 @@ public class ImageMath {
 
 	/**
 	 * A variant of the gamma function.
+	 *
 	 * @param a the number to apply gain to
 	 * @param b the gain parameter. 0.5 means no change, smaller values reduce gain, larger values increase gain.
 	 * @return the output value
@@ -81,6 +86,7 @@ public class ImageMath {
 
 	/**
 	 * The step function. Returns 0 below a threshold, 1 above.
+	 *
 	 * @param a the threshold position
 	 * @param x the input parameter
 	 * @return the output value - 0 or 1
@@ -91,6 +97,7 @@ public class ImageMath {
 
 	/**
 	 * The pulse function. Returns 1 between two thresholds, 0 outside.
+	 *
 	 * @param a the lower threshold position
 	 * @param b the upper threshold position
 	 * @param x the input parameter
@@ -102,6 +109,7 @@ public class ImageMath {
 
 	/**
 	 * A smoothed pulse function. A cubic function is used to smooth the step between two thresholds.
+	 *
 	 * @param a1 the lower threshold position for the start of the pulse
 	 * @param a2 the upper threshold position for the start of the pulse
 	 * @param b1 the lower threshold position for the end of the pulse
@@ -124,6 +132,7 @@ public class ImageMath {
 
 	/**
 	 * A smoothed step function. A cubic function is used to smooth the step between two thresholds.
+	 *
 	 * @param a the lower threshold position
 	 * @param b the upper threshold position
 	 * @param x the input parameter
@@ -140,6 +149,7 @@ public class ImageMath {
 
 	/**
 	 * A "circle up" function. Returns y on a unit circle given 1-x. Useful for forming bevels.
+	 *
 	 * @param x the input parameter in the range 0..1
 	 * @return the output value
 	 */
@@ -150,6 +160,7 @@ public class ImageMath {
 
 	/**
 	 * A "circle down" function. Returns 1-y on a unit circle given x. Useful for forming bevels.
+	 *
 	 * @param x the input parameter in the range 0..1
 	 * @return the output value
 	 */
@@ -159,6 +170,7 @@ public class ImageMath {
 
 	/**
 	 * Clamp a value to an interval.
+	 *
 	 * @param a the lower clamp threshold
 	 * @param b the upper clamp threshold
 	 * @param x the input parameter
@@ -170,6 +182,7 @@ public class ImageMath {
 
 	/**
 	 * Clamp a value to an interval.
+	 *
 	 * @param a the lower clamp threshold
 	 * @param b the upper clamp threshold
 	 * @param x the input parameter
@@ -181,6 +194,7 @@ public class ImageMath {
 
 	/**
 	 * Return a mod b. This differs from the % operator with respect to negative numbers.
+	 *
 	 * @param a the dividend
 	 * @param b the divisor
 	 * @return a mod b
@@ -196,6 +210,7 @@ public class ImageMath {
 
 	/**
 	 * Return a mod b. This differs from the % operator with respect to negative numbers.
+	 *
 	 * @param a the dividend
 	 * @param b the divisor
 	 * @return a mod b
@@ -211,6 +226,7 @@ public class ImageMath {
 
 	/**
 	 * Return a mod b. This differs from the % operator with respect to negative numbers.
+	 *
 	 * @param a the dividend
 	 * @param b the divisor
 	 * @return a mod b
@@ -226,6 +242,7 @@ public class ImageMath {
 
 	/**
 	 * The triangle function. Returns a repeating triangle shape in the range 0..1 with wavelength 1.0
+	 *
 	 * @param x the input parameter
 	 * @return the output value
 	 */
@@ -236,6 +253,7 @@ public class ImageMath {
 
 	/**
 	 * Linear interpolation.
+	 *
 	 * @param t the interpolation parameter
 	 * @param a the lower interpolation range
 	 * @param b the upper interpolation range
@@ -247,6 +265,7 @@ public class ImageMath {
 	
 	/**
 	 * Linear interpolation.
+	 *
 	 * @param t the interpolation parameter
 	 * @param a the lower interpolation range
 	 * @param b the upper interpolation range
@@ -258,6 +277,7 @@ public class ImageMath {
 
 	/**
 	 * Linear interpolation of ARGB values.
+	 *
 	 * @param t the interpolation parameter
 	 * @param rgb1 the lower interpolation range
 	 * @param rgb2 the upper interpolation range
@@ -281,10 +301,14 @@ public class ImageMath {
 
 	/**
 	 * Bilinear interpolation of ARGB values.
+	 *
 	 * @param x the X interpolation parameter 0..1
 	 * @param y the y interpolation parameter 0..1
-	 * @param rgb array of four ARGB values in the order NW, NE, SW, SE
 	 * @return the interpolated value
+	 * @param nw a int.
+	 * @param ne a int.
+	 * @param sw a int.
+	 * @param se a int.
 	 */
 	public static int bilinearInterpolate(float x, float y, int nw, int ne, int sw, int se) {
 		float m0, m1;
@@ -329,8 +353,9 @@ public class ImageMath {
 
 	/**
 	 * Return the NTSC gray level of an RGB value.
-	 * @param rgb1 the input pixel
+	 *
 	 * @return the gray level (0-255)
+	 * @param rgb a int.
 	 */
 	public static int brightnessNTSC(int rgb) {
 		int r = (rgb >> 16) & 0xff;
@@ -359,6 +384,7 @@ public class ImageMath {
 
 	/**
 	 * Compute a Catmull-Rom spline.
+	 *
 	 * @param x the input parameter
 	 * @param numKnots the number of knots in the spline
 	 * @param knots the array of knots
@@ -394,7 +420,9 @@ public class ImageMath {
 	
 	/**
 	 * Compute a Catmull-Rom spline, but with variable knot spacing.
+	 *
 	 * @param x the input parameter
+	 * @param xknots the array of knot x values
 	 * @param numKnots the number of knots in the spline
 	 * @param xknots the array of knot x values
 	 * @param yknots the array of knot y values
@@ -436,6 +464,7 @@ public class ImageMath {
 
 	/**
 	 * Compute a Catmull-Rom spline for RGB values.
+	 *
 	 * @param x the input parameter
 	 * @param numKnots the number of knots in the spline
 	 * @param knots the array of knots
@@ -482,7 +511,9 @@ public class ImageMath {
 
 	/**
 	 * Compute a Catmull-Rom spline for RGB values, but with variable knot spacing.
+	 *
 	 * @param x the input parameter
+	 * @param xknots the array of knot x values
 	 * @param numKnots the number of knots in the spline
 	 * @param xknots the array of knot x values
 	 * @param yknots the array of knot y values
@@ -535,6 +566,7 @@ public class ImageMath {
 
 	/**
 	 * An implementation of Fant's resampling algorithm.
+	 *
 	 * @param source the source pixels
 	 * @param dest the destination pixels
 	 * @param length the length of the scanline to resample
@@ -627,8 +659,12 @@ public class ImageMath {
 		}
 	}
 
-    /**
+	/**
 	 * Premultiply a block of pixels
+	 *
+	 * @param p an array of int.
+	 * @param offset a int.
+	 * @param length a int.
 	 */
 	public static void premultiply( int[] p, int offset, int length ) {
         length += offset;
@@ -646,8 +682,12 @@ public class ImageMath {
         }
     }
 
-    /**
+	/**
 	 * Premultiply a block of pixels
+	 *
+	 * @param p an array of int.
+	 * @param offset a int.
+	 * @param length a int.
 	 */
 	public static void unpremultiply( int[] p, int offset, int length ) {
         length += offset;

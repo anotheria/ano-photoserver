@@ -1,8 +1,10 @@
 package net.anotheria.anosite.photoserver.api.photo;
 
 /**
- * PhotoAPI exception which is thrown if requested photo not found.. 
+ * PhotoAPI exception which is thrown if requested photo not found..
+ *
  * @author dzhmud
+ * @version $Id: $Id
  */
 public class PhotoNotFoundPhotoAPIException extends PhotoAPIException {
 
@@ -13,6 +15,7 @@ public class PhotoNotFoundPhotoAPIException extends PhotoAPIException {
 	
 	/**
 	 * Public constructor.
+	 *
 	 * @param photoId - id of the photo that wasn't found
 	 */
 	public PhotoNotFoundPhotoAPIException(long photoId) {

@@ -6,6 +6,7 @@ import net.anotheria.anosite.photoserver.service.blur.persistence.PictureIsBlurr
  * PictureIsBlurred exception.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class PictureIsBlurredException extends BlurSettingsServiceException {
 

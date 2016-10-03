@@ -10,8 +10,9 @@ import java.util.Random;
 
 /**
  * Helper for encoding and decoding id's.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public final class IdCrypter {
 
@@ -62,10 +63,10 @@ public final class IdCrypter {
 
 	/**
 	 * Encode incoming long value.
-	 * 
+	 *
 	 * @param value
 	 *            - original value which should be encoded as long
-	 * @return {@link String} encoded id
+	 * @return {@link java.lang.String} encoded id
 	 */
 	public static String encode(long value) {
 		return encode(String.valueOf(value));
@@ -73,7 +74,7 @@ public final class IdCrypter {
 
 	/**
 	 * Encode incoming String value.
-	 * 
+	 *
 	 * @param value
 	 *            original value which should be encoded as String
 	 * @return encoded id
@@ -86,8 +87,8 @@ public final class IdCrypter {
 	}
 
 	/**
-	 * Decode incoming value to {@link String}.
-	 * 
+	 * Decode incoming value to {@link java.lang.String}.
+	 *
 	 * @param value
 	 *            value which should be decoded
 	 * @return string decoded result
@@ -131,8 +132,8 @@ public final class IdCrypter {
 	}
 
 	/**
-	 * Decode incoming value to {@link Long}.
-	 * 
+	 * Decode incoming value to {@link java.lang.Long}.
+	 *
 	 * @param value
 	 *            value which should be decoded
 	 * @return long decoded result

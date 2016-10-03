@@ -6,6 +6,7 @@ import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
  * PhotoStatusChangedEvent.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class PhotoStatusChangedEvent extends StorageServiceEvent {
 	/**
@@ -45,32 +46,55 @@ public class PhotoStatusChangedEvent extends StorageServiceEvent {
 		this.previousStatus = previous;
 	}
 
+	/**
+	 * <p>Getter for the field <code>ownerId</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getOwnerId() {
 		return ownerId;
 	}
 
+	/**
+	 * <p>Getter for the field <code>photoId</code>.</p>
+	 *
+	 * @return a long.
+	 */
 	public long getPhotoId() {
 		return photoId;
 	}
 
+	/**
+	 * <p>Getter for the field <code>updatedStatus</code>.</p>
+	 *
+	 * @return a {@link net.anotheria.anosite.photoserver.shared.ApprovalStatus} object.
+	 */
 	public ApprovalStatus getUpdatedStatus() {
 		return updatedStatus;
 	}
 
+	/**
+	 * <p>Getter for the field <code>previousStatus</code>.</p>
+	 *
+	 * @return a {@link net.anotheria.anosite.photoserver.shared.ApprovalStatus} object.
+	 */
 	public ApprovalStatus getPreviousStatus() {
 		return previousStatus;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Operation getOperation() {
 		return Operation.STATUS_CHANGED;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String describePhotos() {
 		return getOperation() + " -> " + this.toString();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "PhotoStatusChangedEvent{" +

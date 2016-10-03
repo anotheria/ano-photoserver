@@ -2,8 +2,9 @@ package net.anotheria.anosite.photoserver.service.storage;
 
 /**
  * Storage service exception for throwing if requested album not found.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class AlbumNotFoundServiceException extends StorageServiceException {
 
@@ -14,7 +15,7 @@ public class AlbumNotFoundServiceException extends StorageServiceException {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param albumId
 	 *            - album id
 	 */

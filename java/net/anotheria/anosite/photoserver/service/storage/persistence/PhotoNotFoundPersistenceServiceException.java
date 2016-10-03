@@ -2,8 +2,10 @@ package net.anotheria.anosite.photoserver.service.storage.persistence;
 
 /**
  * Exception indicating that photo was not found in persistence when trying to
- * operate with it by specifying explicit ID. 
+ * operate with it by specifying explicit ID.
+ *
  * @author dzhmud
+ * @version $Id: $Id
  */
 public class PhotoNotFoundPersistenceServiceException extends StoragePersistenceServiceException {
 
@@ -14,6 +16,7 @@ public class PhotoNotFoundPersistenceServiceException extends StoragePersistence
 
 	/**
 	 * Public constructor.
+	 *
 	 * @param photoId - ID of photo that was not found
 	 */
 	public PhotoNotFoundPersistenceServiceException(long photoId) {

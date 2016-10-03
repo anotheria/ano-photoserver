@@ -4,6 +4,7 @@ package net.anotheria.anosite.photoserver.api.access;
  * Access parameter.
  *
  * @author ivanbatura
+ * @version $Id: $Id
  */
 public enum AccessParameter {
     /**

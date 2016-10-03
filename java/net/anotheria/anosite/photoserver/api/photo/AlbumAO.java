@@ -5,8 +5,9 @@ import net.anotheria.anosite.photoserver.shared.vo.AlbumVO;
 
 /**
  * User photo album information.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class AlbumAO extends AlbumVO {
 
@@ -23,7 +24,9 @@ public class AlbumAO extends AlbumVO {
 	}
 
 	/**
-	 * Public constructor. Creates new AlbumAO and fills it with information from AlbumVO. 
+	 * Public constructor. Creates new AlbumAO and fills it with information from AlbumVO.
+	 *
+	 * @param albumVO a {@link net.anotheria.anosite.photoserver.shared.vo.AlbumVO} object.
 	 */
 	public AlbumAO(AlbumVO albumVO) {
 		super();
@@ -37,13 +40,14 @@ public class AlbumAO extends AlbumVO {
 
 	/**
 	 * Method encodes ID for use in the frontend.
-	 * 
-	 * @return {@link String} encoded id
+	 *
+	 * @return {@link java.lang.String} encoded id
 	 */
 	public String getEncodedId() {
 		return IdCrypter.encode(getId());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "AlbumAO [getEncodedId()=" + getEncodedId() + ", toString()=" + super.toString() + "]";

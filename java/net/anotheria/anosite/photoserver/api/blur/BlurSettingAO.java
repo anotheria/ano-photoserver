@@ -6,6 +6,7 @@ import net.anotheria.anosite.photoserver.shared.vo.BlurSettingVO;
  * BlurSettingAO.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class BlurSettingAO extends BlurSettingVO {
 	/**
@@ -16,7 +17,7 @@ public class BlurSettingAO extends BlurSettingVO {
 	/**
 	 * Constructor.
 	 *
-	 * @param pictureBlur {@link BlurSettingVO}
+	 * @param pictureBlur {@link net.anotheria.anosite.photoserver.shared.vo.BlurSettingVO}
 	 */
 	public BlurSettingAO(BlurSettingVO pictureBlur) {
 		setAlbumId(pictureBlur.getAlbumId());
@@ -37,6 +38,7 @@ public class BlurSettingAO extends BlurSettingVO {
 		super(aAlbumId, aPictureId, aUserId, aBlur);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "BlurSettingVO[" +

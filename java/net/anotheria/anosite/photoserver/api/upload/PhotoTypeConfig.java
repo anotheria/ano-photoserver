@@ -11,6 +11,7 @@ import java.io.Serializable;
  * Photo type is just a kind of photo, like the cover photo or the profile photo.
  *
  * @author Illya Bogatyrchuk
+ * @version $Id: $Id
  */
 public class PhotoTypeConfig implements Serializable {
 	/**
@@ -71,82 +72,182 @@ public class PhotoTypeConfig implements Serializable {
 	@Configure
 	private int minHeight = 0;
 
+	/**
+	 * <p>Getter for the field <code>type</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getType() {
 		return type;
 	}
 
+	/**
+	 * <p>Setter for the field <code>type</code>.</p>
+	 *
+	 * @param type a {@link java.lang.String} object.
+	 */
 	public void setType(String type) {
 		this.type = type;
 	}
 
+	/**
+	 * <p>Getter for the field <code>maxUploadFileSize</code>.</p>
+	 *
+	 * @return a long.
+	 */
 	public long getMaxUploadFileSize() {
 		return maxUploadFileSize;
 	}
 
+	/**
+	 * <p>Setter for the field <code>maxUploadFileSize</code>.</p>
+	 *
+	 * @param maxUploadFileSize a long.
+	 */
 	public void setMaxUploadFileSize(long maxUploadFileSize) {
 		this.maxUploadFileSize = maxUploadFileSize;
 	}
 
+	/**
+	 * <p>Getter for the field <code>maxWidth</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getMaxWidth() {
 		return maxWidth;
 	}
 
+	/**
+	 * <p>Setter for the field <code>maxWidth</code>.</p>
+	 *
+	 * @param maxWidth a int.
+	 */
 	public void setMaxWidth(int maxWidth) {
 		this.maxWidth = maxWidth;
 	}
 
+	/**
+	 * <p>Getter for the field <code>maxHeight</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getMaxHeight() {
 		return maxHeight;
 	}
 
+	/**
+	 * <p>Setter for the field <code>maxHeight</code>.</p>
+	 *
+	 * @param maxHeight a int.
+	 */
 	public void setMaxHeight(int maxHeight) {
 		this.maxHeight = maxHeight;
 	}
 
+	/**
+	 * <p>Getter for the field <code>workbenchWidth</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getWorkbenchWidth() {
 		return workbenchWidth;
 	}
 
+	/**
+	 * <p>Setter for the field <code>workbenchWidth</code>.</p>
+	 *
+	 * @param workbenchWidth a int.
+	 */
 	public void setWorkbenchWidth(int workbenchWidth) {
 		this.workbenchWidth = workbenchWidth;
 	}
 
+	/**
+	 * <p>Getter for the field <code>allowedMimeTypes</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getAllowedMimeTypes() {
 		return allowedMimeTypes;
 	}
 
+	/**
+	 * <p>Setter for the field <code>allowedMimeTypes</code>.</p>
+	 *
+	 * @param allowedMimeTypes a {@link java.lang.String} object.
+	 */
 	public void setAllowedMimeTypes(String allowedMimeTypes) {
 		this.allowedMimeTypes = allowedMimeTypes;
 	}
 
+	/**
+	 * <p>Getter for the field <code>jpegQuality</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getJpegQuality() {
 		return jpegQuality;
 	}
 
+	/**
+	 * <p>Setter for the field <code>jpegQuality</code>.</p>
+	 *
+	 * @param jpegQuality a int.
+	 */
 	public void setJpegQuality(int jpegQuality) {
 		this.jpegQuality = jpegQuality;
 	}
 
+	/**
+	 * <p>isAllowTransparentBackground.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isAllowTransparentBackground() {
 		return allowTransparentBackground;
 	}
 
+	/**
+	 * <p>Setter for the field <code>allowTransparentBackground</code>.</p>
+	 *
+	 * @param allowTransparentBackground a boolean.
+	 */
 	public void setAllowTransparentBackground(boolean allowTransparentBackground) {
 		this.allowTransparentBackground = allowTransparentBackground;
 	}
 
+	/**
+	 * <p>Getter for the field <code>minWidth</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getMinWidth() {
 		return minWidth;
 	}
 
+	/**
+	 * <p>Setter for the field <code>minWidth</code>.</p>
+	 *
+	 * @param minWidth a int.
+	 */
 	public void setMinWidth(int minWidth) {
 		this.minWidth = minWidth;
 	}
 
+	/**
+	 * <p>Getter for the field <code>minHeight</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getMinHeight() {
 		return minHeight;
 	}
 
+	/**
+	 * <p>Setter for the field <code>minHeight</code>.</p>
+	 *
+	 * @param minHeight a int.
+	 */
 	public void setMinHeight(int minHeight) {
 		this.minHeight = minHeight;
 	}
@@ -181,6 +282,7 @@ public class PhotoTypeConfig implements Serializable {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "PhotoTypeConfig{" +

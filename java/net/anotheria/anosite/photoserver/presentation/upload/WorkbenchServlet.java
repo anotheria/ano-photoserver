@@ -26,7 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>WorkbenchServlet class.</p>
+ *
  * @author otoense
+ * @version $Id: $Id
  */
 public class WorkbenchServlet extends BaseServlet {
 
@@ -71,6 +74,7 @@ public class WorkbenchServlet extends BaseServlet {
 	 */
 	public static final String PARAM_UPLOAD_USER_ID = "userId";
 
+	/** {@inheritDoc} */
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		photoUploadAPI = APIFinder.findAPI(PhotoUploadAPI.class);
@@ -78,6 +82,7 @@ public class WorkbenchServlet extends BaseServlet {
 		loginAPI = APIFinder.findAPI(LoginAPI.class);
 	}
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String workbenchId = request.getParameter(PARAM_WORKBENCHID);
@@ -103,6 +108,7 @@ public class WorkbenchServlet extends BaseServlet {
 		stream(response, workbench.getWorkbenchImage(rotation));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		JSONObject resultJson = new JSONObject();

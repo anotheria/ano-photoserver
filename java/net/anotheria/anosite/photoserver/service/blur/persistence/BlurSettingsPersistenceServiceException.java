@@ -4,6 +4,7 @@ package net.anotheria.anosite.photoserver.service.blur.persistence;
  * BlurSettingsPersistenceService exception.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class BlurSettingsPersistenceServiceException extends Exception {
 
@@ -25,7 +26,7 @@ public class BlurSettingsPersistenceServiceException extends Exception {
 	 * Constructor.
 	 *
 	 * @param message message cause
-	 * @param cause   {@link Throwable} reason
+	 * @param cause   {@link java.lang.Throwable} reason
 	 */
 	public BlurSettingsPersistenceServiceException(String message, Throwable cause) {
 		super(message, cause);

@@ -4,6 +4,7 @@ package net.anotheria.anosite.photoserver.service.storage;
  * Default photo not found exception.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class DefaultPhotoNotFoundServiceException extends StorageServiceException {
 	/**

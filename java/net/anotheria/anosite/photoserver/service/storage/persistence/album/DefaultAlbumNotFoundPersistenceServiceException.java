@@ -2,8 +2,9 @@ package net.anotheria.anosite.photoserver.service.storage.persistence.album;
 
 /**
  * Exception indicating that album was not found in persistence when trying to operate with it by specifying explicit ID.
- * 
+ *
  * @author dzhmud
+ * @version $Id: $Id
  */
 public class DefaultAlbumNotFoundPersistenceServiceException extends AlbumPersistenceServiceException {
 
@@ -14,9 +15,8 @@ public class DefaultAlbumNotFoundPersistenceServiceException extends AlbumPersis
 
 	/**
 	 * Default constructor.
-	 * 
-	 * @param userId
-	 *            = user id
+	 *
+	 * @param userId a {@link java.lang.String} object.
 	 */
 	protected DefaultAlbumNotFoundPersistenceServiceException(String userId) {
 		super("Album for User[" + userId + "] was not found.");

@@ -10,6 +10,7 @@ import java.io.Serializable;
  * Same situation with ALL_USERS_DEFAULT_CONSTANT.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class BlurSettingVO implements Serializable {
 	/**
@@ -70,39 +71,80 @@ public class BlurSettingVO implements Serializable {
 	}
 
 
+	/**
+	 * <p>Getter for the field <code>albumId</code>.</p>
+	 *
+	 * @return a long.
+	 */
 	public long getAlbumId() {
 		return albumId;
 	}
 
+	/**
+	 * <p>Setter for the field <code>albumId</code>.</p>
+	 *
+	 * @param aAlbumId a long.
+	 */
 	public void setAlbumId(long aAlbumId) {
 		this.albumId = aAlbumId;
 	}
 
+	/**
+	 * <p>Getter for the field <code>pictureId</code>.</p>
+	 *
+	 * @return a long.
+	 */
 	public long getPictureId() {
 		return pictureId;
 	}
 
+	/**
+	 * <p>Setter for the field <code>pictureId</code>.</p>
+	 *
+	 * @param aPictureId a long.
+	 */
 	public void setPictureId(long aPictureId) {
 		this.pictureId = aPictureId;
 	}
 
+	/**
+	 * <p>Getter for the field <code>userId</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getUserId() {
 		return userId;
 	}
 
+	/**
+	 * <p>Setter for the field <code>userId</code>.</p>
+	 *
+	 * @param aUserId a {@link java.lang.String} object.
+	 */
 	public void setUserId(String aUserId) {
 		this.userId = aUserId;
 	}
 
+	/**
+	 * <p>isBlurred.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isBlurred() {
 		return isBlurred;
 	}
 
+	/**
+	 * <p>setBlurred.</p>
+	 *
+	 * @param aIsBlurred a boolean.
+	 */
 	public void setBlurred(boolean aIsBlurred) {
 		this.isBlurred = aIsBlurred;
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "BlurSettingVO[" +
@@ -114,6 +156,7 @@ public class BlurSettingVO implements Serializable {
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -128,6 +171,7 @@ public class BlurSettingVO implements Serializable {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		int result = (int) (albumId ^ (albumId >>> 32));

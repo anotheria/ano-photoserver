@@ -1,9 +1,10 @@
 package net.anotheria.anosite.photoserver.api.photo;
 
 /**
- * Security {@link PhotoAPI} exception.
- * 
+ * Security {@link net.anotheria.anosite.photoserver.api.photo.PhotoAPI} exception.
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class NoAccessPhotoAPIException extends PhotoAPIException {
 
@@ -14,7 +15,7 @@ public class NoAccessPhotoAPIException extends PhotoAPIException {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param message
 	 *            exception message
 	 */

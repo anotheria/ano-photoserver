@@ -19,8 +19,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Utility for operating with photos on file system. All synchronizations based on file names.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public final class StorageUtil {
 
@@ -43,16 +44,16 @@ public final class StorageUtil {
 
 	/**
 	 * Write photo to file system persistence. Incoming input stream will be closed inside at and this operation.
-	 * 
+	 *
 	 * InputStream, photo and extension can't be null or empty.
-	 * 
+	 *
 	 * @param tempFile
 	 *            - {@link java.io.File} where uploaded photo is temporarily stored before storing it in real storage
 	 * @param photo
 	 *            - photo information
 	 * @param overwrite
 	 *            - <code>true</code> if we can overwrite or <code>false</code>
-	 * @throws StorageUtilException
+	 * @throws net.anotheria.anosite.photoserver.service.storage.StorageUtilException if any.
 	 */
 	public static void writePhoto(final File tempFile, final PhotoVO photo, final boolean overwrite) throws StorageUtilException {
 		if (tempFile == null)
@@ -107,11 +108,11 @@ public final class StorageUtil {
 	/**
 	 * Read photo from the file system. Don't forget close result {@link java.io.InputStream} after finishing work with it. Photo and extension can't be null or
 	 * empty.
-	 * 
+	 *
 	 * @param photo
 	 *            - photo information
 	 * @return {@link java.io.InputStream}
-	 * @throws StorageUtilException
+	 * @throws net.anotheria.anosite.photoserver.service.storage.StorageUtilException if any.
 	 */
 	public static InputStream getPhoto(final PhotoVO photo) throws StorageUtilException {
 		checkArguments(photo);
@@ -137,12 +138,12 @@ public final class StorageUtil {
 
 	/**
 	 * Remove photo file from the file system. Photo and extension can't be null or empty.
-	 * 
+	 *
 	 * @param photo
 	 *            - photo information
 	 * @param ignoreIfNotExist
 	 *            - ignoring if file not exist or throwing exception
-	 * @throws StorageUtilException
+	 * @throws net.anotheria.anosite.photoserver.service.storage.StorageUtilException if any.
 	 */
 	public static void removePhoto(final PhotoVO photo, final boolean ignoreIfNotExist) throws StorageUtilException {
 		checkArguments(photo);

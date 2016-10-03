@@ -2,8 +2,9 @@ package net.anotheria.anosite.photoserver.api.photo;
 
 /**
  * Exception for throwing if requested album not found.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class AlbumNotFoundPhotoAPIException extends PhotoAPIException {
 
@@ -15,7 +16,7 @@ public class AlbumNotFoundPhotoAPIException extends PhotoAPIException {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param albumId
 	 *            - album id
 	 */

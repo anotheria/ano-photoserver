@@ -2,8 +2,9 @@ package net.anotheria.anosite.photoserver.api.photo;
 
 /**
  * Exception for throwing if we try to remove album with photos..
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class AlbumWithPhotosPhotoAPIException extends PhotoAPIException {
 
@@ -14,7 +15,7 @@ public class AlbumWithPhotosPhotoAPIException extends PhotoAPIException {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param albumId
 	 *            - album id
 	 */

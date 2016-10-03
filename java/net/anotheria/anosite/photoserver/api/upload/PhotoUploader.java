@@ -28,6 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Encoder;
 
+/**
+ * <p>PhotoUploader class.</p>
+ *
+ * @author another
+ * @version $Id: $Id
+ */
 public class PhotoUploader implements ProgressListener {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PhotoUploader.class);
@@ -44,6 +50,12 @@ public class PhotoUploader implements ProgressListener {
 	private static final String PARAM_AUTH_PASSWORD = "authPassword";
 	private static final int CONNECTION_TIMEOUT = 5000; // millisecond
 
+	/**
+	 * <p>Constructor for PhotoUploader.</p>
+	 *
+	 * @param uploaderId a {@link java.lang.String} object.
+	 * @param userId a {@link java.lang.String} object.
+	 */
 	public PhotoUploader(String uploaderId, String userId) {
 		status = new UploadStatusAO(UploadStatusAO.STATUS_NOT_STARTED);
 		status.setId(uploaderId);
@@ -51,6 +63,11 @@ public class PhotoUploader implements ProgressListener {
 		this.userId = userId;
 	}
 
+	/**
+	 * <p>Getter for the field <code>id</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getId() {
 		return id;
 	}
@@ -59,15 +76,26 @@ public class PhotoUploader implements ProgressListener {
 	 * Gets status of upload (e.g. how many percent of the file is uploaded). If status is set to STATUS_FINISHED then additional infos like filetype, size and
 	 * original filename are set. Also the file can be stored using the InputStream provided.
 	 *
+	 * @return a {@link net.anotheria.anosite.photoserver.api.upload.UploadStatusAO} object.
 	 */
 	public UploadStatusAO getStatus() {
 		return status;
 	}
 
+	/**
+	 * <p>getUploadedPhoto.</p>
+	 *
+	 * @return a {@link net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO} object.
+	 */
 	public TempPhotoVO getUploadedPhoto() {
 		return photo;
 	}
 
+	/**
+	 * <p>doUpload.</p>
+	 *
+	 * @param request a {@link javax.servlet.http.HttpServletRequest} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public void doUpload(HttpServletRequest request) {
 		// Create a factory for disk-based file items
@@ -197,6 +225,7 @@ public class PhotoUploader implements ProgressListener {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void update(long bytesRead, long contentLength, int item) {
 		status.setProgress((int) (((float) bytesRead / (float) contentLength) * 100f));

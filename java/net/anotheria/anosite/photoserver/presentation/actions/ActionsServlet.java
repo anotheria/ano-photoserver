@@ -38,6 +38,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Servlet for managing photos, albums, etc.
+ *
+ * @author another
+ * @version $Id: $Id
  */
 public class ActionsServlet extends BaseServlet {
 
@@ -91,11 +94,13 @@ public class ActionsServlet extends BaseServlet {
 	 */
 	private static final String INTERNAL_SERVER_ERROR_MSG = "Internal server error";
 
+	/** {@inheritDoc} */
 	@Override
 	protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
 		doGet(req, resp);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
 		// checking and preventing anonymous access to servlet

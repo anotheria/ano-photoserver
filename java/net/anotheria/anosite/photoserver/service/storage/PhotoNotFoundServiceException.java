@@ -2,8 +2,9 @@ package net.anotheria.anosite.photoserver.service.storage;
 
 /**
  * Storage service exception for throwing if requested photo not found.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class PhotoNotFoundServiceException extends StorageServiceException {
 
@@ -14,7 +15,7 @@ public class PhotoNotFoundServiceException extends StorageServiceException {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param photoId
 	 *            - photo id
 	 */

@@ -29,8 +29,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * BlurSettingsAPI implementation.
- * 
+ *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettingsAPI {
 
@@ -53,6 +54,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 	 */
 	private PhotoAPI photoAPI;
 
+	/** {@inheritDoc} */
 	@Override
 	public void init() throws APIInitException {
 		super.init();
@@ -66,6 +68,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		photoAPI = APIFinder.findAPI(PhotoAPI.class);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Boolean readMyBlurSettings(long albumId, long pictureId) throws BlurSettingsAPIException {
 
@@ -76,6 +79,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		return map.get(pictureId) != null ? map.get(pictureId) : false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Map<Long, Boolean> readMyBlurSettings(long albumId, List<Long> pictureIds) throws BlurSettingsAPIException {
 
@@ -118,6 +122,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurAlbum(long albumId) throws BlurSettingsAPIException {
 		if (albumId <= 0)
@@ -138,6 +143,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurAlbum(long albumId, String userId) throws BlurSettingsAPIException {
 		if (albumId <= 0)
@@ -162,6 +168,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurPicture(long albumId, long pictureId, String userId) throws BlurSettingsAPIException {
 		if (albumId <= 0)
@@ -188,6 +195,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurPicture(long albumId, long pictureId) throws BlurSettingsAPIException {
 		if (albumId <= 0)
@@ -209,6 +217,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurAlbum(long albumId) throws BlurSettingsAPIException {
 		if (albumId <= 0)
@@ -227,6 +236,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurAlbum(long albumId, String userId) throws BlurSettingsAPIException {
 		if (albumId <= 0)
@@ -251,6 +261,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurPicture(long albumId, long pictureId, String userId) throws BlurSettingsAPIException {
 		if (albumId <= 0)
@@ -275,6 +286,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurPicture(long albumId, long pictureId) throws BlurSettingsAPIException {
 		if (albumId <= 0)
@@ -294,6 +306,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void removeBlurSettings(long albumId) throws BlurSettingsAPIException {
 		if (albumId <= 0)

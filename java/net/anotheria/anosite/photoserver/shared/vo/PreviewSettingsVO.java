@@ -4,8 +4,9 @@ import java.io.Serializable;
 
 /**
  * Setting's for generating preview image from photo.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class PreviewSettingsVO implements Serializable, Cloneable {
 
@@ -36,7 +37,7 @@ public class PreviewSettingsVO implements Serializable, Cloneable {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param settings
 	 *            - settings
 	 */
@@ -46,7 +47,7 @@ public class PreviewSettingsVO implements Serializable, Cloneable {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param aX
 	 *            - start by x
 	 * @param aY
@@ -60,7 +61,7 @@ public class PreviewSettingsVO implements Serializable, Cloneable {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param aX
 	 *            - start by x
 	 * @param aY
@@ -77,43 +78,85 @@ public class PreviewSettingsVO implements Serializable, Cloneable {
 		this.height = aHeight;
 	}
 
+	/**
+	 * <p>Getter for the field <code>x</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getX() {
 		return x;
 	}
 
+	/**
+	 * <p>Setter for the field <code>x</code>.</p>
+	 *
+	 * @param x a int.
+	 */
 	public void setX(int x) {
 		this.x = x;
 	}
 
+	/**
+	 * <p>Getter for the field <code>y</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getY() {
 		return y;
 	}
 
+	/**
+	 * <p>Setter for the field <code>y</code>.</p>
+	 *
+	 * @param y a int.
+	 */
 	public void setY(int y) {
 		this.y = y;
 	}
 
+	/**
+	 * <p>Getter for the field <code>width</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getWidth() {
 		return width;
 	}
 
+	/**
+	 * <p>Setter for the field <code>width</code>.</p>
+	 *
+	 * @param width a int.
+	 */
 	public void setWidth(int width) {
 		this.width = width;
 	}
 
+	/**
+	 * <p>Getter for the field <code>height</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getHeight() {
 		return height;
 	}
 
+	/**
+	 * <p>Setter for the field <code>height</code>.</p>
+	 *
+	 * @param height a int.
+	 */
 	public void setHeight(int height) {
 		this.height = height;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "PreviewSettingsVO [x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -125,6 +168,7 @@ public class PreviewSettingsVO implements Serializable, Cloneable {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -145,6 +189,7 @@ public class PreviewSettingsVO implements Serializable, Cloneable {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected Object clone() {
 		return new PreviewSettingsVO(this);

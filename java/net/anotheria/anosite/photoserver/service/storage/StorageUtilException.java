@@ -2,8 +2,9 @@ package net.anotheria.anosite.photoserver.service.storage;
 
 /**
  * Storage utility exception.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class StorageUtilException extends Exception {
 
@@ -14,7 +15,7 @@ public class StorageUtilException extends Exception {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param message
 	 *            - exception message
 	 */
@@ -24,7 +25,7 @@ public class StorageUtilException extends Exception {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param cause
 	 *            - exception cause
 	 */
@@ -34,8 +35,7 @@ public class StorageUtilException extends Exception {
 
 	/**
 	 * Public constructor.
-	 * 
-	 * 
+	 *
 	 * @param message
 	 *            - exception message
 	 * @param cause

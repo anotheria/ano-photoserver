@@ -29,9 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MarkerFactory;
 
 /**
- * {@link StorageService} implementation.
- * 
+ * {@link net.anotheria.anosite.photoserver.service.storage.StorageService} implementation.
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class StorageServiceImpl implements StorageService {
 
@@ -99,6 +100,7 @@ public class StorageServiceImpl implements StorageService {
 		configuration = PhotoServerConfig.getInstance();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AlbumBO getAlbum(final long albumId) throws StorageServiceException {
 		try {
@@ -119,6 +121,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<AlbumBO> getAlbums(final String userId) throws StorageServiceException {
 		try {
@@ -138,6 +141,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AlbumBO getDefaultAlbum(final String userId) throws StorageServiceException {
 		IdBasedLock lock = LOCK_MANAGER.obtainLock(userId + USER);
@@ -163,6 +167,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AlbumBO createAlbum(final AlbumBO album) throws StorageServiceException {
 		if (album == null)
@@ -199,6 +204,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AlbumBO updateAlbum(final AlbumBO album) throws StorageServiceException {
 		if (album == null)
@@ -221,6 +227,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AlbumBO removeAlbum(final long albumId) throws StorageServiceException {
 		AlbumBO albumToRemove = getAlbum(albumId);
@@ -245,6 +252,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoBO getPhoto(final long photoId) throws StorageServiceException {
 		try {
@@ -267,11 +275,13 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoBO getDefaultPhoto(String ownerId) throws StorageServiceException {
 		return getDefaultPhoto(getDefaultAlbum(ownerId));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoBO getDefaultPhoto(String userId, long albumId) throws StorageServiceException {
 		AlbumBO album = getAlbum(albumId);
@@ -282,6 +292,7 @@ public class StorageServiceImpl implements StorageService {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getPhotos(final String userId, final long albumId) throws StorageServiceException {
 		try {
@@ -303,6 +314,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getPhotos(final String userId, final List<Long> photoIDs) throws StorageServiceException {
 		if (photoIDs == null || photoIDs.isEmpty())
@@ -317,6 +329,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getWaitingApprovalPhotos(int photosAmount) throws StorageServiceException {
 		if (photosAmount < 0)
@@ -348,6 +361,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getWaitingApprovalPhotosCount() throws StorageServiceException {
 		try {
@@ -359,6 +373,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoBO createPhoto(final PhotoBO photo) throws StorageServiceException {
 		if (photo == null)
@@ -393,6 +408,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoBO updatePhoto(final PhotoBO photo) throws StorageServiceException {
 		if (photo == null)
@@ -423,6 +439,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public synchronized void updatePhotoApprovalStatuses(final Map<Long, ApprovalStatus> statuses) throws StorageServiceException {
 		if (statuses == null || statuses.isEmpty())
@@ -466,6 +483,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Map<Long, ApprovalStatus> getAlbumPhotosApprovalStatus(long albumId) throws StorageServiceException {
 		try {
@@ -490,6 +508,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void removePhoto(final long photoId) throws StorageServiceException {
 		IdBasedLock lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);
@@ -523,6 +542,7 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public PhotoBO movePhoto(long photoId, long newAlbumId) throws StorageServiceException {
 		IdBasedLock lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);

@@ -6,6 +6,7 @@ import net.anotheria.anosite.photoserver.service.blur.persistence.AlbumIsBlurred
  * AlbumIsBlurred exception.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class AlbumIsBlurredException extends BlurSettingsServiceException {
 
@@ -19,7 +20,7 @@ public class AlbumIsBlurredException extends BlurSettingsServiceException {
 	 * Constructor.
 	 *
 	 * @param albumId id of album
-	 * @param e	   {@link AlbumIsBlurredPersistenceException} reason itself
+	 * @param e	   {@link net.anotheria.anosite.photoserver.service.blur.persistence.AlbumIsBlurredPersistenceException} reason itself
 	 */
 	public AlbumIsBlurredException(long albumId, AlbumIsBlurredPersistenceException e) {
 		super("Album[" + albumId + "] is already blurred.", e);
@@ -30,7 +31,7 @@ public class AlbumIsBlurredException extends BlurSettingsServiceException {
 	 *
 	 * @param albumId id of album
 	 * @param userId  id of user
-	 * @param e	   {@link AlbumIsBlurredPersistenceException} reason itself
+	 * @param e	   {@link net.anotheria.anosite.photoserver.service.blur.persistence.AlbumIsBlurredPersistenceException} reason itself
 	 */
 	public AlbumIsBlurredException(long albumId, String userId, AlbumIsBlurredPersistenceException e) {
 		super("Album[" + albumId + "] is already blurred for user[" + userId + "].", e);

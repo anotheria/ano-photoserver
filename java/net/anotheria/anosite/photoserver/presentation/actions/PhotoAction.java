@@ -5,8 +5,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Actions on photos.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public enum PhotoAction {
 
@@ -40,6 +41,12 @@ public enum PhotoAction {
 	 */
 	public static final PhotoAction DEFAULT = LIST;
 
+	/**
+	 * <p>getAction.</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link net.anotheria.anosite.photoserver.presentation.actions.PhotoAction} object.
+	 */
 	public static PhotoAction getAction(String name) {
 		for (PhotoAction action : PhotoAction.values())
 			if (action.name().equalsIgnoreCase(name))

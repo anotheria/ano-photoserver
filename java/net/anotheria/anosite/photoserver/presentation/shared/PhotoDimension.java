@@ -4,8 +4,9 @@ import org.json.simple.JSONObject;
 
 /**
  * Helper class to deal with the dimension of a photo.
- * 
+ *
  * @author otoense
+ * @version $Id: $Id
  */
 public class PhotoDimension {
 
@@ -14,9 +15,9 @@ public class PhotoDimension {
 	
 	/**
 	 * Constructs a new PhotoDimension with given width and height.
-	 * 
-	 * @param width
-	 * @param height
+	 *
+	 * @param width a int.
+	 * @param height a int.
 	 */
 	public PhotoDimension(int width, int height) {
 		this.w = width;
@@ -33,7 +34,8 @@ public class PhotoDimension {
 	}
 	
 	/**
-	 * Returns the width 
+	 * Returns the width
+	 *
 	 * @return the width
 	 */
 	public int getWidth() {
@@ -42,6 +44,7 @@ public class PhotoDimension {
 	
 	/**
 	 * Returns the height
+	 *
 	 * @return the height
 	 */
 	public int getHeight() {
@@ -53,7 +56,7 @@ public class PhotoDimension {
 	 * another dimension. It is usefull in the fotocutting-context:
 	 * We get coordinates to cut from the client with a scaled preview image of our original
 	 * photo. With this method we can calculate the coordinates for the original picture.
-	 *  
+	 *
 	 * @param base the dimension of the 2nd system (e.g. preview-image)
 	 * @param dimension the coordinates within the 2nd system
 	 * @return the coordinates in this system
@@ -67,10 +70,20 @@ public class PhotoDimension {
 		);
 	}
 	
+	/**
+	 * <p>toString.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String toString() {
 		return w + "x" + h;
 	}
 	
+	/**
+	 * <p>getJSONObject.</p>
+	 *
+	 * @return a {@link org.json.simple.JSONObject} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public JSONObject getJSONObject() {
 		JSONObject obj = new JSONObject();

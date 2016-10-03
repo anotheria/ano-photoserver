@@ -17,8 +17,9 @@ import java.io.OutputStream;
 
 /**
  * Implementation of the base functions for a photo server servlets.
- * 
+ *
  * @author otoense
+ * @version $Id: $Id
  */
 public class BaseServlet extends HttpServlet {
 
@@ -39,12 +40,12 @@ public class BaseServlet extends HttpServlet {
 
 	/**
 	 * Write headers for cache and JSON mimetype before writing the content.
-	 * 
+	 *
 	 * @param response
 	 *            the HttpServletResponse
 	 * @param content
 	 *            a JSON String
-	 * @throws java.io.IOException
+	 * @throws java.io.IOException if any.
 	 */
 	protected void writeResponse(HttpServletResponse response, String content) throws IOException {
 		response.setHeader("Pragma", "no-cache");
@@ -64,6 +65,14 @@ public class BaseServlet extends HttpServlet {
 	*            a JSON String
 	* @throws java.io.IOException
 	*/
+	/**
+	 * <p>writeResponseJSONPResponse.</p>
+	 *
+	 * @param response a {@link javax.servlet.http.HttpServletResponse} object.
+	 * @param methodCallbackName a {@link java.lang.String} object.
+	 * @param content a {@link java.lang.String} object.
+	 * @throws java.io.IOException if any.
+	 */
 	protected void writeResponseJSONPResponse(final HttpServletResponse response, final String methodCallbackName, final String content) throws IOException {
 		response.setHeader("Pragma", "no-cache");
 		response.setHeader("Cacheable", "false");
@@ -76,9 +85,9 @@ public class BaseServlet extends HttpServlet {
 
 	/**
 	 * Splits the REST-like path of the request URI into tokens.
-	 * 
-	 * @param request
-	 * @return
+	 *
+	 * @param request a {@link javax.servlet.http.HttpServletRequest} object.
+	 * @return an array of {@link java.lang.String} objects.
 	 */
 	protected String[] parsePathParameters(HttpServletRequest request) {
 		return request.getPathInfo().substring(1).split("/");
@@ -86,9 +95,10 @@ public class BaseServlet extends HttpServlet {
 
 	/**
 	 * Streams a JPEG file to the response. Headers will be sent to disable caching.
-	 * 
-	 * @param response
-	 * @param anImageFile
+	 *
+	 * @param response a {@link javax.servlet.http.HttpServletResponse} object.
+	 * @param anImageFile a {@link java.io.File} object.
+	 * @throws java.io.IOException if any.
 	 */
 	protected void streamImageFile(HttpServletResponse response, File anImageFile) throws IOException {
 		InputStream in = new FileInputStream(anImageFile);
@@ -97,9 +107,10 @@ public class BaseServlet extends HttpServlet {
 
 	/**
 	 * Streams a JPEG file to the response. Headers will be sent to disable caching.
-	 * 
-	 * @param response
-	 * @param in
+	 *
+	 * @param response a {@link javax.servlet.http.HttpServletResponse} object.
+	 * @param in a {@link java.io.InputStream} object.
+	 * @throws java.io.IOException if any.
 	 */
 	protected void stream(HttpServletResponse response, InputStream in) throws IOException {
 		writeImageHeaders(response);
@@ -118,7 +129,9 @@ public class BaseServlet extends HttpServlet {
 
 	/**
 	 * Write headers for a jpeg response
-	 * 
+	 *
+	 * @param response a {@link javax.servlet.http.HttpServletResponse} object.
+	 * @throws java.io.IOException if any.
 	 */
 	protected void writeImageHeaders(HttpServletResponse response) throws IOException {
 		response.setHeader("Pragma", "no-cache");

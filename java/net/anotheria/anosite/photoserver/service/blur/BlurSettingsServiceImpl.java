@@ -24,8 +24,9 @@ import org.slf4j.MarkerFactory;
 
 /**
  * BlurSettingsService implementation.
- * 
+ *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class BlurSettingsServiceImpl implements BlurSettingsService {
 	/**
@@ -58,6 +59,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 		cache = BlurSettingsCache.getInstance();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Map<Long, BlurSettingBO> readBlurSettings(long albumId, List<Long> pictureIds, String userId) throws BlurSettingsServiceException {
 		if (albumId <= 0)
@@ -76,6 +78,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Map<Long, BlurSettingBO> readBlurSettings(long albumId, List<Long> pictureIds) throws BlurSettingsServiceException {
 		if (albumId <= 0)
@@ -127,6 +130,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurAlbum(long albumId) throws BlurSettingsServiceException {
 		if (albumId <= 0)
@@ -147,6 +151,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurAlbum(long albumId, String userId) throws BlurSettingsServiceException {
 		if (albumId <= 0)
@@ -170,6 +175,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurPicture(long albumId, long pictureId, String userId) throws BlurSettingsServiceException {
 
@@ -201,6 +207,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurPicture(long albumId, long pictureId) throws BlurSettingsServiceException {
 		if (albumId <= 0)
@@ -224,6 +231,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurAlbum(long albumId) throws BlurSettingsServiceException {
 		if (albumId <= 0)
@@ -245,6 +253,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurAlbum(long albumId, String userId) throws BlurSettingsServiceException {
 		if (albumId <= 0)
@@ -269,6 +278,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurPicture(long albumId, long pictureId, String userId) throws BlurSettingsServiceException {
 		if (albumId <= 0)
@@ -300,6 +310,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurPicture(long albumId, long pictureId) throws BlurSettingsServiceException {
 		if (albumId <= 0)
@@ -323,6 +334,7 @@ public class BlurSettingsServiceImpl implements BlurSettingsService {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void removeBlurSettings(long albumId) throws BlurSettingsServiceException {
 		if (albumId <= 0)

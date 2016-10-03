@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * BlurSettingsPersistenceService implementation.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceService implements BlurSettingsPersistenceService {
 
@@ -64,6 +65,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public BlurSettingBO readBlurSetting(long albumId, long pictureId, String userId) throws BlurSettingsPersistenceServiceException {
 		Connection conn = null;
@@ -113,6 +115,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurAlbum(long albumId) throws BlurSettingsPersistenceServiceException {
 		//check
@@ -150,6 +153,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurAlbum(long albumId, String userId) throws BlurSettingsPersistenceServiceException {
 		//check
@@ -187,6 +191,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurAlbum(long albumId) throws BlurSettingsPersistenceServiceException {
 		//check
@@ -222,6 +227,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurAlbum(long albumId, String userId) throws BlurSettingsPersistenceServiceException {
 
@@ -261,6 +267,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurPicture(long albumId, long pictureId, String userId) throws BlurSettingsPersistenceServiceException {
 
@@ -300,6 +307,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void blurPicture(long albumId, long pictureId) throws BlurSettingsPersistenceServiceException {
 		if (isPictureBlurredForAllUsers(albumId, pictureId))
@@ -334,6 +342,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurPicture(long albumId, long pictureId, String userId) throws BlurSettingsPersistenceServiceException {
 
@@ -372,6 +381,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void unBlurPicture(long albumId, long pictureId) throws BlurSettingsPersistenceServiceException {
 		if (!isPictureBlurredForAllUsers(albumId, pictureId))
@@ -407,6 +417,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void removeBlurSettings(long albumId) throws BlurSettingsPersistenceServiceException {
 		Connection conn = null;
@@ -463,16 +474,19 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	protected List<String> getDDL() {
 		return ddlQueries;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String getTableName() {
 		return TABLE_NAME;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String getPKFieldName() {
 		//Not required!  here we have Primary on Multiple fields.

@@ -4,8 +4,9 @@ import net.anotheria.anoplass.api.APIException;
 
 /**
  * Main upload API exception.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class PhotoAPIException extends APIException {
 
@@ -16,7 +17,7 @@ public class PhotoAPIException extends APIException {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param message
 	 *            exception message
 	 */
@@ -26,7 +27,7 @@ public class PhotoAPIException extends APIException {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param message
 	 *            exception message
 	 * @param cause

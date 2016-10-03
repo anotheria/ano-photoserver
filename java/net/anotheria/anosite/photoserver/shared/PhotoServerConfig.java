@@ -10,8 +10,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Configuration class that is keeping most generic PhotoServer configuration parameters.
- * 
+ *
  * @author dzhmud
+ * @version $Id: $Id
  */
 @ConfigureMe(name = "ano-site-photoserver-config")
 public final class PhotoServerConfig implements Serializable {
@@ -30,7 +31,7 @@ public final class PhotoServerConfig implements Serializable {
 
 	/**
 	 * Get singleton instance of configuration class.
-	 * 
+	 *
 	 * @return {@link net.anotheria.anosite.photoserver.shared.PhotoServerConfig} instance.
 	 */
 	public static synchronized PhotoServerConfig getInstance() {
@@ -54,14 +55,25 @@ public final class PhotoServerConfig implements Serializable {
 		}
 	}
 
+	/**
+	 * <p>Setter for the field <code>photoApprovingEnabled</code>.</p>
+	 *
+	 * @param photoApprovingEnabled a boolean.
+	 */
 	public void setPhotoApprovingEnabled(boolean photoApprovingEnabled) {
 		this.photoApprovingEnabled = photoApprovingEnabled;
 	}
 
+	/**
+	 * <p>isPhotoApprovingEnabled.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isPhotoApprovingEnabled() {
 		return photoApprovingEnabled;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

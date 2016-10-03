@@ -8,6 +8,12 @@ import org.configureme.annotations.Configure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>QueuedEventSenderConfig class.</p>
+ *
+ * @author another
+ * @version $Id: $Id
+ */
 public class QueuedEventSenderConfig {
 	/**
 	 * Default event channel queue size.
@@ -45,27 +51,54 @@ public class QueuedEventSenderConfig {
 		configName = aConfigName;
 	}
 
+	/**
+	 * <p>Getter for the field <code>eventsQueueSize</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getEventsQueueSize() {
 		return eventsQueueSize;
 	}
 
+	/**
+	 * <p>Setter for the field <code>eventsQueueSize</code>.</p>
+	 *
+	 * @param eventsQueueSize a int.
+	 */
 	public void setEventsQueueSize(int eventsQueueSize) {
 		this.eventsQueueSize = eventsQueueSize;
 	}
 
+	/**
+	 * <p>Getter for the field <code>eventsQueueSleepTime</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getEventsQueueSleepTime() {
 		return eventsQueueSleepTime;
 	}
 
+	/**
+	 * <p>Setter for the field <code>eventsQueueSleepTime</code>.</p>
+	 *
+	 * @param eventsQueueSleepTime a int.
+	 */
 	public void setEventsQueueSleepTime(int eventsQueueSleepTime) {
 		this.eventsQueueSleepTime = eventsQueueSleepTime;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return configName + "{" + "eventsQueueSize=" + eventsQueueSize + ", eventsQueueSleepTime=" + eventsQueueSleepTime + '}';
 	}
 
+	/**
+	 * <p>getQueuedEventSenderConfigByName.</p>
+	 *
+	 * @param configName a {@link java.lang.String} object.
+	 * @return a {@link net.anotheria.anosite.photoserver.shared.QueuedEventSenderConfig} object.
+	 */
 	public static QueuedEventSenderConfig getQueuedEventSenderConfigByName(String configName) {
 		QueuedEventSenderConfig newConfig = new QueuedEventSenderConfig(configName);
 		QueuedEventSenderConfig storedConfig = instances.putIfAbsent(configName, newConfig);

@@ -18,26 +18,24 @@ import java.io.IOException;
 /**
  * This is a generic fileupload servlet. You need to extend it and implement the getFileReceiver-Method in order to do whatever is neccessary with the uploaded
  * file data.
- * 
+ *
  * On a GET request without parameters the servlet responses with a unique upload-id (json object {id: xxx }) which has to be present on a following POST
  * (multipart/form) request as parameter "id".
- * 
+ *
  * On a GET request with parameter "id" present passing a unique upload-id it responses with a json object giving the current status of the upload:
- * 
+ *
  * Example: {"progress":0..100%,"status":0,"data":null,"filename":"102702439_55cec15215.jpg","size":"54 kB"}
- * 
+ *
  * Description:
- * <table>
- * <th>
- * <td>Attribute</td>
- * <td>Description</td></th>
- * <tr>
- * <td>progress</td>
- * <td>How many percent of the file is uploaded 0..100%</td>
- * </tr>
- * <tr>
- * <td>status</td>
- * <td>status of the fileupload:
+ * Attribute
+ * Description
+ * 
+ * progress
+ * How many percent of the file is uploaded 0..100%
+ * 
+ * 
+ * status
+ * status of the fileupload:
  * <ul>
  * <li>2: upload has not started yes</li>
  * <li>1: upload in progress</li>
@@ -47,24 +45,23 @@ import java.io.IOException;
  * <li>-3: file was rejected by FileReceiver (reason may be in attribute 'data')
  * <li>-4: uploadId is invalid (maybe timeout?)
  * </ul>
- * </td>
- * </tr>
- * <tr>
- * <td>data</td>
- * <td>filereceiver may pass data to client using this attribute. e.g. url of img-src or error-text</td>
- * </tr>
- * <tr>
- * <td>filename</td>
- * <td>filename of the uploaded file, only present if status=0</td>
- * </tr>
- * <tr>
- * <td>size</td>
- * <td>human readable size of file, only present if status=0</td>
- * </tr>
- * </table>
  * 
+ * 
+ * 
+ * data
+ * filereceiver may pass data to client using this attribute. e.g. url of img-src or error-text
+ * 
+ * 
+ * filename
+ * filename of the uploaded file, only present if status=0
+ * 
+ * 
+ * size
+ * human readable size of file, only present if status=0
+ * 
+ *
  * @author otoense
- * 
+ * @version $Id: $Id
  */
 public class UploadServlet extends BaseServlet {
 
@@ -74,6 +71,7 @@ public class UploadServlet extends BaseServlet {
 
 	private static final PhotoUploadAPI photoUploadAPI = APIFinder.findAPI(PhotoUploadAPI.class);
 
+	/** Constant <code>PARAM_UPLOADID="id"</code> */
 	public static final String PARAM_UPLOADID = "id";
 
 	/**
@@ -81,6 +79,7 @@ public class UploadServlet extends BaseServlet {
 	 */
 	public static final String PARAM_UPLOAD_USER_ID = "userId";
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String uploadId = request.getParameter(PARAM_UPLOADID);
@@ -104,6 +103,7 @@ public class UploadServlet extends BaseServlet {
 		writeResponse(response, uploader.getStatus().toJSONString());
 	}
 
+	/** {@inheritDoc} */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String uploadId = request.getParameter(PARAM_UPLOADID);
 

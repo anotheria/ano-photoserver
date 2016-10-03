@@ -21,6 +21,9 @@ import java.awt.image.BufferedImage;
 /**
  * A filter which performs a box blur on an image. The horizontal and vertical blurs can be specified separately
  * and a number of iterations can be given which allows an approximation to Gaussian blur.
+ *
+ * @author another
+ * @version $Id: $Id
  */
 public class BoxBlurFilter extends AbstractBufferedImageOp {
 
@@ -37,6 +40,7 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 	
     /**
      * Construct a BoxBlurFilter.
+     *
      * @param hRadius the horizontal radius of blur
      * @param vRadius the vertical radius of blur
      * @param iterations the number of time to iterate the blur
@@ -47,24 +51,27 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 		this.iterations = iterations;
 	}
 	
-    /**
-     * Set whether to premultiply the alpha channel.
-     * @param premultiplyAlpha true to premultiply the alpha
-     * @see #getPremultiplyAlpha
-     */
+	/**
+	 * Set whether to premultiply the alpha channel.
+	 *
+	 * @param premultiplyAlpha true to premultiply the alpha
+	 * @see #getPremultiplyAlpha
+	 */
 	public void setPremultiplyAlpha( boolean premultiplyAlpha ) {
 		this.premultiplyAlpha = premultiplyAlpha;
 	}
 
-    /**
-     * Get whether to premultiply the alpha channel.
-     * @return true to premultiply the alpha
-     * @see #setPremultiplyAlpha
-     */
+	/**
+	 * Get whether to premultiply the alpha channel.
+	 *
+	 * @return true to premultiply the alpha
+	 * @see #setPremultiplyAlpha
+	 */
 	public boolean getPremultiplyAlpha() {
 		return premultiplyAlpha;
 	}
 
+	/** {@inheritDoc} */
 	public BufferedImage filter( BufferedImage src, BufferedImage dst ) {
         int width = src.getWidth();
         int height = src.getHeight();
@@ -93,6 +100,7 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 
     /**
      * Blur and transpose a block of ARGB pixels.
+     *
      * @param in the input pixels
      * @param out the output pixels
      * @param width the width of the pixel array
@@ -144,6 +152,15 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
         }
     }
         
+    /**
+     * <p>blurFractional.</p>
+     *
+     * @param in an array of int.
+     * @param out an array of int.
+     * @param width a int.
+     * @param height a int.
+     * @param radius a float.
+     */
     public static void blurFractional( int[] in, int[] out, int width, int height, float radius ) {
         radius -= (int)radius;
         float f = 1.0f/(1+2*radius);
@@ -190,9 +207,9 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 
 	/**
 	 * Set the horizontal size of the blur.
+	 *
 	 * @param hRadius the radius of the blur in the horizontal direction
-     * @min-value 0
-     * @see #getHRadius
+	 * @see #getHRadius
 	 */
 	public void setHRadius(float hRadius) {
 		this.hRadius = hRadius;
@@ -200,8 +217,9 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 	
 	/**
 	 * Get the horizontal size of the blur.
+	 *
 	 * @return the radius of the blur in the horizontal direction
-     * @see #setHRadius
+	 * @see #setHRadius
 	 */
 	public float getHRadius() {
 		return hRadius;
@@ -209,9 +227,9 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 	
 	/**
 	 * Set the vertical size of the blur.
+	 *
 	 * @param vRadius the radius of the blur in the vertical direction
-     * @min-value 0
-     * @see #getVRadius
+	 * @see #getVRadius
 	 */
 	public void setVRadius(float vRadius) {
 		this.vRadius = vRadius;
@@ -219,8 +237,9 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 	
 	/**
 	 * Get the vertical size of the blur.
+	 *
 	 * @return the radius of the blur in the vertical direction
-     * @see #setVRadius
+	 * @see #setVRadius
 	 */
 	public float getVRadius() {
 		return vRadius;
@@ -228,9 +247,9 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 	
 	/**
 	 * Set both the horizontal and vertical sizes of the blur.
+	 *
 	 * @param radius the radius of the blur in both directions
-     * @min-value 0
-     * @see #getRadius
+	 * @see #getRadius
 	 */
 	public void setRadius(float radius) {
 		this.hRadius = this.vRadius = radius;
@@ -238,8 +257,9 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 	
 	/**
 	 * Get the size of the blur.
+	 *
 	 * @return the radius of the blur in the horizontal direction
-     * @see #setRadius
+	 * @see #setRadius
 	 */
 	public float getRadius() {
 		return hRadius;
@@ -247,9 +267,9 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 	
 	/**
 	 * Set the number of iterations the blur is performed.
+	 *
 	 * @param iterations the number of iterations
-     * @min-value 0
-     * @see #getIterations
+	 * @see #getIterations
 	 */
 	public void setIterations(int iterations) {
 		this.iterations = iterations;
@@ -257,13 +277,19 @@ public class BoxBlurFilter extends AbstractBufferedImageOp {
 	
 	/**
 	 * Get the number of iterations the blur is performed.
+	 *
 	 * @return the number of iterations
-     * @see #setIterations
+	 * @see #setIterations
 	 */
 	public int getIterations() {
 		return iterations;
 	}
 	
+	/**
+	 * <p>toString.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String toString() {
 		return "Blur/Box Blur...";
 	}

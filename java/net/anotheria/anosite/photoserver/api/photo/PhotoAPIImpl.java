@@ -42,6 +42,7 @@ import java.util.Map;
  * {@link net.anotheria.anosite.photoserver.api.photo.PhotoAPIImpl} main implementation.
  *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
@@ -65,6 +66,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      */
     private BlurSettingsAPI blurSettingsAPI;
 
+    /** {@inheritDoc} */
     @Override
     public void init() throws APIInitException {
         try {
@@ -79,16 +81,19 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
     // album related method's ---------------------------------------------------------
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO getAlbum(long albumId) throws PhotoAPIException {
         return getAlbum(albumId, PhotosFiltering.DEFAULT);
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO getAlbum(long albumId, PhotosFiltering filtering) throws PhotoAPIException {
         return getAlbum(albumId, filtering, null);
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO getAlbum(long albumId, PhotosFiltering filtering, String authorId) throws PhotoAPIException {
         try {
@@ -109,16 +114,19 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<AlbumAO> getAlbums(String userId) throws PhotoAPIException {
         return getAlbums(userId, PhotosFiltering.DEFAULT);
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<AlbumAO> getAlbums(String userId, PhotosFiltering filtering) throws PhotoAPIException {
         return getAlbums(userId, filtering, null);
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<AlbumAO> getAlbums(String userId, PhotosFiltering filtering, String authorId) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
@@ -142,6 +150,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO getDefaultAlbum(String userId) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
@@ -149,11 +158,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         return getDefaultAlbum(userId, PhotosFiltering.DEFAULT);
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO getDefaultAlbum(String userId, PhotosFiltering filtering) throws PhotoAPIException {
         return getDefaultAlbum(userId, filtering, null);
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO getDefaultAlbum(String userId, PhotosFiltering filtering, String authorId) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
@@ -173,11 +184,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO createAlbum(AlbumAO album) throws PhotoAPIException {
         return createAlbum(album, null);
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO createAlbum(AlbumAO album, String authorId) throws PhotoAPIException {
         if (album == null)
@@ -194,11 +207,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO updateAlbum(AlbumAO album) throws PhotoAPIException {
         return updateAlbum(album, null);
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO updateAlbum(AlbumAO album, String authorId) throws PhotoAPIException {
         if (album == null)
@@ -215,11 +230,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO removeAlbum(long albumId) throws PhotoAPIException {
         return removeAlbum(albumId, null);
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO removeAlbum(long albumId, String authorId) throws PhotoAPIException {
         AlbumAO result = getAlbum(albumId, PhotosFiltering.DISABLED);
@@ -239,11 +256,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
     // "my" album related method's ---------------------------------------------------------
 
+    /** {@inheritDoc} */
     @Override
     public List<AlbumAO> getMyAlbums() throws PhotoAPIException {
         return getAlbums(getMyUserId(), PhotosFiltering.DISABLED);
     }
 
+    /** {@inheritDoc} */
     @Override
     public AlbumAO getMyDefaultAlbum() throws PhotoAPIException {
         return getDefaultAlbum(getMyUserId(), PhotosFiltering.DISABLED);
@@ -251,11 +270,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
     // photo related method's ---------------------------------------------------------
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO getMyDefaultPhoto() throws PhotoAPIException {
         return getDefaultPhoto(getMyUserId());
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO getDefaultPhoto(String userId) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
@@ -282,6 +303,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO getDefaultPhoto(String userId, long albumId) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
@@ -307,6 +329,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO getPhoto(long photoId) throws PhotoAPIException {
         try {
@@ -329,11 +352,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<PhotoAO> getPhotos(long albumId) throws PhotoAPIException {
         return getPhotos(albumId, PhotosFiltering.DEFAULT, false);
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<PhotoAO> getPhotos(long albumId, PhotosFiltering filtering, boolean orderByPhotosOrder) throws PhotoAPIException {
 
@@ -416,11 +441,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException {
         return createPhoto(userId, tempFile, previewSettings, false);
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, boolean restricted) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
@@ -434,11 +461,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         return createPhoto(userId, albumId, restricted, tempFile, previewSettings);
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO createPhoto(String userId, long albumId, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException {
         return createPhoto(userId, albumId, false, tempFile, previewSettings);
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO createPhoto(String userId, long albumId, boolean restricted, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
@@ -479,11 +508,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO updatePhoto(PhotoAO photo) throws PhotoAPIException {
         return updatePhoto(getMyUserId(), photo);
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO updatePhoto(String userId, PhotoAO photo) throws PhotoAPIException {
         if (photo == null)
@@ -504,11 +535,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO removePhoto(long photoId) throws PhotoAPIException {
         return removePhoto(getMyUserId(), photoId);
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO removePhoto(String userId, long photoId) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
@@ -615,6 +648,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             throw new NoAccessPhotoAPIException("No access.");
     }
 
+    /** {@inheritDoc} */
     @Override
     public int getWaitingApprovalPhotosCount() throws PhotoAPIException {
         try {
@@ -626,6 +660,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<PhotoAO> getWaitingApprovalPhotos(int amount) throws PhotoAPIException {
         if (amount < 0)
@@ -654,6 +689,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         return result;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setApprovalStatus(long photoId, ApprovalStatus status) throws PhotoAPIException {
         if (status == null) {
@@ -669,6 +705,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setApprovalStatuses(Map<Long, ApprovalStatus> statuses) throws PhotoAPIException {
         if (statuses == null) {
@@ -683,6 +720,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public PhotoAO movePhoto(long photoId, long newAlbumId) throws PhotoAPIException {
         PhotoAO photo = getPhoto(photoId);

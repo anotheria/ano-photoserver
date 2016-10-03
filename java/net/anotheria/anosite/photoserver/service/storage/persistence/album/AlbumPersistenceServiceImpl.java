@@ -35,8 +35,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * AlbumPersistenceService implementation.
- * 
+ *
  * @author dzhmud
+ * @version $Id: $Id
  */
 public class AlbumPersistenceServiceImpl extends GenericPersistenceService implements AlbumPersistenceService {
 
@@ -57,21 +58,25 @@ public class AlbumPersistenceServiceImpl extends GenericPersistenceService imple
 		initialize();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected List<String> getDDL() {
 		return Arrays.asList(SQL_META_CREATE_TABLE, SQL_META_CREATE_OWNER_INDEX, SQL_META_CREATE_DEFAULT_ALBUM_INDEX, SQL_META_ADD_RIGHTS);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String getPKFieldName() {
 		return FIELD_NAME_ID;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String getTableName() {
 		return TABLE_NAME;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AlbumBO createAlbum(final AlbumBO album) throws AlbumPersistenceServiceException {
 		if (album == null)
@@ -105,6 +110,7 @@ public class AlbumPersistenceServiceImpl extends GenericPersistenceService imple
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AlbumBO getAlbum(final long albumId) throws AlbumPersistenceServiceException {
 		Connection conn = null;
@@ -131,6 +137,7 @@ public class AlbumPersistenceServiceImpl extends GenericPersistenceService imple
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AlbumBO getDefaultAlbum(String userId) throws AlbumPersistenceServiceException {
 		Connection conn = null;
@@ -158,6 +165,7 @@ public class AlbumPersistenceServiceImpl extends GenericPersistenceService imple
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public List<AlbumBO> getAlbums(final String userId) throws AlbumPersistenceServiceException {
 		Connection conn = null;
@@ -184,6 +192,7 @@ public class AlbumPersistenceServiceImpl extends GenericPersistenceService imple
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void deleteAlbum(long albumId) throws AlbumPersistenceServiceException {
 		Connection conn = null;
@@ -206,6 +215,7 @@ public class AlbumPersistenceServiceImpl extends GenericPersistenceService imple
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void updateAlbum(AlbumBO album) throws AlbumPersistenceServiceException {
 		if (album == null)

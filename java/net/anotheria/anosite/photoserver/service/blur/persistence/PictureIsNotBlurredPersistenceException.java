@@ -4,6 +4,7 @@ package net.anotheria.anosite.photoserver.service.blur.persistence;
  * PictureIsNotBlurred exception.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class PictureIsNotBlurredPersistenceException extends BlurSettingsPersistenceServiceException {
 	/**

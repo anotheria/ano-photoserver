@@ -4,6 +4,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Supported image write formats.
+ *
+ * @author another
+ * @version $Id: $Id
  */
 public enum ImageWriteFormat {
 	/**
@@ -38,20 +41,30 @@ public enum ImageWriteFormat {
 		this.contentType = contentType;
 	}
 
+	/**
+	 * <p>Getter for the field <code>value</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getValue() {
 		return value;
 	}
 
+	/**
+	 * <p>Getter for the field <code>contentType</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getContentType() {
 		return contentType;
 	}
 
 	/**
 	 * Returns image format by incoming string value.
-	 * If image format was not found, {@link ImageWriteFormat#DEFAULT} will be returned.
+	 * If image format was not found, {@link net.anotheria.anosite.photoserver.presentation.shared.ImageWriteFormat#DEFAULT} will be returned.
 	 *
 	 * @param value image format string value
-	 * @return {@link ImageWriteFormat}
+	 * @return {@link net.anotheria.anosite.photoserver.presentation.shared.ImageWriteFormat}
 	 */
 	public static ImageWriteFormat getByValue(final String value) {
 		for (ImageWriteFormat format : ImageWriteFormat.values())

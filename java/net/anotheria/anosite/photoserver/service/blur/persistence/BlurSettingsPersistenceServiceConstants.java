@@ -6,6 +6,7 @@ import net.anotheria.db.util.DDLConfig;
  * SQL Constants for  BlurSettingsPersistenceService.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public final class BlurSettingsPersistenceServiceConstants {
 

@@ -2,7 +2,9 @@ package net.anotheria.anosite.photoserver.service.storage.persistence;
 
 /**
  * StoragePersistenceServiceException exception.
+ *
  * @author dzhmud
+ * @version $Id: $Id
  */
 public class StoragePersistenceServiceException extends Exception {
 
@@ -11,8 +13,9 @@ public class StoragePersistenceServiceException extends Exception {
 	 */
 	private static final long serialVersionUID = 4631170826204480568L;
 
-	/**
-     * Constructs a new exception with the specified detail message. 
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
      * @param   message   the detail message.
      */
     public StoragePersistenceServiceException(String message) {
@@ -21,7 +24,8 @@ public class StoragePersistenceServiceException extends Exception {
 
     /**
      * Constructs a new exception with the specified detail message and
-     * cause. 
+     * cause.
+     *
      * @param  message the detail message.
      * @param  cause the cause.
      */
@@ -31,6 +35,7 @@ public class StoragePersistenceServiceException extends Exception {
 
     /**
      * Constructs a new exception with the specified cause.
+     *
      * @param  cause the cause.
      */
     public StoragePersistenceServiceException(Throwable cause) {

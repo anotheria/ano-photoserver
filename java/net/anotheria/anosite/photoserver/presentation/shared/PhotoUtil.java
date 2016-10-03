@@ -20,22 +20,21 @@ import java.util.Iterator;
 
 /**
  * Util-Class to load, save and modify images by using only javax.imageio.* and java.awt.*
- * 
- * 
- * @author oliver
  *
+ * @author oliver
+ * @version $Id: $Id
  */
 public class PhotoUtil {
 	
 	protected BufferedImage image;
 	
 	/**
-	 * Crop a rectanguar area out of the original image. 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param width
-	 * @param height
+	 * Crop a rectanguar area out of the original image.
+	 *
+	 * @param x a int.
+	 * @param y a int.
+	 * @param width a int.
+	 * @param height a int.
 	 */
 	public void crop(int x, int y, int width, int height) {
 		BufferedImage clipping = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);  
@@ -59,7 +58,8 @@ public class PhotoUtil {
 	
 	/**
 	 * Get the height of the image
-	 * @return
+	 *
+	 * @return a int.
 	 */
 	public int getHeight() {
 	    return image.getHeight();
@@ -67,7 +67,8 @@ public class PhotoUtil {
 	
 	/**
 	 * Get the width of the image
-	 * @return
+	 *
+	 * @return a int.
 	 */
 	public int getWidth() {
 	    return image.getWidth();
@@ -75,8 +76,9 @@ public class PhotoUtil {
 
 	/**
 	 * Read image from a File
-	 * @param input
-	 * @throws java.io.IOException
+	 *
+	 * @param input a {@link java.io.File} object.
+	 * @throws java.io.IOException if any.
 	 */
 	public void read(File input) throws IOException {
 		InputStream in = new FileInputStream(input);
@@ -85,8 +87,9 @@ public class PhotoUtil {
 	
 	/**
 	 * Read image from a File
-	 * @param filename
-	 * @throws java.io.IOException
+	 *
+	 * @param filename a {@link java.lang.String} object.
+	 * @throws java.io.IOException if any.
 	 */
 	public void read(String filename) throws IOException {
 		File input = new File(filename);
@@ -95,20 +98,21 @@ public class PhotoUtil {
 	
 	/**
 	 * Read image from an InputStream
-	 * @param in
-	 * @throws java.io.IOException
+	 *
+	 * @param in a {@link java.io.InputStream} object.
+	 * @throws java.io.IOException if any.
 	 */
 	public void read(InputStream in) throws IOException {
     	read(in, getSelectedBackground());
     }
 	
-	/**
-	 * Read image from an InputStream.
-	 *
-	 * @param in
-	 * @param bgColor background color
-	 * @throws java.io.IOException
-	 */
+    /**
+     * Read image from an InputStream.
+     *
+     * @param in a {@link java.io.InputStream} object.
+     * @param bgColor background color
+     * @throws java.io.IOException if any.
+     */
     public void read(InputStream in, Color bgColor) throws IOException {
     	BufferedImage readImage = ImageIO.read(in);
     	
@@ -121,7 +125,8 @@ public class PhotoUtil {
     /**
      * Scale the image that it fits in a squared-size with the specified 'max'-width.
      * The width/height ratio of the image will be unchanged.
-     * @param max
+     *
+     * @param max a int.
      */
     public void scale(int max) {
     	if(image.getWidth() > image.getHeight()) {
@@ -131,11 +136,12 @@ public class PhotoUtil {
     	}
     }
     
-    /**
-     * Scale the image to the new width and height. The width/height ratio of the image will be changed
-     * @param newX
-     * @param newY
-     */
+	/**
+	 * Scale the image to the new width and height. The width/height ratio of the image will be changed
+	 *
+	 * @param newX a int.
+	 * @param newY a int.
+	 */
 	public void scale(int newX, int newY) {
 		Image scaledImage  = image.getScaledInstance(newX, newY, Image.SCALE_SMOOTH);
 		image = new BufferedImage(scaledImage.getWidth(null), scaledImage.getHeight(null), BufferedImage.TYPE_INT_ARGB);
@@ -176,11 +182,11 @@ public class PhotoUtil {
 	
 	/**
 	 * Write image with given quality.
-	 * Type of the image depends on {@link PhotoUploadAPIConfig#imageWriteFormat}.
+	 * Type of the image depends on {@link net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig#imageWriteFormat}.
 	 *
-	 * @param quality
-	 * @param output
-	 * @throws java.io.IOException
+	 * @param quality a float.
+	 * @param output a {@link java.io.File} object.
+	 * @throws java.io.IOException if any.
 	 */
 	public void write(float quality, File output) throws IOException {
 		FileImageOutputStream out = new FileImageOutputStream(output);
@@ -189,11 +195,11 @@ public class PhotoUtil {
 
 	/**
 	 * Write image with given quality.
-	 * Type of the image depends on {@link PhotoUploadAPIConfig#imageWriteFormat}.
+	 * Type of the image depends on {@link net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig#imageWriteFormat}.
 	 *
-	 * @param quality
-	 * @param filename
-	 * @throws java.io.IOException
+	 * @param quality a float.
+	 * @param filename a {@link java.lang.String} object.
+	 * @throws java.io.IOException if any.
 	 */
 	public void write(float quality, String filename) throws IOException {
 		write(quality, new File(filename));
@@ -201,11 +207,11 @@ public class PhotoUtil {
 
 	/**
 	 * Write image with given quality.
-	 * Type of the image depends on {@link PhotoUploadAPIConfig#imageWriteFormat}.
+	 * Type of the image depends on {@link net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig#imageWriteFormat}.
 	 *
-	 * @param quality
-	 * @param out
-	 * @throws java.io.IOException
+	 * @param quality a float.
+	 * @param out a {@link javax.imageio.stream.ImageOutputStream} object.
+	 * @throws java.io.IOException if any.
 	 */
 	public void write(float quality, ImageOutputStream out) throws IOException {
 		final ImageWriteFormat imageFormat = ImageWriteFormat.getByValue(PhotoUploadAPIConfig.getInstance().getImageWriteFormat());
@@ -266,6 +272,12 @@ public class PhotoUtil {
 		return transparentBg ? null : Color.WHITE;
 	}
 	
+	/**
+	 * <p>main.</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
+	 * @throws java.io.IOException if any.
+	 */
 	public static void main(String[] args) throws IOException {
 		PhotoUploadAPIConfig.getInstance().setImageWriteFormat("png");
 		PhotoUploadAPIConfig.getInstance().setAllowTransparentBackground(true);

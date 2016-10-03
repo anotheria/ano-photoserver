@@ -2,8 +2,9 @@ package net.anotheria.anosite.photoserver.service.storage;
 
 /**
  * Storage service exception for throwing if we try to remove album with photos.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class AlbumWithPhotosServiceException extends StorageServiceException {
 
@@ -14,7 +15,7 @@ public class AlbumWithPhotosServiceException extends StorageServiceException {
 
 	/**
 	 * Public constructor.
-	 * 
+	 *
 	 * @param albumId
 	 *            - album id
 	 */

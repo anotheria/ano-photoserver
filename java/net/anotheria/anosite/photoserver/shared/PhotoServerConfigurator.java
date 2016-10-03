@@ -30,8 +30,9 @@ import org.slf4j.MarkerFactory;
 
 /**
  * Utility for configuring photo server functionality.
- * 
+ *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public final class PhotoServerConfigurator {
 
@@ -91,10 +92,8 @@ public final class PhotoServerConfigurator {
 	}
 
 	/**
-	 * Register remote factory by factory class name for a given interface in {@link MetaFactory}.
-	 * 
-	 * @param <T>
-	 *            - interface type
+	 * Register remote factory by factory class name for a given interface in {@link net.anotheria.anoprise.metafactory.MetaFactory}.
+	 *
 	 * @param interf
 	 *            - interface
 	 * @param factoryClassName

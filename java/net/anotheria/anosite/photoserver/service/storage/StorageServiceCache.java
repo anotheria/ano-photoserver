@@ -1,10 +1,5 @@
 package net.anotheria.anosite.photoserver.service.storage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import net.anotheria.anoprise.cache.Cache;
 import net.anotheria.anoprise.cache.CacheProducerWrapper;
 import net.anotheria.anoprise.cache.Caches;
@@ -14,21 +9,22 @@ import net.anotheria.moskito.core.logging.IntervalStatsLogger;
 import net.anotheria.moskito.core.logging.SL4JLogOutput;
 import net.anotheria.moskito.core.stats.DefaultIntervals;
 import net.anotheria.util.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * StorageService cache.
- * <p/>
  * Cache for StorageService. Contains 3 caches . - albumsCache - maps id of album to id of album owner (user); - photosCache - maps id of photo to id of photo
  * owner (user); - userAlbums - maps id of User to internal UserMediaData object which holds all required properties, methods, etc..
- * <p/>
- * <p/>
- * <p/>
  * NOTE : each cache method will return cloned result!
- * 
+ *
  * @author h3ll
+ * @version $Id: $Id
  */
 public final class StorageServiceCache {
 
@@ -113,11 +109,11 @@ public final class StorageServiceCache {
 	// ###### Album related methods!!! -- START
 
 	/**
-	 * Returns cached {@link AlbumBO} , with selected id.
-	 * 
+	 * Returns cached {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO} , with selected id.
+	 *
 	 * @param albumId
 	 *            id of album
-	 * @return {@link AlbumBO}
+	 * @return {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO}
 	 */
 	protected AlbumBO getCachedAlbumById(final long albumId) {
 		String albumOwnerId = albumsCache.get(albumId);
@@ -146,10 +142,10 @@ public final class StorageServiceCache {
 	}
 
 	/**
-	 * Put/update {@link AlbumBO} in cache.
-	 * 
+	 * Put/update {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO} in cache.
+	 *
 	 * @param toCache
-	 *            {@link AlbumBO}
+	 *            {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO}
 	 */
 	protected void updateItem(final AlbumBO toCache) {
 		if (toCache == null)
@@ -174,10 +170,10 @@ public final class StorageServiceCache {
 	}
 
 	/**
-	 * Remove {@link AlbumBO} from all caches!
-	 * 
+	 * Remove {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO} from all caches!
+	 *
 	 * @param toRemove
-	 *            {@link AlbumBO}
+	 *            {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO}
 	 */
 	protected void removeItem(final AlbumBO toRemove) {
 		if (toRemove == null)
@@ -205,11 +201,11 @@ public final class StorageServiceCache {
 	}
 
 	/**
-	 * Returns default album {@link AlbumBO} for selected user, if such was cached.
-	 * 
+	 * Returns default album {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO} for selected user, if such was cached.
+	 *
 	 * @param userId
 	 *            id of user
-	 * @return default {@link AlbumBO}
+	 * @return default {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO}
 	 */
 	protected AlbumBO getDefaultAlbum(String userId) {
 		if (StringUtils.isEmpty(userId))
@@ -223,10 +219,10 @@ public final class StorageServiceCache {
 
 	/**
 	 * Return all user albums - if such data was cached.
-	 * 
+	 *
 	 * @param userId
 	 *            id of user
-	 * @return {@link java.util.List<AlbumBO>} albums collection
+	 * @return {@link java.util.List} albums collection
 	 */
 	protected List<AlbumBO> getAllAlbums(String userId) {
 		if (StringUtils.isEmpty(userId))
@@ -240,7 +236,7 @@ public final class StorageServiceCache {
 
 	/**
 	 * Cache all user albums!
-	 * 
+	 *
 	 * @param userId
 	 *            id of user
 	 * @param allAlbums
@@ -265,11 +261,11 @@ public final class StorageServiceCache {
 	// ###### PHOTO related methods!!! -- START
 
 	/**
-	 * Returns cached {@link PhotoBO} , with selected id.
-	 * 
+	 * Returns cached {@link net.anotheria.anosite.photoserver.service.storage.PhotoBO} , with selected id.
+	 *
 	 * @param photoId
 	 *            id of photo
-	 * @return {@link PhotoBO}
+	 * @return {@link net.anotheria.anosite.photoserver.service.storage.PhotoBO}
 	 */
 	protected PhotoBO getPhotoById(final long photoId) {
 		String photoOwnerId = photosCache.get(photoId);
@@ -303,10 +299,11 @@ public final class StorageServiceCache {
 	}
 
 	/**
-	 * /** Put/update {@link AlbumBO} in cache.
-	 * 
+	/**
+	 * Put/update {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO} in cache.
+	 *
 	 * @param toCache
-	 *            {@link AlbumBO}
+	 *            {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO}
 	 */
 	protected void updateItem(PhotoBO toCache) {
 		if (toCache == null)
@@ -317,10 +314,10 @@ public final class StorageServiceCache {
 	}
 
 	/**
-	 * Update/Add {@link AlbumBO} to cached user data. If no data exists - it will be created.
-	 * 
+	 * Update/Add {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO} to cached user data. If no data exists - it will be created.
+	 *
 	 * @param toCache
-	 *            {@link AlbumBO} item to cache
+	 *            {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO} item to cache
 	 */
 	protected void updateUserData(final PhotoBO toCache) {
 		final String userId = toCache.getUserId();
@@ -331,10 +328,10 @@ public final class StorageServiceCache {
 	}
 
 	/**
-	 * Remove {@link AlbumBO} from all caches!
-	 * 
+	 * Remove {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO} from all caches!
+	 *
 	 * @param toRemove
-	 *            {@link AlbumBO}
+	 *            {@link net.anotheria.anosite.photoserver.service.storage.AlbumBO}
 	 */
 	protected void removeItem(final PhotoBO toRemove) {
 		if (toRemove == null)
@@ -362,8 +359,8 @@ public final class StorageServiceCache {
 	}
 
 	/**
-	 * Update {@link ApprovalStatus} for selected photos, in case when those photos are cached.
-	 * 
+	 * Update {@link net.anotheria.anosite.photoserver.shared.ApprovalStatus} for selected photos, in case when those photos are cached.
+	 *
 	 * @param statuses
 	 *            Photo id to ApprovalStatus collection
 	 */
@@ -415,13 +412,11 @@ public final class StorageServiceCache {
 	}
 
 	/**
-	 * Return {@link PhotoBO} with selected id's.
-	 * 
-	 * @param userId
-	 *            id of the user
-	 * @param albumId
-	 *            id's of photos
-	 * @return List<PhotoBO> with selected id's
+	 * Return {@link net.anotheria.anosite.photoserver.service.storage.PhotoBO} with selected id's.
+	 *
+	 * @param userId - id of the user
+	 * @param albumId - id's of photos
+	 * @return List with selected PhotoBOs.
 	 */
 	protected List<PhotoBO> getAllAlbumPhotos(final String userId, final long albumId) {
 		if (StringUtils.isEmpty(userId)) {
@@ -441,7 +436,7 @@ public final class StorageServiceCache {
 
 	/**
 	 * Add to cache all photos from selected album! NOTE - if all this photos are already in cache - they will be replaced!
-	 * 
+	 *
 	 * @param userId
 	 *            id of user
 	 * @param albumId

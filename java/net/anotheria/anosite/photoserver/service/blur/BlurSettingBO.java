@@ -6,6 +6,7 @@ import net.anotheria.anosite.photoserver.shared.vo.BlurSettingVO;
  * BlurSetting business object.
  *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class BlurSettingBO extends BlurSettingVO implements Cloneable {
 	/**
@@ -24,7 +25,7 @@ public class BlurSettingBO extends BlurSettingVO implements Cloneable {
 	/**
 	 * Constructor.
 	 *
-	 * @param pictureBlur {@link BlurSettingVO}
+	 * @param pictureBlur {@link net.anotheria.anosite.photoserver.shared.vo.BlurSettingVO}
 	 */
 	public BlurSettingBO(BlurSettingVO pictureBlur) {
 		setAlbumId(pictureBlur.getAlbumId());
@@ -52,6 +53,7 @@ public class BlurSettingBO extends BlurSettingVO implements Cloneable {
 	public BlurSettingBO() {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "BlurSettingBO[" +
@@ -62,6 +64,7 @@ public class BlurSettingBO extends BlurSettingVO implements Cloneable {
 				']';
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected BlurSettingBO clone() {
 		try {

@@ -14,8 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+/**
+ * <p>EventAnnouncer class.</p>
+ *
+ * @author another
+ * @version $Id: $Id
+ */
 public class EventAnnouncer implements EventServicePushSupplier {
 
+	/** Constant <code>STORAGESERVICE_EVENTCHANNEL_NAME="storageservice"</code> */
 	public static final String STORAGESERVICE_EVENTCHANNEL_NAME = "storageservice";
 
 	private QueuedEventSender eventSender;
@@ -23,6 +30,9 @@ public class EventAnnouncer implements EventServicePushSupplier {
 
 	private static Logger log = LoggerFactory.getLogger(EventAnnouncer.class);
 
+	/**
+	 * <p>Constructor for EventAnnouncer.</p>
+	 */
 	public EventAnnouncer() {
 		eventSenderConfig = StorageServiceQueuedEventSenderConfig.getInstance();
 		EventChannel eventChannel = EventServiceFactory.createEventService().obtainEventChannel(STORAGESERVICE_EVENTCHANNEL_NAME, this);
@@ -36,14 +46,31 @@ public class EventAnnouncer implements EventServicePushSupplier {
 		}
 	}
 
+	/**
+	 * <p>photoCreated.</p>
+	 *
+	 * @param newPhoto a {@link net.anotheria.anosite.photoserver.service.storage.PhotoBO} object.
+	 */
 	public void photoCreated(PhotoBO newPhoto) {
 		deliverEvent(StorageServiceEvent.photoCreated(newPhoto));
 	}
 
+	/**
+	 * <p>photoUpdated.</p>
+	 *
+	 * @param newPhoto a {@link net.anotheria.anosite.photoserver.service.storage.PhotoBO} object.
+	 * @param oldPhoto a {@link net.anotheria.anosite.photoserver.service.storage.PhotoBO} object.
+	 */
 	public void photoUpdated(PhotoBO newPhoto, PhotoBO oldPhoto) {
 		deliverEvent(StorageServiceEvent.photoUpdated(newPhoto, oldPhoto));
 	}
 
+	/**
+	 * <p>photoDeleted.</p>
+	 *
+	 * @param deletedPhotoId a long.
+	 * @param owner a {@link java.lang.String} object.
+	 */
 	public void photoDeleted(long deletedPhotoId, String owner) {
 		deliverEvent(StorageServiceEvent.photoDeleted(deletedPhotoId,owner));
 	}

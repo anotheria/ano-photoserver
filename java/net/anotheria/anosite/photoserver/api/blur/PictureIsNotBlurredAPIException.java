@@ -2,8 +2,9 @@ package net.anotheria.anosite.photoserver.api.blur;
 
 /**
  * PictureIsNotBlurredAPI exception.
- * 
+ *
  * @author h3ll
+ * @version $Id: $Id
  */
 public class PictureIsNotBlurredAPIException extends BlurSettingsAPIException {
 
@@ -14,7 +15,7 @@ public class PictureIsNotBlurredAPIException extends BlurSettingsAPIException {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param albumId
 	 *            album id
 	 * @param pictureId
@@ -30,7 +31,7 @@ public class PictureIsNotBlurredAPIException extends BlurSettingsAPIException {
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param albumId
 	 *            album id
 	 * @param pictureId

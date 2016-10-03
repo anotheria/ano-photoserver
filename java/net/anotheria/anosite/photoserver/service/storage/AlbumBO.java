@@ -6,6 +6,7 @@ import net.anotheria.anosite.photoserver.shared.vo.AlbumVO;
  * User photo album information.
  *
  * @author Alexandr Bolbat
+ * @version $Id: $Id
  */
 public class AlbumBO extends AlbumVO {
 
@@ -24,7 +25,7 @@ public class AlbumBO extends AlbumVO {
 	/**
 	 * Constructor.
 	 *
-	 * @param album {@link AlbumVO}
+	 * @param album {@link net.anotheria.anosite.photoserver.shared.vo.AlbumVO}
 	 */
 	public AlbumBO(AlbumVO album) {
 		super();
@@ -36,12 +37,14 @@ public class AlbumBO extends AlbumVO {
 		setPhotosOrder(album.getPhotosOrder());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "AlbumBO [getId()=" + getId() + ", getUserId()=" + getUserId() + ", getName()=" + getName() + ", getDescription()=" + getDescription()
 				+ ", getPhotosOrder()=" + getPhotosOrder() + "]";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AlbumBO clone() {
 		AlbumBO cloned = (AlbumBO) super.clone();
