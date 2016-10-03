@@ -1,13 +1,12 @@
 package net.anotheria.anosite.photoserver.shared;
 
-import java.util.Random;
-
 import net.anotheria.util.NumberUtils;
 import net.anotheria.util.StringUtils;
 import net.anotheria.util.crypt.CryptTool;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Random;
 
 /**
  * Helper for encoding and decoding id's.
@@ -141,5 +140,4 @@ public final class IdCrypter {
 	public static final long decodeToLong(final String value) {
 		return Long.valueOf(decodeToString(value));
 	}
-
 }
