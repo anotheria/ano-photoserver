@@ -8,15 +8,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>ano-photoserver</artifactId>
 	<name>ano-photoserver</name>
-	<version>1.2.7-SNAPSHOT</version>
+	<version>1.2.8-SNAPSHOT</version>
 
 	<properties>
 		<distributeme-version>2.0.0</distributeme-version>
 
 		<ano-db-version>2.1.0</ano-db-version>
-		<ano-util-version>2.1.0</ano-util-version>
+		<ano-util-version>2.1.6</ano-util-version>
 
-		<moskito-version>2.3.0</moskito-version>
+		<moskito-version>2.7.5</moskito-version>
 		<moskito-webui-version>${moskito-version}</moskito-webui-version>
 
 		<ano-plass-version>2.1.0</ano-plass-version>
@@ -209,82 +209,6 @@
 						</fileset>
 					</filesets>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>apt-maven-plugin</artifactId>
-				<dependencies>
-					<dependency>
-						<groupId>org.jfrog.maven.annomojo</groupId>
-						<artifactId>maven-plugin-tools-anno</artifactId>
-						<version>1.3.1</version>
-						<exclusions>
-							<exclusion>
-								<groupId>com.sun</groupId>
-								<artifactId>tools</artifactId>
-							</exclusion>
-						</exclusions>
-					</dependency>
-					<dependency>
-						<groupId>net.anotheria</groupId>
-						<artifactId>distributeme-generator</artifactId>
-						<version>${distributeme-version}</version>
-					</dependency>
-					<dependency>
-						<groupId>net.anotheria</groupId>
-						<artifactId>ano-prise</artifactId>
-						<version>${ano-prise-version}</version>
-					</dependency>
-				</dependencies>
-				<executions>
-					<execution>
-						<goals>
-							<goal>process</goal>
-						</goals>
-						<phase>generate-sources</phase>
-						<configuration>
-							<factory>org.distributeme.processors.GeneratorProcessorFactory</factory>
-							<encoding>UTF-8</encoding>
-							<verbose>false</verbose>
-							<sourceOutputDirectory>${basedir}/generated/java</sourceOutputDirectory>
-							<outputDirectory>${basedir}/generated/java</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.5</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${project.basedir}/java/</source>
-								<source>${project.basedir}/generated/java/</source>
-							</sources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>add-resource</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>add-resource</goal>
-						</goals>
-						<configuration>
-							<resources>
-								<resource>
-									<directory>${project.basedir}/html/</directory>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

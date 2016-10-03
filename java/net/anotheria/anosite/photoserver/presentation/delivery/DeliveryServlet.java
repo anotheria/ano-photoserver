@@ -18,11 +18,11 @@ import net.anotheria.util.StringUtils;
 import net.anotheria.util.concurrency.IdBasedLock;
 import net.anotheria.util.concurrency.IdBasedLockManager;
 import net.anotheria.util.concurrency.SafeIdBasedLockManager;
-import net.anotheria.webutils.util.CookieUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -215,7 +215,7 @@ public class DeliveryServlet extends BaseServlet {
         // get full access cookie value
         String fullAccessCookieValue = DeliveryConfig.getInstance().getRestrictionBypassCookie();
         // check whether current user has full access granted by cookie
-        if (fullAccessCookieValue == null || ! fullAccessCookieValue.equals(CookieUtil.getCookieValue(req, FULL_ACCESS_COOKIE_NAME)))
+        if (fullAccessCookieValue == null || ! fullAccessCookieValue.equals(getCookieValue(req, FULL_ACCESS_COOKIE_NAME)))
             switch (ACCESS_API.isViewAllowed(photo, optionalParameters)){
                 case VIEW_ALLOWED:
                     break;
@@ -486,4 +486,26 @@ public class DeliveryServlet extends BaseServlet {
 
 		return null;
 	}
+
+	public static Cookie getCookieByName(HttpServletRequest req, String name) {
+		Cookie result = null;
+		Cookie[] cookies = req.getCookies();
+		if (cookies != null){
+			for(int i=0; i<cookies.length; i++) {
+				if(name.equals(cookies[i].getName())) {
+					return cookies[i];
+				}
+			}
+		}
+		return result;
+	}
+
+	public static String getCookieValue(HttpServletRequest req, String name) {
+		Cookie cookie = getCookieByName(req, name);
+
+		if(cookie != null)
+			return cookie.getValue();
+		return null;
+	}
+
 }

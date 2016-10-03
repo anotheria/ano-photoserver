@@ -1,13 +1,12 @@
 package net.anotheria.anosite.photoserver.shared;
 
-import java.util.Random;
-
 import net.anotheria.util.NumberUtils;
 import net.anotheria.util.StringUtils;
 import net.anotheria.util.crypt.CryptTool;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Random;
 
 /**
  * Helper for encoding and decoding id's.
@@ -68,7 +67,7 @@ public final class IdCrypter {
 	 *            - original value which should be encoded as long
 	 * @return {@link String} encoded id
 	 */
-	public static final String encode(long value) {
+	public static String encode(long value) {
 		return encode(String.valueOf(value));
 	}
 
@@ -79,7 +78,7 @@ public final class IdCrypter {
 	 *            original value which should be encoded as String
 	 * @return encoded id
 	 */
-	public static String encode(String value) {
+	public static synchronized String encode(String value) {
 		if (StringUtils.isEmpty(value))
 			throw new IllegalArgumentException("value is not valid");
 		String toEncrypt = SECRET_CONSTANT + DELIMITER + value + DELIMITER + NumberUtils.itoa(rnd.nextInt(RANDOM_BASE), 3);
@@ -93,7 +92,7 @@ public final class IdCrypter {
 	 *            value which should be decoded
 	 * @return string decoded result
 	 */
-	public static final String decodeToString(final String value) {
+	public static synchronized String decodeToString(final String value) {
 		if (StringUtils.isEmpty(value))
 			throw new IllegalArgumentException("Invalid incoming data");
 
@@ -138,7 +137,7 @@ public final class IdCrypter {
 	 *            value which should be decoded
 	 * @return long decoded result
 	 */
-	public static final long decodeToLong(final String value) {
+	public static long decodeToLong(final String value) {
 		return Long.valueOf(decodeToString(value));
 	}
 
