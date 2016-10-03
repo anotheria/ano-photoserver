@@ -8,10 +8,6 @@ public class TempPhotoVO {
 
 	private File file;
 	private PhotoDimension dimension;
-	/**
-	 * Photo type.
-	 */
-	private String photoType;
 	
 	public PhotoDimension getDimension() {
 		return dimension;
@@ -29,15 +25,7 @@ public class TempPhotoVO {
 		this.file = file;
 		file.deleteOnExit();
 	}
-
-	public String getPhotoType() {
-		return photoType;
-	}
-
-	public void setPhotoType(String photoType) {
-		this.photoType = photoType;
-	}
-
+	
 	@Override
 	protected void finalize() throws Throwable {
 		if(file != null) {

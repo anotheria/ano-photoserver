@@ -50,7 +50,6 @@ public class StorageServiceTest {
 		photo.setUserId("1235456");
 		photo.setExtension("PNG");
 		photo.setPreviewSettings(getPreviewSettings());
-		photo.setType("cover");
 		return photo;
 	}
 
@@ -281,7 +280,6 @@ public class StorageServiceTest {
 				Assert.assertTrue(other.getModificationTime() > 0);
 				// check PreviewSettingsVO
 				Assert.assertEquals(photo.getPreviewSettings(), other.getPreviewSettings());
-				Assert.assertEquals(photo.getType(), other.getType());
 			}
 
 			//reading all photos!!!

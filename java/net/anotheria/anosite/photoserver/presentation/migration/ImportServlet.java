@@ -1,5 +1,11 @@
 package net.anotheria.anosite.photoserver.presentation.migration;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.APIFinder;
 import net.anotheria.anosite.photoserver.api.photo.AlbumAO;
@@ -12,12 +18,6 @@ import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
 import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * This is a generic photo import servlet.
@@ -80,10 +80,6 @@ public class ImportServlet extends BaseServlet {
 	 * {@link HttpServletRequest} parameter: callback method name.
 	 */
 	public static final String PARAM_CALLBACK_METHOD_NAME = "callback";
-	/**
-	 * Photo type request parameter name.
-	 */
-	public static final String PARAM_PHOTO_TYPE = "photoType";
 
 	/**
 	 * {@link PhotoUploadAPI} instance.
@@ -111,7 +107,6 @@ public class ImportServlet extends BaseServlet {
 			final String previewSettingString = request.getParameter(PARAM_PREVIEW_SETTINGS);
 			final String uploadLink = request.getParameter(PARAM_PHOTO_UPLOAD_LINK);
 			final String callBackMethodName = request.getParameter(PARAM_CALLBACK_METHOD_NAME);
-			final String photoType = request.getParameter(PARAM_PHOTO_TYPE);
 			//validate parameters
 			if (userId == null || userId.length() == 0){
 				result.put("status", "ERROR");
@@ -195,7 +190,7 @@ public class ImportServlet extends BaseServlet {
 				}
 
 				//save photo
-				PhotoAO createdPhoto = photoAPI.createPhoto(userId, albumAO.getId(), photo.getFile(), previewSettingsVO, photoType);
+				PhotoAO createdPhoto = photoAPI.createPhoto(userId, albumAO.getId(), photo.getFile(), previewSettingsVO);
 				//return photo id's
 				result.put("encodedPhotoId", createdPhoto.getEncodedId());
 				result.put("photoId", createdPhoto.getId());
@@ -224,7 +219,6 @@ public class ImportServlet extends BaseServlet {
 			final String albumName = request.getParameter(PARAM_ALBUM_NAME);
 			final String previewSettingString = request.getParameter(PARAM_PREVIEW_SETTINGS);
 			final String uploadLink = request.getParameter(PARAM_PHOTO_UPLOAD_LINK);
-			final String photoType = request.getParameter(PARAM_PHOTO_TYPE);
 			//validate parameters
 			if (userId == null || userId.length() == 0)
 				throw new ServletException("Invalid user iId");
@@ -285,7 +279,7 @@ public class ImportServlet extends BaseServlet {
 				}
 
 				//save photo
-				PhotoAO createdPhoto = photoAPI.createPhoto(userId, albumAO.getId(), photo.getFile(), previewSettingsVO, photoType);
+				PhotoAO createdPhoto = photoAPI.createPhoto(userId, albumAO.getId(), photo.getFile(), previewSettingsVO);
 				//return photo id's
 				result.put("encodedPhotoId", createdPhoto.getEncodedId());
 				result.put("photoId", createdPhoto.getId());

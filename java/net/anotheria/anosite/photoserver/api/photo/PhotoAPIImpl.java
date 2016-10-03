@@ -1,5 +1,6 @@
 package net.anotheria.anosite.photoserver.api.photo;
 
+import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.APIFinder;
 import net.anotheria.anoplass.api.APIInitException;
 import net.anotheria.anoplass.api.AbstractAPIImpl;
@@ -416,12 +417,12 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     }
 
     @Override
-    public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, String type) throws PhotoAPIException {
-        return createPhoto(userId, tempFile, previewSettings, false, type);
+    public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException {
+        return createPhoto(userId, tempFile, previewSettings, false);
     }
 
     @Override
-    public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, boolean restricted, String type) throws PhotoAPIException {
+    public PhotoAO createPhoto(String userId, File tempFile, PreviewSettingsVO previewSettings, boolean restricted) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
             throw new IllegalArgumentException("UserId is not valid");
         if (tempFile == null)
@@ -430,16 +431,16 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         isAllowedToMe(PhotoAction.ADD, 0, userId, userId, ApprovalStatus.DEFAULT); // security check
 
         long albumId = getDefaultAlbum(userId, PhotosFiltering.DISABLED).getId();
-        return createPhoto(userId, albumId, restricted, tempFile, previewSettings, type);
+        return createPhoto(userId, albumId, restricted, tempFile, previewSettings);
     }
 
     @Override
-    public PhotoAO createPhoto(String userId, long albumId, File tempFile, PreviewSettingsVO previewSettings, String type) throws PhotoAPIException {
-        return createPhoto(userId, albumId, false, tempFile, previewSettings, type);
+    public PhotoAO createPhoto(String userId, long albumId, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException {
+        return createPhoto(userId, albumId, false, tempFile, previewSettings);
     }
 
     @Override
-    public PhotoAO createPhoto(String userId, long albumId, boolean restricted, File tempFile, PreviewSettingsVO previewSettings, String type) throws PhotoAPIException {
+    public PhotoAO createPhoto(String userId, long albumId, boolean restricted, File tempFile, PreviewSettingsVO previewSettings) throws PhotoAPIException {
         if (StringUtils.isEmpty(userId))
             throw new IllegalArgumentException("UserId is not valid");
         if (tempFile == null)
@@ -455,8 +456,6 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         photo.setRestricted(restricted);
         photo.setExtension(PhotoUploadAPIConfig.getInstance().getFilePrefix());
         photo.setPreviewSettings(previewSettings);
-		photo.setType(type);
-
         try {
             // creating photo
             photo = storageService.createPhoto(photo);
@@ -714,38 +713,25 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
-    @Override
-    public void removeAllPhotosAndAlbums(String userId) throws PhotoAPIException {
-        //delete photos, related to user.
-        // NOTE: all users pins will be skipped
-        List<AlbumAO> albums = getAlbums(userId, PhotosFiltering.DISABLED);
-        for (AlbumAO album : albums) {
-
-            for (PhotoAO photoAO : getPhotos(album.getId(), PhotosFiltering.DISABLED, false))
-                try {
-                    removePhoto(userId, photoAO.getId());
-                } catch (PhotoAPIException e) {
-                    LOG.error(" Unable to remove photo[" + photoAO.getId() + "] for album[" + album.getId() + "] for user[" + userId + "]. Skipping.", e);
-                }
-            try {
-                removeAlbum(album.getId());
-            } catch (PhotoAPIException e) {
-                LOG.error("Unable to remove album with id=[" + album.getId() + "] for user[" + userId + "]. Skipping.", e);
-            }
-        }
-    }
-
     private List<PhotoAO> filterNotApproved(List<PhotoAO> photos, PhotosFiltering filtering) throws PhotoAPIException {
         if (filtering == null)
             filtering = PhotosFiltering.DEFAULT;
         if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled())
             return photos;
 
-		List<PhotoAO> result = new ArrayList<PhotoAO>();
-		for (PhotoAO photo : photos) {
-			if (filtering.allowedStatuses.contains(photo.getApprovalStatus()))
-				result.add(photo);
-		}
+        List<PhotoAO> result = new ArrayList<PhotoAO>();
+        try {
+            for (PhotoAO photo : photos) {
+                if (loginAPI.isLogedIn() && loginAPI.getLogedUserId().equalsIgnoreCase(String.valueOf(photo.getUserId()))) {
+                    result.add(photo);
+                    continue;
+                }
+                if (filtering.allowedStatuses.contains(photo.getApprovalStatus()))
+                    result.add(photo);
+            }
+        } catch (APIException e) {
+            throw new PhotoAPIException("filterNotApproved(" + photos + ") fail.", e);
+        }
 
         return result;
     }
@@ -753,10 +739,17 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     private List<Long> filterNotApproved(String ownerId, long albumId, List<Long> photosIds, PhotosFiltering filtering) throws PhotoAPIException {
         if (StringUtils.isEmpty(ownerId))
             throw new IllegalArgumentException("ownerId is not valid");
+
         if (filtering == null)
             filtering = PhotosFiltering.DEFAULT;
         if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled())
             return photosIds;
+        try {
+            if (loginAPI.isLogedIn() && loginAPI.getLogedUserId().equalsIgnoreCase(ownerId))
+                return photosIds;
+        } catch (APIException e) {
+            throw new PhotoAPIException("filterNotApproved(" + albumId + ", " + photosIds + ") fail.", e);
+        }
 
         try {
             Map<Long, ApprovalStatus> approvalStatuses = storageService.getAlbumPhotosApprovalStatus(albumId);

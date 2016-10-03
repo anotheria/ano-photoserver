@@ -1,6 +1,7 @@
 package net.anotheria.anosite.photoserver.api.upload;
 
 import net.anotheria.util.NumberUtils;
+
 import org.json.simple.JSONObject;
 
 /**
@@ -18,10 +19,6 @@ public class UploadStatusAO {
 	public static final int STATUS_ERROR_UPLOADEXCEPTION = -2;
 	public static final int STATUS_ERROR_REJECTED = -3;
 	public static final int STATUS_ERROR_NOTREGISTERED = -4;
-	/**
-	 * Notifies that the dimensions of the uploaded image are less then required in the configuration.
-	 */
-	public static final int STATUS_ERROR_MIN_IMAGE_DIMENSIONS = -5;
 	
 	private int progress;
 	private int status;

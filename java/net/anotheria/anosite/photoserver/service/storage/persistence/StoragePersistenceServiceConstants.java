@@ -96,11 +96,6 @@ final class StoragePersistenceServiceConstants {
 	static final String FIELD_NAME_RESTRICTED = "p_restricted";
 
 	/**
-	 * Photo type attribute name.
-	 */
-	static final String FIELD_NAME_TYPE = "p_type";
-
-	/**
 	 * Table fields constant.
 	 */
 	private static final String TABLE_FIELDS =
@@ -114,13 +109,12 @@ final class StoragePersistenceServiceConstants {
 					FIELD_NAME_FILE_EXTENSION + FIELD_SEPARATOR +
 					FIELD_NAME_PREVIEW_SETTINGS + FIELD_SEPARATOR +
 					FIELD_NAME_APPROVAL_STATUS + FIELD_SEPARATOR +
-					FIELD_NAME_RESTRICTED + FIELD_SEPARATOR +
-					FIELD_NAME_TYPE;
+					FIELD_NAME_RESTRICTED;
 
 	/**
 	 * SQL for Photo creation.
 	 */
-	static final String SQL_CREATE = "INSERT INTO " + TABLE_NAME + " (" + TABLE_FIELDS + ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+	static final String SQL_CREATE = "INSERT INTO " + TABLE_NAME + " (" + TABLE_FIELDS + ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 	/**
 	 * SQL for Photo update.
@@ -129,8 +123,7 @@ final class StoragePersistenceServiceConstants {
 			FIELD_NAME_NAME + " = ?, " +
 			FIELD_NAME_DESCRIPTION + " = ?, " +
 			FIELD_NAME_MODIFICATION_TIME + " = ?, " +
-			FIELD_NAME_PREVIEW_SETTINGS + " = ?, " +
-			FIELD_NAME_TYPE + " = ?" +
+			FIELD_NAME_PREVIEW_SETTINGS + " = ?" +
 			SQL_WHERE + FIELD_NAME_ID + " = ?;";
 
 	/**
@@ -204,7 +197,6 @@ final class StoragePersistenceServiceConstants {
 			FIELD_NAME_PREVIEW_SETTINGS + " character varying, " +
 			FIELD_NAME_APPROVAL_STATUS + " integer NOT NULL, " +
 			FIELD_NAME_RESTRICTED + " boolean," +
-			FIELD_NAME_TYPE + " character varying, " +
 			"CONSTRAINT " + PK_NAME + " PRIMARY KEY (" + FIELD_NAME_ID + ")" +
 			");";
 

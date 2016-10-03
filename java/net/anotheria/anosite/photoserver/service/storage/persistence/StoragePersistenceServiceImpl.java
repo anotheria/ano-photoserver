@@ -83,7 +83,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 			st.setString(9, serialize(photo.getPreviewSettings()));
 			st.setInt(10, photo.getApprovalStatus().getCode());
 			st.setBoolean(11, photo.isRestricted());
-			st.setString(12, photo.getType());
 			st.executeUpdate(); // should return 1;
 			return photo;
 		} catch (SQLException sqlE) {
@@ -155,8 +154,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 			st.setString(2, photo.getDescription());
 			st.setLong(3, photo.getModificationTime());
 			st.setString(4, serialize(photo.getPreviewSettings()));
-			st.setString(5, photo.getType());
-			st.setLong(6, photo.getId());
+			st.setLong(5, photo.getId());
 			int updated = st.executeUpdate(); // should return 1;
 			if (updated == 0)
 				throw new PhotoNotFoundPersistenceServiceException(photo.getId());
@@ -427,7 +425,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
 		photo.setPreviewSettings(mapPreviewSettings(rs.getString(FIELD_NAME_PREVIEW_SETTINGS)));
 		photo.setApprovalStatus(ApprovalStatus.getStatusByCode(rs.getInt(FIELD_NAME_APPROVAL_STATUS)));
 		photo.setRestricted(rs.getBoolean(FIELD_NAME_RESTRICTED));
-		photo.setType(rs.getString(FIELD_NAME_TYPE));
 		return photo;
 	}
 
