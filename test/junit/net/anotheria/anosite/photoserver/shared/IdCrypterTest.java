@@ -3,6 +3,7 @@ package net.anotheria.anosite.photoserver.shared;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,11 +32,12 @@ public class IdCrypterTest {
 		int THREADS = 10;
 		CountDownLatch start = new CountDownLatch(1);
 		CountDownLatch finish = new CountDownLatch(THREADS);
+		AtomicLong errorCounter = new AtomicLong(0);
 		for (int i = 0; i<THREADS; i++){
 			if (i%2==1)
-				new TestWorker(C1, R1, start, finish).start();
+				new TestWorker(C1, R1, start, finish, errorCounter).start();
 			else
-				new TestWorker(C2, R2, start, finish).start();
+				new TestWorker(C2, R2, start, finish, errorCounter).start();
 		}
 		start.countDown();
 		try {
@@ -43,6 +45,7 @@ public class IdCrypterTest {
 		}catch(Exception any){
 			any.printStackTrace();
 		}
+		assertEquals(0, errorCounter.get());
 	}
 
 	class TestWorker extends Thread{
@@ -59,26 +62,31 @@ public class IdCrypterTest {
 
 		int mismatch = 0;
 
+		private AtomicLong errorCounter;
 
-		TestWorker(String aC, long aR, CountDownLatch start, CountDownLatch finish){
+
+		TestWorker(String aC, long aR, CountDownLatch start, CountDownLatch finish, AtomicLong errorCounter){
 			C = aC;
 			R = aR;
 			this.start = start;
 			this.finish = finish;
+			this.errorCounter = errorCounter;
 		}
 
 		public void run(){
 			try{
 				start.await();
-				for (int i=0; i<1000000; i++){
+				for (int i=0; i<100000; i++){
 					try {
 						long r = IdCrypter.decodeToLong(C);
 						if (r != R) {
 							mismatch++;
+							errorCounter.incrementAndGet();
 						}
 					}catch(Exception any){
 						//any.printStackTrace();
 						mismatch++;
+						errorCounter.incrementAndGet();
 					}
 				}
 				System.out.println("Finished testrun with "+mismatch+" mismatches");

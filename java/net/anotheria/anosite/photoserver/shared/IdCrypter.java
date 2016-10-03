@@ -10,6 +10,8 @@ import java.util.Random;
 
 /**
  * Helper for encoding and decoding id's.
+ * TODO - due to bug in ano-util 2.1.6 (concurrency) methods encrypt and decrypt have been synchronized.
+ * This synchronization can be removed if ano-util bug is fixed.
  * 
  * @author Alexandr Bolbat
  */
@@ -67,7 +69,7 @@ public final class IdCrypter {
 	 *            - original value which should be encoded as long
 	 * @return {@link String} encoded id
 	 */
-	public static final String encode(long value) {
+	public static String encode(long value) {
 		return encode(String.valueOf(value));
 	}
 
@@ -78,7 +80,7 @@ public final class IdCrypter {
 	 *            original value which should be encoded as String
 	 * @return encoded id
 	 */
-	public static String encode(String value) {
+	public static synchronized String encode(String value) {
 		if (StringUtils.isEmpty(value))
 			throw new IllegalArgumentException("value is not valid");
 		String toEncrypt = SECRET_CONSTANT + DELIMITER + value + DELIMITER + NumberUtils.itoa(rnd.nextInt(RANDOM_BASE), 3);
@@ -92,7 +94,7 @@ public final class IdCrypter {
 	 *            value which should be decoded
 	 * @return string decoded result
 	 */
-	public static final String decodeToString(final String value) {
+	public static synchronized String decodeToString(final String value) {
 		if (StringUtils.isEmpty(value))
 			throw new IllegalArgumentException("Invalid incoming data");
 
@@ -137,7 +139,7 @@ public final class IdCrypter {
 	 *            value which should be decoded
 	 * @return long decoded result
 	 */
-	public static final long decodeToLong(final String value) {
+	public static long decodeToLong(final String value) {
 		return Long.valueOf(decodeToString(value));
 	}
 }
