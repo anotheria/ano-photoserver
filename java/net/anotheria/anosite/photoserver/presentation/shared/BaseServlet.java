@@ -90,7 +90,7 @@ public class BaseServlet extends HttpServlet {
 	 * @return an array of {@link java.lang.String} objects.
 	 */
 	protected String[] parsePathParameters(HttpServletRequest request) {
-		return request.getPathInfo().substring(1).split("/");
+		return request.getRequestURI().substring(1).split("/");
 	}
 
 	/**

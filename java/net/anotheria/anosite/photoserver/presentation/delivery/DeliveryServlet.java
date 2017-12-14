@@ -149,7 +149,8 @@ public class DeliveryServlet extends BaseServlet {
 			return;
 		}
 
-		final String rawPhotoId = params[0];
+		final String blurredPathParameter = params[1];
+		final String rawPhotoId = params[2];
 
 		long photoId;
 		try {
@@ -165,9 +166,9 @@ public class DeliveryServlet extends BaseServlet {
 
 		// getting size for requested photo
 		if (params.length > 1) {
-			boolean sizeDataValid = buildSizeParametersAndValidate(modifyPhotoSettings, params[1]);
+			boolean sizeDataValid = buildSizeParametersAndValidate(modifyPhotoSettings, params[3]);
 			if(!sizeDataValid){
-				String message = "Wrong size[" + params[1] + "] parameter.";
+				String message = "Wrong size[" + params[3] + "] parameter.";
 				LOGGER.info("doGet(req, resp) fail. " + message);
 
 				responseSetNotFound(resp);
@@ -176,7 +177,7 @@ public class DeliveryServlet extends BaseServlet {
 
 			// check is requested size is allowed
 			if (!photoAPIConfig.isIgnoreAllowedSizes() && !photoAPIConfig.isAllowedSize(modifyPhotoSettings.getSize()) ) {
-				LOGGER.info("doGet(req, resp) fail. " + "Requested size[" + params[1] + "] not allowed.");
+				LOGGER.info("doGet(req, resp) fail. " + "Requested size[" + params[3] + "] not allowed.");
 				responseSetNotFound(resp);
 				return;
 			}
@@ -207,7 +208,7 @@ public class DeliveryServlet extends BaseServlet {
 
 		boolean cropped = req.getParameter(PARAM_PREVIEW) != null;
 		boolean resized = modifyPhotoSettings.isResized();
-		boolean blurred = req.getParameter(PARAM_BLUR) != null || photo.isBlurred();
+		boolean blurred = req.getParameter(PARAM_BLUR) != null || (photo.isBlurred() && blurredPathParameter.equals("b"));
 
         Map<AccessParameter, String> optionalParameters = new HashMap<AccessParameter, String>();
         optionalParameters.put(AccessParameter.SOURCE, req.getParameter(PARAM_SOURCE));
@@ -224,7 +225,7 @@ public class DeliveryServlet extends BaseServlet {
                 case VIEW_ALLOWED:
                     break;
                 case BLURRED_VIEW_ALLOWED:
-                    blurred = true;
+                    blurred &= true;
                     break;
                 case VIEW_DENIED: // same as default
                 default:
