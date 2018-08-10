@@ -81,6 +81,18 @@ public interface BlurSettingsAPI extends API {
 	 */
 	void blurPicture(long albumId, long pictureId) throws BlurSettingsAPIException;
 
+	/**
+	 * Blur picture from selected album for all users without login in user.
+	 * If this picture is already blurred for all  users, or album is blurred then {@link net.anotheria.anosite.photoserver.api.blur.PictureIsBlurredAPIException} will be thrown,
+	 * otherwise picture will be blurred
+	 * for all users, all previous settings will be removed.
+	 *
+	 * @param albumId   id of album  (picture belongs to this  album)
+	 * @param pictureId id of picture
+	 * @throws net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPIException if any.
+	 */
+	void blurUserPicture(long albumId, long pictureId) throws BlurSettingsAPIException;
+
 
 	/**
 	 * Un-blur selected album for all users.

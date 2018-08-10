@@ -219,6 +219,24 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 
 	/** {@inheritDoc} */
 	@Override
+	public void blurUserPicture(long albumId, long pictureId) throws BlurSettingsAPIException {
+		if (albumId <= 0)
+			throw new IllegalArgumentException("AlbumId is not valid");
+		if (pictureId <= 0)
+			throw new IllegalArgumentException("PictureId is not valid");
+
+		try {
+			blurSettingsService.blurPicture(albumId, pictureId);
+		} catch (PictureIsBlurredException e) {
+			throw new PictureIsBlurredAPIException(albumId, pictureId, e);
+		} catch (BlurSettingsServiceException e) {
+			LOG.error("blurPicture(" + albumId + ", " + pictureId + ")", e);
+			throw new BlurSettingsAPIException("Backend failure", e);
+		}
+	}
+
+	/** {@inheritDoc} */
+	@Override
 	public void unBlurAlbum(long albumId) throws BlurSettingsAPIException {
 		if (albumId <= 0)
 			throw new IllegalArgumentException("AlbumId is not valid");

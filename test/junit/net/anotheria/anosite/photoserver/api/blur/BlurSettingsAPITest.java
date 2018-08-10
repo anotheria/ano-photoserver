@@ -128,6 +128,18 @@ public class BlurSettingsAPITest {
 			Assert.assertTrue(e instanceof IllegalArgumentException);
 		}
 		try {
+			testAPI.blurUserPicture(1, -1);
+			Assert.fail("Invalid picture ID");
+		} catch (Exception e) {
+			Assert.assertTrue(e instanceof IllegalArgumentException);
+		}
+		try {
+			testAPI.blurUserPicture(-1, 1);
+			Assert.fail("Invalid album ID");
+		} catch (Exception e) {
+			Assert.assertTrue(e instanceof IllegalArgumentException);
+		}
+		try {
 			testAPI.unBlurPicture(1, -1);
 			Assert.fail("Invalid picture ID");
 		} catch (Exception e) {
