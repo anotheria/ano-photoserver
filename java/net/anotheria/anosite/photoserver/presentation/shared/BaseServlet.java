@@ -3,10 +3,10 @@ package net.anotheria.anosite.photoserver.presentation.shared;
 import net.anotheria.anoplass.api.APIFinder;
 import net.anotheria.anoplass.api.generic.login.LoginAPI;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig;
+import net.anotheria.moskito.web.MoskitoHttpServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -21,7 +21,7 @@ import java.io.OutputStream;
  * @author otoense
  * @version $Id: $Id
  */
-public class BaseServlet extends HttpServlet {
+public class BaseServlet extends MoskitoHttpServlet {
 
 	/**
 	 * Basic serialVersionUID variable.

@@ -100,7 +100,7 @@ public class ImportServlet extends BaseServlet {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void moskitoDoGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			JSONObject result = new JSONObject();
 			//get parameters
@@ -214,7 +214,7 @@ public class ImportServlet extends BaseServlet {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void moskitoDoPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			JSONObject result = new JSONObject();
 			//get parameters

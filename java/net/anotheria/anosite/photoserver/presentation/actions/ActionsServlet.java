@@ -96,13 +96,13 @@ public class ActionsServlet extends BaseServlet {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+	protected void moskitoDoPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
 		doGet(req, resp);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+	protected void moskitoDoGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
 		// checking and preventing anonymous access to servlet
 		if (StringUtils.isEmpty(req.getParameter(PARAM_USER_ID)) && !loginAPI.isLogedIn()) {
 			JSONResponse response = new JSONResponse();

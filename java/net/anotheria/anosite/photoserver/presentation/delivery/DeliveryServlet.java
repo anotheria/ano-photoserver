@@ -137,7 +137,7 @@ public class DeliveryServlet extends BaseServlet {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void moskitoDoGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String[] params = parsePathParameters(req);
 		debug("Params[" + Arrays.toString(params) + "].");
 

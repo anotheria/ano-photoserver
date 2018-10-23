@@ -15,6 +15,9 @@ import net.anotheria.anoplass.api.session.APISession;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoDimension;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtil;
 import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
+import net.anotheria.moskito.aop.annotation.Accumulate;
+import net.anotheria.moskito.aop.annotation.Accumulates;
+import net.anotheria.moskito.aop.annotation.Monitor;
 import net.anotheria.util.IdCodeGenerator;
 import net.anotheria.util.StringUtils;
 
@@ -24,6 +27,17 @@ import net.anotheria.util.StringUtils;
  * @author otoense
  * @version $Id: $Id
  */
+@Monitor(producerId = "PS_PhotoUploadAPIImpl", category = "api", subsystem = "photoserver")
+@Accumulates({
+		@Accumulate(valueName = "Avg", intervalName = "5m"),
+		@Accumulate(valueName = "Avg", intervalName = "1h"),
+		@Accumulate(valueName = "Req", intervalName = "5m"),
+		@Accumulate(valueName = "Req", intervalName = "1h"),
+		@Accumulate(valueName = "Err", intervalName = "5m"),
+		@Accumulate(valueName = "Err", intervalName = "1h"),
+		@Accumulate(valueName = "Time", intervalName = "5m"),
+		@Accumulate(valueName = "Time", intervalName = "1h")
+})
 public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAPI {
 
 	/** Constant <code>ATTR_UPLOADER_REGISTRY="uploaderRegistry"</code> */

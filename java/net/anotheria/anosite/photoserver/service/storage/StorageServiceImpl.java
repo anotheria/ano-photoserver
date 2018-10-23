@@ -19,6 +19,9 @@ import net.anotheria.anosite.photoserver.service.storage.persistence.album.Album
 import net.anotheria.anosite.photoserver.service.storage.persistence.album.DefaultAlbumNotFoundPersistenceServiceException;
 import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
 import net.anotheria.anosite.photoserver.shared.PhotoServerConfig;
+import net.anotheria.moskito.aop.annotation.Accumulate;
+import net.anotheria.moskito.aop.annotation.Accumulates;
+import net.anotheria.moskito.aop.annotation.Monitor;
 import net.anotheria.util.StringUtils;
 import net.anotheria.util.concurrency.IdBasedLock;
 import net.anotheria.util.concurrency.IdBasedLockManager;
@@ -34,6 +37,17 @@ import org.slf4j.MarkerFactory;
  * @author Alexandr Bolbat
  * @version $Id: $Id
  */
+@Monitor(category = "service", subsystem = "photostorage")
+@Accumulates({
+		@Accumulate(valueName = "Avg", intervalName = "5m"),
+		@Accumulate(valueName = "Avg", intervalName = "1h"),
+		@Accumulate(valueName = "Req", intervalName = "5m"),
+		@Accumulate(valueName = "Req", intervalName = "1h"),
+		@Accumulate(valueName = "Err", intervalName = "5m"),
+		@Accumulate(valueName = "Err", intervalName = "1h"),
+		@Accumulate(valueName = "Time", intervalName = "5m"),
+		@Accumulate(valueName = "Time", intervalName = "1h")
+})
 public class StorageServiceImpl implements StorageService {
 
 	/**

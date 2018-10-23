@@ -77,6 +77,7 @@ public class WorkbenchServlet extends BaseServlet {
 	/** {@inheritDoc} */
 	@Override
 	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
 		photoUploadAPI = APIFinder.findAPI(PhotoUploadAPI.class);
 		photoAPI = APIFinder.findAPI(PhotoAPI.class);
 		loginAPI = APIFinder.findAPI(LoginAPI.class);
@@ -84,7 +85,8 @@ public class WorkbenchServlet extends BaseServlet {
 
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	protected void moskitoDoGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String workbenchId = request.getParameter(PARAM_WORKBENCHID);
 
 		if (workbenchId == null || workbenchId.length() == 0) {
@@ -110,7 +112,7 @@ public class WorkbenchServlet extends BaseServlet {
 
 	/** {@inheritDoc} */
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void moskitoDoPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		JSONObject resultJson = new JSONObject();
 		final boolean isDebug = LOG.isDebugEnabled();
 		try {

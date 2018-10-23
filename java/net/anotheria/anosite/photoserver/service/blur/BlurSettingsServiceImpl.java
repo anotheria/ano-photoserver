@@ -13,6 +13,9 @@ import net.anotheria.anosite.photoserver.service.blur.persistence.BlurSettingsPe
 import net.anotheria.anosite.photoserver.service.blur.persistence.BlurSettingsPersistenceServiceException;
 import net.anotheria.anosite.photoserver.service.blur.persistence.PictureIsBlurredPersistenceException;
 import net.anotheria.anosite.photoserver.service.blur.persistence.PictureIsNotBlurredPersistenceException;
+import net.anotheria.moskito.aop.annotation.Accumulate;
+import net.anotheria.moskito.aop.annotation.Accumulates;
+import net.anotheria.moskito.aop.annotation.Monitor;
 import net.anotheria.util.StringUtils;
 import net.anotheria.util.concurrency.IdBasedLock;
 import net.anotheria.util.concurrency.IdBasedLockManager;
@@ -28,6 +31,17 @@ import org.slf4j.MarkerFactory;
  * @author h3ll
  * @version $Id: $Id
  */
+@Monitor(category = "service", subsystem = "blursettings")
+@Accumulates({
+		@Accumulate(valueName = "Avg", intervalName = "5m"),
+		@Accumulate(valueName = "Avg", intervalName = "1h"),
+		@Accumulate(valueName = "Req", intervalName = "5m"),
+		@Accumulate(valueName = "Req", intervalName = "1h"),
+		@Accumulate(valueName = "Err", intervalName = "5m"),
+		@Accumulate(valueName = "Err", intervalName = "1h"),
+		@Accumulate(valueName = "Time", intervalName = "5m"),
+		@Accumulate(valueName = "Time", intervalName = "1h")
+})
 public class BlurSettingsServiceImpl implements BlurSettingsService {
 	/**
 	 * {@link Logger} instance.

@@ -22,6 +22,9 @@ import net.anotheria.anosite.photoserver.service.blur.BlurSettingsService;
 import net.anotheria.anosite.photoserver.service.blur.BlurSettingsServiceException;
 import net.anotheria.anosite.photoserver.service.blur.PictureIsBlurredException;
 import net.anotheria.anosite.photoserver.service.blur.PictureIsNotBlurredException;
+import net.anotheria.moskito.aop.annotation.Accumulate;
+import net.anotheria.moskito.aop.annotation.Accumulates;
+import net.anotheria.moskito.aop.annotation.Monitor;
 import net.anotheria.util.StringUtils;
 
 import org.slf4j.Logger;
@@ -33,6 +36,17 @@ import org.slf4j.LoggerFactory;
  * @author h3ll
  * @version $Id: $Id
  */
+@Monitor(producerId = "PS_BlurSettingsAPIImpl", category = "api", subsystem = "photoserver")
+@Accumulates({
+		@Accumulate(valueName = "Avg", intervalName = "5m"),
+		@Accumulate(valueName = "Avg", intervalName = "1h"),
+		@Accumulate(valueName = "Req", intervalName = "5m"),
+		@Accumulate(valueName = "Req", intervalName = "1h"),
+		@Accumulate(valueName = "Err", intervalName = "5m"),
+		@Accumulate(valueName = "Err", intervalName = "1h"),
+		@Accumulate(valueName = "Time", intervalName = "5m"),
+		@Accumulate(valueName = "Time", intervalName = "1h")
+})
 public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettingsAPI {
 
 	/**

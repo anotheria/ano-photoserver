@@ -81,7 +81,8 @@ public class UploadServlet extends BaseServlet {
 
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	protected void moskitoDoGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String uploadId = request.getParameter(PARAM_UPLOADID);
 		String userId = request.getParameter(PARAM_UPLOAD_USER_ID);
 
@@ -104,7 +105,8 @@ public class UploadServlet extends BaseServlet {
 	}
 
 	/** {@inheritDoc} */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	protected void moskitoDoPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String uploadId = request.getParameter(PARAM_UPLOADID);
 
 		if (uploadId == null || uploadId.length() == 0) {
