@@ -4,10 +4,7 @@ import net.anotheria.anoprise.cache.Cache;
 import net.anotheria.anoprise.cache.CacheProducerWrapper;
 import net.anotheria.anoprise.cache.Caches;
 import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
-import net.anotheria.moskito.core.logging.DefaultStatsLogger;
-import net.anotheria.moskito.core.logging.IntervalStatsLogger;
-import net.anotheria.moskito.core.logging.SL4JLogOutput;
-import net.anotheria.moskito.core.stats.DefaultIntervals;
+import net.anotheria.moskito.core.logging.LoggerUtil;
 import net.anotheria.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,11 +94,7 @@ public final class StorageServiceCache {
 			}
 
 		CacheProducerWrapper cacheWrapper = new CacheProducerWrapper(cache, configFileName, "cache", "default");
-		new DefaultStatsLogger(cacheWrapper, new SL4JLogOutput(LoggerFactory.getLogger("MoskitoDefault")));
-		new IntervalStatsLogger(cacheWrapper, DefaultIntervals.FIVE_MINUTES, new SL4JLogOutput(LoggerFactory.getLogger("Moskito5m")));
-		new IntervalStatsLogger(cacheWrapper, DefaultIntervals.FIFTEEN_MINUTES, new SL4JLogOutput(LoggerFactory.getLogger("Moskito15m")));
-		new IntervalStatsLogger(cacheWrapper, DefaultIntervals.ONE_HOUR, new SL4JLogOutput(LoggerFactory.getLogger("Moskito1h")));
-		new IntervalStatsLogger(cacheWrapper, DefaultIntervals.ONE_DAY, new SL4JLogOutput(LoggerFactory.getLogger("Moskito1d")));
+		LoggerUtil.createSLF4JDefaultAndIntervalStatsLogger(cacheWrapper);
 
 		return cache;
 	}

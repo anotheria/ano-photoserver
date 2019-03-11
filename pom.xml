@@ -15,12 +15,12 @@
 		<target-version>1.8</target-version>
 		<aspectj-maven-plugin.version>1.8</aspectj-maven-plugin.version>
 		<aspectj-maven-plugin.complianceLevel>1.8</aspectj-maven-plugin.complianceLevel>
-		<distributeme-version>2.3.4</distributeme-version>
+		<distributeme-version>2.3.8</distributeme-version>
 
 		<ano-db-version>2.1.0</ano-db-version>
 		<ano-util-version>2.1.6</ano-util-version>
 
-		<moskito-version>2.7.5</moskito-version>
+		<moskito-version>2.9.1</moskito-version>
 		<moskito-webui-version>${moskito-version}</moskito-webui-version>
 
 		<ano-plass-version>2.1.0</ano-plass-version>
