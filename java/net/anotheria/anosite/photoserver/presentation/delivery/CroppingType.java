@@ -1,6 +1,7 @@
 package net.anotheria.anosite.photoserver.presentation.delivery;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Photo cropping type.
@@ -41,6 +42,11 @@ public enum CroppingType {
     NATURAL_BOTH(5);
 
     /**
+     * Logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(CroppingType.class);
+
+    /**
      * Value property.
      */
     private int value;
@@ -75,7 +81,7 @@ public enum CroppingType {
             if (gender.getValue() == value)
                 return gender;
 
-        Logger.getLogger(CroppingType.class).warn("Method CroppingType.valueOf() called with invalid value=[" + value + "]");
+        LOGGER.warn("Method CroppingType.valueOf() called with invalid value=[" + value + "]");
         return null;
     }
 }

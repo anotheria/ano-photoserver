@@ -1,6 +1,7 @@
 package net.anotheria.anosite.photoserver.presentation.delivery;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Photo cropping type.
@@ -10,7 +11,7 @@ import org.apache.log4j.Logger;
  */
 public enum BluringRadiusChoose {
 
-	/**
+    /**
 	 * Use min radius.
 	 */
 	MIN(0),
@@ -20,6 +21,10 @@ public enum BluringRadiusChoose {
      */
 	MAX(1);
 
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = LoggerFactory.getLogger(BluringRadiusChoose.class);
 
     /**
      * Value property.
@@ -56,7 +61,7 @@ public enum BluringRadiusChoose {
             if (gender.getValue() == value)
                 return gender;
 
-        Logger.getLogger(BluringRadiusChoose.class).warn("Method CroppingType.valueOf() called with invalid value=[" + value + "]");
+        LOGGER.warn("Method CroppingType.valueOf() called with invalid value=[" + value + "]");
         return null;
     }
 }
