@@ -365,6 +365,10 @@ public class DeliveryServlet extends BaseServlet {
 		PhotoUtil putil = new PhotoUtil();
 		putil.read(new File(photoPath));
 
+		// if blur param is present or photo should be blurred for user we have to blur image
+		if (modifyPhotoSettings.isBlurred())
+			putil.blur();
+
 		// if preview param is present we have to crop image first
 		if (modifyPhotoSettings.isCropped()) {
 			PhotoDimension move = new PhotoDimension(pvSettings.getX(), pvSettings.getY());
@@ -433,11 +437,6 @@ public class DeliveryServlet extends BaseServlet {
 					break;
 			}
         }
-
-		// if blur param is present or photo should be blurred for user we have to blur image
-		if (modifyPhotoSettings.isBlurred())
-			putil.blur();
-
 
 		// caching changed photo
 		debug("Storing changed photo: " + resultPhotoPath);
