@@ -535,7 +535,7 @@ public class StorageServiceImpl implements StorageService {
 			announcer.photoDeleted(photoId, photo.getUserId());
 
 			try {
-				StorageUtil.removePhoto(photo, false);
+				StorageUtil.removePhoto(photo);
 			} catch (StorageUtilException e) {
 				LOG.warn("removePhoto(" + photoId + ") Removed photo meta information but failed to remove photo file, check StorageUtil log.", e);
 			}

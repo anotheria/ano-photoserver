@@ -41,6 +41,7 @@
 		<cobertura-version>2.5.1</cobertura-version>
 		<checkstyle-version>2.7</checkstyle-version>
 		<pmd-version>2.5</pmd-version>
+		<amazonaws-version>1.12.107</amazonaws-version>
 	</properties>
 
 	<dependencies>
@@ -182,6 +183,25 @@
 			<version>3.5.6</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-bom</artifactId>
+			<version>${amazonaws-version}</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-ses</artifactId>
+			<version>${amazonaws-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>${amazonaws-version}</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

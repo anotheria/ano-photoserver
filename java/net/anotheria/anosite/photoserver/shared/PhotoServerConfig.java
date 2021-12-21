@@ -45,6 +45,11 @@ public final class PhotoServerConfig implements Serializable {
 	 */
 	@Configure
 	private boolean photoApprovingEnabled = true;
+	/**
+	 * Field that determines if PhotoAPI will be use ceph storage for saving photos.
+	 */
+	@Configure
+	private boolean photoCephStorageEnabled = false;
 
 	private PhotoServerConfig() {
 		try {
@@ -73,14 +78,19 @@ public final class PhotoServerConfig implements Serializable {
 		return photoApprovingEnabled;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("PhotoServerConfig [photoApprovingEnabled=");
-		builder.append(photoApprovingEnabled);
-		builder.append("]");
-		return builder.toString();
+	public boolean isPhotoCephStorageEnabled() {
+		return photoCephStorageEnabled;
 	}
 
+	public void setPhotoCephStorageEnabled(boolean photoCephStorageEnabled) {
+		this.photoCephStorageEnabled = photoCephStorageEnabled;
+	}
+
+	@Override
+	public String toString() {
+		return "PhotoServerConfig{" +
+				"photoApprovingEnabled=" + photoApprovingEnabled +
+				", photoCephStorageEnabled=" + photoCephStorageEnabled +
+				'}';
+	}
 }

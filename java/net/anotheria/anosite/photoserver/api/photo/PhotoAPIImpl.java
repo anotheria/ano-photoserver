@@ -502,9 +502,10 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             // creating photo
             photo = storageService.createPhoto(photo);
+            photo.setTempFile(tempFile);
 
             // writing photo file
-            StorageUtil.writePhoto(tempFile, photo, true);
+            StorageUtil.writePhoto(photo, true);
 
             // updating photo album
             album.addPhotoToPhotoOrder(photo.getId());

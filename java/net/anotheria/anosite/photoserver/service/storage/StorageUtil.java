@@ -1,21 +1,14 @@
 package net.anotheria.anosite.photoserver.service.storage;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
+import net.anotheria.anoprise.dualcrud.CrudServiceException;
+import net.anotheria.anoprise.dualcrud.DualCrudConfig;
+import net.anotheria.anoprise.dualcrud.DualCrudService;
+import net.anotheria.anoprise.dualcrud.DualCrudServiceFactory;
+import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
+import net.anotheria.anosite.photoserver.service.storage.photolocation.ceph.PhotoCephClientService;
+import net.anotheria.anosite.photoserver.service.storage.photolocation.fs.PhotoFSService;
+import net.anotheria.anosite.photoserver.shared.PhotoServerConfig;
 import net.anotheria.anosite.photoserver.shared.vo.PhotoVO;
-import net.anotheria.util.StringUtils;
-import net.anotheria.util.concurrency.IdBasedLock;
-import net.anotheria.util.concurrency.IdBasedLockManager;
-import net.anotheria.util.concurrency.SafeIdBasedLockManager;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility for operating with photos on file system. All synchronizations based on file names.
@@ -26,14 +19,17 @@ import org.slf4j.LoggerFactory;
 public final class StorageUtil {
 
 	/**
-	 * Logger.
-	 */
-	private static final Logger LOG = LoggerFactory.getLogger(StorageUtil.class);
+	 * {@link DualCrudService} instance.
+	 * */
+	private static final DualCrudService<PhotoVO> DUAL_CRUD_SERVICE;
 
-	/**
-	 * Lock manager for safe operations with files.
-	 */
-	private static final IdBasedLockManager LOCK_MANAGER = new SafeIdBasedLockManager();
+	static {
+		if (PhotoServerConfig.getInstance().isPhotoCephStorageEnabled()) {
+			DUAL_CRUD_SERVICE = DualCrudServiceFactory.createDualCrudService(new PhotoFSService(), new PhotoCephClientService(), DualCrudConfig.migrateOnTheFlyButMaintainBoth());
+		} else {
+			DUAL_CRUD_SERVICE = DualCrudServiceFactory.createDualCrudService(new PhotoFSService(), null, DualCrudConfig.useLeftOnly());
+		}
+	}
 
 	/**
 	 * Default constructor.
@@ -47,92 +43,21 @@ public final class StorageUtil {
 	 *
 	 * InputStream, photo and extension can't be null or empty.
 	 *
-	 * @param tempFile
-	 *            - {@link java.io.File} where uploaded photo is temporarily stored before storing it in real storage
 	 * @param photo
 	 *            - photo information
 	 * @param overwrite
 	 *            - <code>true</code> if we can overwrite or <code>false</code>
 	 * @throws net.anotheria.anosite.photoserver.service.storage.StorageUtilException if any.
 	 */
-	public static void writePhoto(final File tempFile, final PhotoVO photo, final boolean overwrite) throws StorageUtilException {
-		if (tempFile == null)
-			throw new IllegalArgumentException("File is null.");
-
-		checkArguments(photo);
-
-		File file = new File(photo.getFileLocation());
-		// checking folder structure and creating if needed
-		if (!file.exists())
-			if (!file.mkdirs())
-				throw new StorageUtilException("writePhoto(InputStream, " + photo + ", " + overwrite + ") fail. Can't create needed folder structure.");
-
-		String fileName = photo.getFilePath();
-		// checking file name
-		if (StringUtils.isEmpty(fileName))
-			throw new RuntimeException("Wrong photo file name[" + fileName + "].");
-
-		file = new File(fileName);
-		// preventing photo overwriting if this operation not permitted
-		if (file.exists() && !overwrite)
-			throw new StorageUtilException("writePhoto(InputStream, " + photo + ", " + overwrite + ") fail. Photo already exist.");
-
-		// removing previously stored file if it exist
-		removePhoto(photo, true);
-
-		// synchronizing on fileName for preventing concurrent modifications on same file
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(fileName);
-		lock.lock();
-
-		FileOutputStream out = null;
-		FileInputStream is = null;
+	public static void writePhoto(final PhotoVO photo, final boolean overwrite) throws StorageUtilException {
 		try {
-			out = new FileOutputStream(file);
-			is = new FileInputStream(tempFile);
-			// buffered copy from input to output
-			IOUtils.copyLarge(is, out);
-			out.flush();
-		} catch (IOException ioe) {
-			String message = "writePhoto(InputStream, " + photo + ", " + overwrite + ") fail.";
-			LOG.error(message, ioe);
-			throw new StorageUtilException(message, ioe);
-		} finally {
-			// closing output with ignoring exceptions
-			IOUtils.closeQuietly(out);
-			IOUtils.closeQuietly(is);
-			// closing synchronization
-			lock.unlock();
-		}
-	}
-
-	/**
-	 * Read photo from the file system. Don't forget close result {@link java.io.InputStream} after finishing work with it. Photo and extension can't be null or
-	 * empty.
-	 *
-	 * @param photo
-	 *            - photo information
-	 * @return {@link java.io.InputStream}
-	 * @throws net.anotheria.anosite.photoserver.service.storage.StorageUtilException if any.
-	 */
-	public static InputStream getPhoto(final PhotoVO photo) throws StorageUtilException {
-		checkArguments(photo);
-
-		String fileName = photo.getFilePath();
-		// checking file name
-		if (StringUtils.isEmpty(fileName))
-			throw new RuntimeException("Wrong photo file name[" + fileName + "].");
-
-		File file = new File(fileName);
-		// checking is photo file exist
-		if (!file.exists() || file.isDirectory())
-			throw new StorageUtilException("getPhoto(" + photo + ") fail. Photo not exist or it a directory.");
-
-		try {
-			return new FileInputStream(fileName);
-		} catch (FileNotFoundException fnfe) {
-			String message = "getPhoto(" + photo + ") fail. File not found.";
-			LOG.error(message, fnfe);
-			throw new StorageUtilException(message, fnfe);
+			if (overwrite) {
+				DUAL_CRUD_SERVICE.update(photo);
+			} else {
+				DUAL_CRUD_SERVICE.create(photo);
+			}
+		} catch (CrudServiceException e) {
+			throw new StorageUtilException(e);
 		}
 	}
 
@@ -141,88 +66,13 @@ public final class StorageUtil {
 	 *
 	 * @param photo
 	 *            - photo information
-	 * @param ignoreIfNotExist
-	 *            - ignoring if file not exist or throwing exception
 	 * @throws net.anotheria.anosite.photoserver.service.storage.StorageUtilException if any.
 	 */
-	public static void removePhoto(final PhotoVO photo, final boolean ignoreIfNotExist) throws StorageUtilException {
-		checkArguments(photo);
-
-		String fileName = photo.getFilePath();
-		// checking file name
-		if (StringUtils.isEmpty(fileName))
-			throw new RuntimeException("Wrong photo file name[" + fileName + "].");
-
-		File file = new File(fileName);
-		// checking is a file not a directory
-		if (file.exists() && file.isDirectory()) {
-			String message = "removePhoto(" + photo + ", " + ignoreIfNotExist + ") fail. File is a folder.";
-			LOG.error(message);
-			throw new StorageUtilException(message);
-		}
-
-		// synchronizing on fileName for preventing concurrent modifications on same file
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(fileName);
-		lock.lock();
-
+	public static void removePhoto(final PhotoVO photo) throws StorageUtilException {
 		try {
-			// checking is need throw exception if file not exist
-			if (!file.exists() && !ignoreIfNotExist) {
-				String message = "removePhoto(" + photo + ", " + ignoreIfNotExist + ") fail. File not found.";
-				LOG.error(message);
-				throw new StorageUtilException(message);
-			}
-
-			file.delete();
-			removeCachedVersions(photo.getFileLocation(), String.valueOf(photo.getId()) + photo.getExtension());
-		} finally {
-			lock.unlock();
+			DUAL_CRUD_SERVICE.delete(photo);
+		} catch (CrudServiceException e) {
+			throw new StorageUtilException(e);
 		}
 	}
-
-	/**
-	 * Remove photo cached version's.
-	 * 
-	 * @param location
-	 *            - original photo location
-	 * @param fileName
-	 *            - original photo file name
-	 */
-	private static void removeCachedVersions(final String location, final String fileName) {
-		File dir = new File(location);
-		if (!dir.isDirectory()) {
-			LOG.warn("Location[" + location + "] not a directoroy or not exist.");
-			return;
-		}
-
-		String[] files = dir.list();
-		if (files == null || files.length == 0)
-			return;
-
-		for (String file : files)
-			if (file.startsWith(fileName)) {
-				File toDelete = new File(location + File.separator + file);
-				if (toDelete.isDirectory())
-					continue;
-
-				toDelete.delete();
-			}
-	}
-
-	/**
-	 * Internal method for validating arguments.
-	 * 
-	 * @param photo
-	 *            - photo information
-	 * @param extension
-	 *            - photo file extension
-	 */
-	private static void checkArguments(final PhotoVO photo) {
-		if (photo == null)
-			throw new IllegalArgumentException("PhotoVO is null.");
-
-		if (StringUtils.isEmpty(photo.getFileLocation()))
-			throw new IllegalArgumentException("PhotoVO.fileLocation is empty.");
-	}
-
 }

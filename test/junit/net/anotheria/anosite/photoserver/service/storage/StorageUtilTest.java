@@ -2,11 +2,13 @@ package net.anotheria.anosite.photoserver.service.storage;
 
 import java.io.File;
 
+import net.anotheria.anosite.photoserver.TestingContextInitializer;
 import net.anotheria.anosite.photoserver.shared.vo.PhotoVO;
 
 import org.configureme.ConfigurationManager;
 import org.configureme.environments.DynamicEnvironment;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -18,8 +20,17 @@ import org.junit.Test;
 public class StorageUtilTest {
 
 	@BeforeClass
-	public static void init() {
-		ConfigurationManager.INSTANCE.setDefaultEnvironment(new DynamicEnvironment("test"));
+	public static void before() {
+		TestingContextInitializer.deInit();
+		TestingContextInitializer.init();
+
+	}
+
+	@Before
+	public void beforeMethod() {
+		TestingContextInitializer.deInit();
+		TestingContextInitializer.init();
+
 	}
 
 	@Test
@@ -29,31 +40,23 @@ public class StorageUtilTest {
 
 	@Test
 	public void errorsTest() {
-		// check wrong photo information
-		try {
-			StorageUtil.getPhoto(null);
-			Assert.fail();
-		} catch (IllegalArgumentException e) {
-		} catch (StorageUtilException e) {
-			Assert.fail();
-		}
 
 		// check wrong file
 		try {
-			StorageUtil.writePhoto(null, new PhotoVO(), true);
+			StorageUtil.writePhoto(new PhotoVO(), true);
 			Assert.fail();
-		} catch (IllegalArgumentException e) {
 		} catch (StorageUtilException e) {
-			Assert.fail();
+			//expected
 		}
 
 		// check wrong photo file location
 		try {
-			StorageUtil.writePhoto(new File(File.separator), new PhotoVO(), true);
+			PhotoVO photoVO = new PhotoVO();
+			photoVO.setTempFile(new File(File.separator));
+			StorageUtil.writePhoto(photoVO, true);
 			Assert.fail();
-		} catch (IllegalArgumentException e) {
 		} catch (StorageUtilException e) {
-			Assert.fail();
+			//expected
 		}
 	}
 

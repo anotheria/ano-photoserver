@@ -1,5 +1,6 @@
 package net.anotheria.anosite.photoserver.shared.vo;
 
+import net.anotheria.anoprise.dualcrud.CrudSaveable;
 import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
 
 import java.io.File;
@@ -11,7 +12,7 @@ import java.io.Serializable;
  * @author Alexandr Bolbat
  * @version $Id: $Id
  */
-public class PhotoVO implements Serializable, Cloneable {
+public class PhotoVO implements Serializable, Cloneable, CrudSaveable {
 
 	/**
 	 * Basic serialVersionUID variable.
@@ -72,6 +73,11 @@ public class PhotoVO implements Serializable, Cloneable {
 	 * Photo approval status. WAITING_APPROVAL by default.
 	 */
 	private ApprovalStatus approvalStatus = ApprovalStatus.WAITING_APPROVAL;
+
+	/**
+	 * User photo.
+	 */
+	private File tempFile;
 
 	/**
 	 * <p>Setter for the field <code>id</code>.</p>
@@ -279,12 +285,31 @@ public class PhotoVO implements Serializable, Cloneable {
 	public ApprovalStatus getApprovalStatus() {
 		return approvalStatus;
 	}
-	
-	/** {@inheritDoc} */
+
+	public File getTempFile() {
+		return tempFile;
+	}
+
+	public void setTempFile(File tempFile) {
+		this.tempFile = tempFile;
+	}
+
 	@Override
 	public String toString() {
-		return "PhotoVO [id=" + id + ", userId=" + userId + ", albumId=" + albumId + ", fileLocation=" + fileLocation + ", extension=" + extension + ", name="
-				+ name + ", description=" + description + ", modificationTime=" + modificationTime + ", previewSettings=" + previewSettings + ", approvalStatus=" + approvalStatus + "]";
+		return "PhotoVO{" +
+				"id=" + id +
+				", userId='" + userId + '\'' +
+				", albumId=" + albumId +
+				", restricted=" + restricted +
+				", fileLocation='" + fileLocation + '\'' +
+				", extension='" + extension + '\'' +
+				", name='" + name + '\'' +
+				", description='" + description + '\'' +
+				", modificationTime=" + modificationTime +
+				", previewSettings=" + previewSettings +
+				", approvalStatus=" + approvalStatus +
+				", tempFile=" + tempFile +
+				'}';
 	}
 
 	/** {@inheritDoc} */
@@ -321,4 +346,8 @@ public class PhotoVO implements Serializable, Cloneable {
 		}
 	}
 
+	@Override
+	public String getOwnerId() {
+		return userId + "_" + id;
+	}
 }
