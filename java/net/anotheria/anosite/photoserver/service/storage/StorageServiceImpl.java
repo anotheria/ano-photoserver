@@ -355,8 +355,6 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getWaitingApprovalPhotos(int photosAmount) throws StorageServiceException {
-		if (photosAmount < 0)
-			throw new IllegalArgumentException("Illegal photos amount selected amount[" + photosAmount + "]");
 		try {
 			List<PhotoBO> result = new ArrayList<>(photosAmount);
 			Query q = buildQuery(PhotoQueryName.PHOTOS_BY_STATUS_AND_IF_EXISTS_AMOUNT, "statusCode=" + ApprovalStatus.WAITING_APPROVAL.getCode() + "&amount=" + photosAmount);

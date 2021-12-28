@@ -111,7 +111,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             AlbumBO album = storageService.getAlbum(albumId);
 
-            isAllowedForAction(AlbumAction.VIEW, album.getUserId(), null); // security check
+            isAllowedForAction(AlbumAction.VIEW, album.getUserId(), authorId); // security check
 
             album.setPhotosOrder(filterNotApproved(album.getUserId(), album.getId(), album.getPhotosOrder(), filtering)); // filtering not approved photos from
             // order
@@ -165,8 +165,6 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     /** {@inheritDoc} */
     @Override
     public AlbumAO getDefaultAlbum(String userId) throws PhotoAPIException {
-        if (StringUtils.isEmpty(userId))
-            throw new IllegalArgumentException("UserId is not valid");
         return getDefaultAlbum(userId, PhotosFiltering.DEFAULT);
     }
 
@@ -638,6 +636,10 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     public List<PhotoAO> getWaitingApprovalPhotos(int amount) throws PhotoAPIException {
         if (amount < 0)
             throw new IllegalArgumentException("Illegal photos amount selected amount[" + amount + "]");
+
+        if (amount == 0) {
+            return new ArrayList<>();
+        }
 
         try {
             // use same method as for bulk change of approval statuses.
