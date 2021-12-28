@@ -21,8 +21,6 @@ import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
 import net.anotheria.anosite.photoserver.service.storage.PhotoNotFoundServiceException;
 import net.anotheria.anosite.photoserver.service.storage.StorageService;
 import net.anotheria.anosite.photoserver.service.storage.StorageServiceException;
-import net.anotheria.anosite.photoserver.service.storage.StorageUtil;
-import net.anotheria.anosite.photoserver.service.storage.StorageUtilException;
 import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
 import net.anotheria.anosite.photoserver.shared.PhotoServerConfig;
 import net.anotheria.anosite.photoserver.shared.vo.PhotoVO;
@@ -113,7 +111,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             AlbumBO album = storageService.getAlbum(albumId);
 
-            isAllowedForAction(AlbumAction.VIEW, albumId, album.getUserId(), null); // security check
+            isAllowedForAction(AlbumAction.VIEW, album.getUserId(), null); // security check
 
             album.setPhotosOrder(filterNotApproved(album.getUserId(), album.getId(), album.getPhotosOrder(), filtering)); // filtering not approved photos from
             // order
@@ -146,10 +144,10 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (StringUtils.isEmpty(userId))
             throw new IllegalArgumentException("UserId is not valid");
 
-        isAllowedForAction(AlbumAction.VIEW, 0, userId, authorId); // security check
+        isAllowedForAction(AlbumAction.VIEW, userId, authorId); // security check
 
         try {
-            List<AlbumAO> result = new ArrayList<AlbumAO>();
+            List<AlbumAO> result = new ArrayList<>();
             for (AlbumBO album : storageService.getAlbums(userId)) {
                 album.setPhotosOrder(filterNotApproved(album.getUserId(), album.getId(), album.getPhotosOrder(), filtering)); // filtering not approved photos
                 // from order
@@ -186,7 +184,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             AlbumBO album = storageService.getDefaultAlbum(userId);
 
-            isAllowedForAction(AlbumAction.VIEW, album.getId(), album.getUserId(), authorId); // security check
+            isAllowedForAction(AlbumAction.VIEW, album.getUserId(), authorId); // security check
             album.setPhotosOrder(filterNotApproved(album.getUserId(), album.getId(), album.getPhotosOrder(), filtering)); // filtering not approved photos from
             // order
 
@@ -210,7 +208,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (album == null)
             throw new IllegalArgumentException("Null album");
 
-        isAllowedForAction(AlbumAction.CREATE, 0, album.getUserId(), authorId); // security check
+        isAllowedForAction(AlbumAction.CREATE, album.getUserId(), authorId); // security check
 
         try {
             return new AlbumAO(storageService.createAlbum(new AlbumBO(album)));
@@ -233,7 +231,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (album == null)
             throw new IllegalArgumentException("Null album");
 
-        isAllowedForAction(AlbumAction.EDIT, album.getId(), album.getUserId(), authorId); // security check
+        isAllowedForAction(AlbumAction.EDIT, album.getUserId(), authorId); // security check
 
         try {
             return new AlbumAO(storageService.updateAlbum(new AlbumBO(album)));
@@ -255,7 +253,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     public AlbumAO removeAlbum(long albumId, String authorId) throws PhotoAPIException {
         AlbumAO result = getAlbum(albumId, PhotosFiltering.DISABLED);
 
-        isAllowedForAction(AlbumAction.REMOVE_PHOTO, albumId, result.getUserId(), authorId); // security check
+        isAllowedForAction(AlbumAction.REMOVE_PHOTO, result.getUserId(), authorId); // security check
 
         try {
             return new AlbumAO(storageService.removeAlbum(albumId));
@@ -298,7 +296,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
         try {
             PhotoBO photo = storageService.getDefaultPhoto(userId);
-            isAllowedToMe(PhotoAction.VIEW, photo.getId(), photo.getUserId(), userId, photo.getApprovalStatus()); // security check
+            isAllowedToMe(PhotoAction.VIEW, photo.getUserId(), userId); // security check
             PhotoAO result = new PhotoAO(photo);
             // populate Blur settings!
             result.setBlurred(blurSettingsAPI.readMyBlurSettings(photo.getAlbumId(), photo.getId()));
@@ -306,11 +304,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         } catch (DefaultPhotoNotFoundServiceException e) {
             LOG.debug("getDefaultPhoto(" + userId + ") failed");
             throw new DefaultPhotoNotFoundAPIException(e.getMessage());
-        } catch (StorageServiceException e) {
-            String message = "getDefaultPhoto(" + userId + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (BlurSettingsAPIException e) {
+        } catch (StorageServiceException | BlurSettingsAPIException e) {
             String message = "getDefaultPhoto(" + userId + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -324,7 +318,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             throw new IllegalArgumentException("UserId is not valid");
         try {
             PhotoBO photo = storageService.getDefaultPhoto(userId, albumId);
-            isAllowedToMe(PhotoAction.VIEW, photo.getId(), photo.getUserId(), userId, photo.getApprovalStatus()); // security check
+            isAllowedToMe(PhotoAction.VIEW, photo.getUserId(), userId); // security check
             PhotoAO result = new PhotoAO(photo);
             // populate Blur settings!
             result.setBlurred(blurSettingsAPI.readMyBlurSettings(photo.getAlbumId(), photo.getId()));
@@ -332,11 +326,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         } catch (DefaultPhotoNotFoundServiceException e) {
             LOG.error("getDefaultPhoto(" + userId + ", " + albumId + ") failed", e);
             throw new DefaultPhotoNotFoundAPIException(e.getMessage());
-        } catch (StorageServiceException e) {
-            String message = "getDefaultPhoto(" + userId + "," + albumId + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (BlurSettingsAPIException e) {
+        } catch (StorageServiceException | BlurSettingsAPIException e) {
             String message = "getDefaultPhoto(" + userId + "," + albumId + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -349,17 +339,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             PhotoVO photo = storageService.getPhoto(photoId);
 
-            isAllowedToMe(PhotoAction.VIEW, photoId, photo.getUserId(), photo.getUserId(), photo.getApprovalStatus()); // security check
+            isAllowedToMe(PhotoAction.VIEW, photo.getUserId(), photo.getUserId()); // security check
             PhotoAO result = new PhotoAO(photo);
             result.setBlurred(blurSettingsAPI.readMyBlurSettings(photo.getAlbumId(), photo.getId()));
             return result;
         } catch (PhotoNotFoundServiceException e) {
             throw new PhotoNotFoundPhotoAPIException(photoId);
-        } catch (StorageServiceException e) {
-            String message = "getPhoto(" + photoId + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (BlurSettingsAPIException e) {
+        } catch (StorageServiceException | BlurSettingsAPIException e) {
             String message = "getPhoto(" + photoId + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -377,7 +363,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     public List<PhotoAO> getPhotos(long albumId, PhotosFiltering filtering, boolean orderByPhotosOrder) throws PhotoAPIException {
 
         final String defaultPhotoOwnerId = "-10"; //remove  after  refactoring - for  now  it's  actual for  failing security check.
-        isAllowedToMe(PhotoAction.VIEW, 0, defaultPhotoOwnerId, defaultPhotoOwnerId, ApprovalStatus.DEFAULT); // security check
+        isAllowedToMe(PhotoAction.VIEW, defaultPhotoOwnerId, defaultPhotoOwnerId); // security check
 
         try {
             AlbumAO album = getAlbum(albumId, filtering);
@@ -386,11 +372,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             if (orderByPhotosOrder)
                 photos = orderByPhotosOrder(photos, album.getPhotosOrder());
             return photos;
-        } catch (StorageServiceException e) {
-            String message = "getPhotos(" + albumId + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (BlurSettingsAPIException e) {
+        } catch (StorageServiceException | BlurSettingsAPIException e) {
             String message = "getPhotos(" + albumId + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -402,7 +384,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      *
      * @param photos - photos that need ordering.
      * @param ids    - photoOrder from Album
-     * @return
+     * @return       - {@link List} of {@link PhotoBO}
      */
     private List<PhotoAO> orderByPhotosOrder(List<PhotoAO> photos, List<Long> ids) {
         if (photos == null)
@@ -410,8 +392,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (photos.isEmpty() || ids == null || ids.isEmpty())
             return photos;
 
-        Map<Long, PhotoAO> photosMap = new LinkedHashMap<Long, PhotoAO>();
-        List<PhotoAO> result = new ArrayList<PhotoAO>();
+        Map<Long, PhotoAO> photosMap = new LinkedHashMap<>();
+        List<PhotoAO> result = new ArrayList<>();
         for (PhotoAO photo : photos)
             photosMap.put(photo.getId(), photo);
 
@@ -438,9 +420,9 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      */
     private List<PhotoAO> preparePhotos(long albumId, List<PhotoBO> photoVOs) throws BlurSettingsAPIException {
         if (photoVOs.isEmpty())
-            return new ArrayList<PhotoAO>();
-        List<PhotoAO> result = new ArrayList<PhotoAO>(photoVOs.size());
-        List<Long> ids = new ArrayList<Long>(photoVOs.size());
+            return new ArrayList<>();
+        List<PhotoAO> result = new ArrayList<>(photoVOs.size());
+        List<Long> ids = new ArrayList<>(photoVOs.size());
         for (PhotoBO photo : photoVOs) {
             result.add(new PhotoAO(photo));
             ids.add(photo.getId());
@@ -469,7 +451,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (tempFile == null)
             throw new IllegalArgumentException("Null temp file");
 
-        isAllowedToMe(PhotoAction.ADD, 0, userId, userId, ApprovalStatus.DEFAULT); // security check
+        isAllowedToMe(PhotoAction.ADD, userId, userId); // security check
 
         long albumId = getDefaultAlbum(userId, PhotosFiltering.DISABLED).getId();
         return createPhoto(userId, albumId, restricted, tempFile, previewSettings);
@@ -489,7 +471,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (tempFile == null)
             throw new IllegalArgumentException("Null temp file");
 
-        isAllowedToMe(PhotoAction.ADD, 0, userId, userId, ApprovalStatus.DEFAULT); // security check
+        isAllowedToMe(PhotoAction.ADD, userId, userId); // security check
 
         AlbumAO album = getAlbum(albumId, PhotosFiltering.DISABLED, userId);
 
@@ -499,23 +481,16 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         photo.setRestricted(restricted);
         photo.setExtension(PhotoUploadAPIConfig.getInstance().getFilePrefix());
         photo.setPreviewSettings(previewSettings);
+        photo.setPhotoFile(tempFile);
         try {
             // creating photo
             photo = storageService.createPhoto(photo);
-
-            // writing photo file
-            StorageUtil.writePhoto(tempFile, photo, true);
-
             // updating photo album
             album.addPhotoToPhotoOrder(photo.getId());
             updateAlbum(album, userId);
 
             return new PhotoAO(photo);
         } catch (StorageServiceException e) {
-            String message = "createPhoto(" + userId + ", " + tempFile + ", " + previewSettings + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (StorageUtilException e) {
             String message = "createPhoto(" + userId + ", " + tempFile + ", " + previewSettings + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -536,7 +511,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (StringUtils.isEmpty(userId))
             throw new IllegalArgumentException("UserId is not valid");
 
-        isAllowedToMe(PhotoAction.EDIT, photo.getId(), photo.getUserId(), userId, photo.getApprovalStatus()); // security check
+        isAllowedToMe(PhotoAction.EDIT, photo.getUserId(), userId); // security check
 
         try {
             return new PhotoAO(storageService.updatePhoto(new PhotoBO(photo)));
@@ -563,7 +538,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
         PhotoAO photo = getPhoto(photoId);
 
-        isAllowedToMe(PhotoAction.EDIT, photo.getId(), photo.getUserId(), userId, photo.getApprovalStatus()); // security check
+        isAllowedToMe(PhotoAction.EDIT, photo.getUserId(), userId); // security check
 
         try {
             storageService.removePhoto(photoId);
@@ -604,41 +579,25 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      * Check is user can perform action on photo.
      *
      * @param photoAction  - action that user tries to perform.
-     * @param photoId      - photo id
      * @param userId       - user id that try to do action
      * @param photoOwnerId - photo owner user id
-     * @throws PhotoAPIException
+     * @throws PhotoAPIException if any errors occurs
      */
-    private void isAllowedToMe(PhotoAction photoAction, long photoId, String photoOwnerId, String userId, ApprovalStatus status) throws PhotoAPIException {
-        // TODO: fix this ugly method in future
+    private void isAllowedToMe(PhotoAction photoAction, String photoOwnerId, String userId) throws PhotoAPIException {
+        if (PhotoAction.VIEW.equals(photoAction) || photoOwnerId.equals(userId))
+            return;
 
-        boolean result;
-
-        switch (photoAction) {
-            case VIEW:
-                result = true; // all can see all photos
-                break;
-            case ADD:
-                result = !StringUtils.isEmpty(userId) && photoOwnerId.equals(userId); // logged in users can add photos
-                break;
-            default:
-                result = !StringUtils.isEmpty(userId) && photoOwnerId.equals(userId); // logged in users can do anything with own photos
-                break;
-        }
-
-        if (!result)
-            throw new NoAccessPhotoAPIException("No access.");
+        throw new NoAccessPhotoAPIException("No access.");
     }
 
     /**
      * Check is user can perform action on photo.
      *
      * @param albumAction  - action that user tries to perform.
-     * @param albumId      - album id
      * @param albumOwnerId - album owner id
-     * @throws PhotoAPIException
+     * @throws PhotoAPIException if any errors occurs
      */
-    private void isAllowedForAction(AlbumAction albumAction, long albumId, String albumOwnerId, String authorId) throws PhotoAPIException {
+    private void isAllowedForAction(AlbumAction albumAction, String albumOwnerId, String authorId) throws PhotoAPIException {
         // TODO: fix this ugly method in future
 
         boolean result = false;
@@ -697,7 +656,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      * @return mapped result
      */
     private List<PhotoAO> map(List<PhotoBO> waitingApprovalPhotos) {
-        List<PhotoAO> result = new ArrayList<PhotoAO>(waitingApprovalPhotos.size());
+        List<PhotoAO> result = new ArrayList<>(waitingApprovalPhotos.size());
         for (PhotoBO photoBO : waitingApprovalPhotos)
             result.add(new PhotoAO(photoBO));
         return result;
@@ -745,8 +704,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             throw new NoAccessPhotoAPIException("No access.");
 
 
-        isAllowedToMe(PhotoAction.EDIT, photo.getId(), photo.getUserId(), photo.getUserId(), photo.getApprovalStatus()); // security check
-        isAllowedForAction(AlbumAction.EDIT, album.getId(), album.getUserId(), photo.getUserId()); // security check
+        isAllowedToMe(PhotoAction.EDIT, photo.getUserId(), photo.getUserId()); // security check
+        isAllowedForAction(AlbumAction.EDIT, album.getUserId(), photo.getUserId()); // security check
 
         try {
             PhotoAO updatedPhoto = new PhotoAO(storageService.movePhoto(photoId, newAlbumId));
@@ -771,7 +730,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled())
             return photos;
 
-        List<PhotoAO> result = new ArrayList<PhotoAO>();
+        List<PhotoAO> result = new ArrayList<>();
         try {
             for (PhotoAO photo : photos) {
                 if (loginAPI.isLogedIn() && loginAPI.getLogedUserId().equalsIgnoreCase(String.valueOf(photo.getUserId()))) {
@@ -806,7 +765,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             Map<Long, ApprovalStatus> approvalStatuses = storageService.getAlbumPhotosApprovalStatus(albumId);
 
-            List<Long> result = new ArrayList<Long>();
+            List<Long> result = new ArrayList<>();
             for (long photoId : photosIds) {
                 ApprovalStatus status = approvalStatuses.get(photoId);
                 if (status != null && filtering.allowedStatuses.contains(status))

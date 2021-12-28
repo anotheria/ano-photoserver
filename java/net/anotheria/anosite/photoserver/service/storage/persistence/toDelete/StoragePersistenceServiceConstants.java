@@ -1,4 +1,4 @@
-package net.anotheria.anosite.photoserver.service.storage.persistence;
+package net.anotheria.anosite.photoserver.service.storage.persistence.toDelete;
 
 import net.anotheria.db.util.DDLConfig;
 

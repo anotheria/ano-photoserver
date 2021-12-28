@@ -74,6 +74,11 @@ public class PhotoVO implements Serializable, Cloneable {
 	private ApprovalStatus approvalStatus = ApprovalStatus.WAITING_APPROVAL;
 
 	/**
+	 * User photo.
+	 */
+	private File photoFile;
+
+	/**
 	 * <p>Setter for the field <code>id</code>.</p>
 	 *
 	 * @param id a long.
@@ -278,6 +283,14 @@ public class PhotoVO implements Serializable, Cloneable {
 	 */
 	public ApprovalStatus getApprovalStatus() {
 		return approvalStatus;
+	}
+
+	public File getPhotoFile() {
+		return photoFile;
+	}
+
+	public void setPhotoFile(File photoFile) {
+		this.photoFile = photoFile;
 	}
 	
 	/** {@inheritDoc} */

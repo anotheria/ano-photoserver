@@ -1,7 +1,10 @@
 package net.anotheria.anosite.photoserver.service.storage;
 
+import net.anotheria.anoprise.dualcrud.CrudSaveable;
 import net.anotheria.anosite.photoserver.shared.vo.PhotoVO;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
+
+import java.io.File;
 
 /**
  * User photo information.
@@ -9,7 +12,7 @@ import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
  * @author Alexandr Bolbat
  * @version $Id: $Id
  */
-public class PhotoBO extends PhotoVO implements Cloneable {
+public class PhotoBO extends PhotoVO implements Cloneable, CrudSaveable {
 
 	/**
 	 * Basic serialVersionUID variable.
@@ -47,5 +50,10 @@ public class PhotoBO extends PhotoVO implements Cloneable {
 	@Override
 	public PhotoBO clone() {
 		return PhotoBO.class.cast(super.clone());
+	}
+
+	@Override
+	public String getOwnerId() {
+		return String.valueOf(getId());
 	}
 }

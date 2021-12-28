@@ -233,19 +233,20 @@ public class DeliveryServlet extends BaseServlet {
                     return;
             }
 
+		String fileNameWithPath = photo.getPhotoFile().getAbsolutePath() + File.separator + photo.getPhotoFile().getName();
 		try {
 			// check is delivering for original photos enabled
 			if (!cropped && !DeliveryConfig.getInstance().isOriginalPhotosAccessible()) {
-				debug("Delivering of original photo is denied. Original photo id: " + photo.getId() + ", path: " + photo.getFilePath());
+				debug("Delivering of original photo is denied. Original photo id: " + photo.getId() + ", path: " + fileNameWithPath);
 				responseSetNotFound(resp);
 				return;
 			}
 
 			// delivering original photo
 			if (!cropped && !resized && !blurred) {
-				debug("Returning original photo: " + photo.getFilePath());
+				debug("Returning original photo: " + fileNameWithPath);
 
-				File photoFile = new File(photo.getFilePath());
+				File photoFile = photo.getPhotoFile();
 				writeImageHeaders(resp);
 				streamImageFile(resp, photoFile);
 				return;
@@ -284,7 +285,7 @@ public class DeliveryServlet extends BaseServlet {
 				modifyPhotoSettings.setCroppingType(CroppingType.valueOf(croppingType));
 
 				// modifying photo and storing to new photo file
-				modifyPhoto(photo.getFilePath(), cachedFile, photo.getPreviewSettings(), modifyPhotoSettings);
+				modifyPhoto(photo.getPhotoFile(), cachedFile, photo.getPreviewSettings(), modifyPhotoSettings);
 			} finally {
 				lock.unlock();
 			}
@@ -352,18 +353,18 @@ public class DeliveryServlet extends BaseServlet {
 	/**
 	 * Modify photo with some settings and store it to some file.
 	 *
-	 * @param photoPath  full photo file path
+	 * @param photoFile photo file
 	 * @param resultPhotoPath  full result photo file path
 	 * @param pvSettings crop settings
 	 * @param modifyPhotoSettings {@link ModifyPhotoSettings}
 	 * @throws java.io.IOException on errors
 	 */
-	private void modifyPhoto(final String photoPath, final String resultPhotoPath, final PreviewSettingsVO pvSettings, final ModifyPhotoSettings modifyPhotoSettings) throws IOException {
-		debug("Changing original photo: " + photoPath);
+	private void modifyPhoto(final File photoFile, final String resultPhotoPath, final PreviewSettingsVO pvSettings, final ModifyPhotoSettings modifyPhotoSettings) throws IOException {
+		debug("Changing original photo: " + photoFile.getName());
 
 		// read photo file
 		PhotoUtil putil = new PhotoUtil();
-		putil.read(new File(photoPath));
+		putil.read(photoFile);
 
 		// if blur param is present or photo should be blurred for user we have to blur image
 		if (modifyPhotoSettings.isBlurred())

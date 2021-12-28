@@ -18,7 +18,7 @@ public class DefaultAlbumNotFoundPersistenceServiceException extends AlbumPersis
 	 *
 	 * @param userId a {@link java.lang.String} object.
 	 */
-	protected DefaultAlbumNotFoundPersistenceServiceException(String userId) {
+	public DefaultAlbumNotFoundPersistenceServiceException(String userId) {
 		super("Album for User[" + userId + "] was not found.");
 	}
 
