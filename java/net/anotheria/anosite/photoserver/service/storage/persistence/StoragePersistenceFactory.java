@@ -14,7 +14,7 @@ public class StoragePersistenceFactory implements ServiceFactory<StoragePersiste
 	/** {@inheritDoc} */
 	@Override
 	public StoragePersistenceService create() {
-		return null;
+		return new StoragePersistenceServiceImpl();
 	}
 
 }
