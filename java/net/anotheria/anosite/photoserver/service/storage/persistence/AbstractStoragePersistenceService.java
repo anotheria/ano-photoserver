@@ -235,7 +235,7 @@ public abstract class AbstractStoragePersistenceService extends GenericPersisten
         sqlSelectByApprovalStatus = "SELECT " + TABLE_FIELDS + " FROM " + tableName + SQL_WHERE + FIELD_NAME_APPROVAL_STATUS + " = ?" + " " +
                 " ORDER BY " + FIELD_NAME_MODIFICATION_TIME + " ASC";
 
-        sqlSelectByAlbumId = "SELECT " + TABLE_FIELDS + ", FROM " + tableName + SQL_WHERE + FIELD_NAME_ALBUM_ID + " = ?;";
+        sqlSelectByAlbumId = "SELECT " + TABLE_FIELDS + " FROM " + tableName + SQL_WHERE + FIELD_NAME_ALBUM_ID + " = ?;";
         sqlCountByApprovalStatus = "SELECT COUNT(" + FIELD_NAME_ID + ") FROM " + tableName + SQL_WHERE + FIELD_NAME_APPROVAL_STATUS + " = ?;";
 
         sqlMetaCreateTable  = "CREATE TABLE " + tableName + " (" +
