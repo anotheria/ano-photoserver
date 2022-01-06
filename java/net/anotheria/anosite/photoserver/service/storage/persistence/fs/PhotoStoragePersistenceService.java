@@ -171,7 +171,7 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
             throw new IllegalArgumentException("PhotoVO is null.");
 
         if (photo.getPhotoFile() == null)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Photo file is null");
 
         if (StringUtils.isEmpty(photo.getFileLocation()))
             throw new IllegalArgumentException("PhotoVO.fileLocation is empty.");
