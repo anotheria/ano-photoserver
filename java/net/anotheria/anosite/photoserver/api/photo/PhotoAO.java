@@ -47,6 +47,7 @@ public class PhotoAO extends PhotoVO {
 		setPreviewSettings(new PreviewSettingsVO(photo.getPreviewSettings()));
 		setApprovalStatus(photo.getApprovalStatus());
 		setRestricted(photo.isRestricted());
+		setPhotoFile(photo.getPhotoFile());
 	}
 
 	/**
