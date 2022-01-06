@@ -88,7 +88,10 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
 
     @Override
     protected File getPhotoFromStorage(PhotoBO photoBO) throws CrudServiceException {
-        checkArguments(photoBO);
+        if (photoBO == null)
+            throw new IllegalArgumentException("Photo is null");
+        if (StringUtils.isEmpty(photoBO.getFilePath()))
+            throw new IllegalArgumentException("Photo file path is empty");
 
         String fileName = photoBO.getFilePath();
         // checking file name
