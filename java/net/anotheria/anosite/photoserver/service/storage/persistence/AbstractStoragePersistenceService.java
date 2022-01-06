@@ -4,6 +4,7 @@ import net.anotheria.anoprise.dualcrud.CrudService;
 import net.anotheria.anoprise.dualcrud.CrudServiceException;
 import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
 import net.anotheria.anoprise.dualcrud.Query;
+import net.anotheria.anoprise.dualcrud.SaveableID;
 import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
 import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
@@ -349,7 +350,7 @@ public abstract class AbstractStoragePersistenceService extends GenericPersisten
     }
 
     @Override
-    public PhotoBO read(String id) throws CrudServiceException, ItemNotFoundException {
+    public PhotoBO read(SaveableID id) throws CrudServiceException, ItemNotFoundException {
         Connection conn = null;
         PreparedStatement st = null;
         ResultSet rs = null;
@@ -358,7 +359,7 @@ public abstract class AbstractStoragePersistenceService extends GenericPersisten
             conn = getConnection();
             st = conn.prepareStatement(sqlSelectByPhotoId);
             // where
-            st.setLong(1, Long.parseLong(id));
+            st.setLong(1, Long.parseLong(id.getSaveableId()));
             rs = st.executeQuery();
             if (rs.next())
                 photoBO = mapResult(rs);

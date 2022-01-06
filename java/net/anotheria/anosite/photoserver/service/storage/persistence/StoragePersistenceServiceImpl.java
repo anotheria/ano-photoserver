@@ -6,6 +6,7 @@ import net.anotheria.anoprise.dualcrud.DualCrudService;
 import net.anotheria.anoprise.dualcrud.DualCrudServiceFactory;
 import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
 import net.anotheria.anoprise.dualcrud.Query;
+import net.anotheria.anoprise.dualcrud.SaveableID;
 import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
 import net.anotheria.anosite.photoserver.service.storage.persistence.ceph.PhotoCephClientService;
 import net.anotheria.anosite.photoserver.service.storage.persistence.fs.PhotoStoragePersistenceService;
@@ -61,7 +62,9 @@ public class StoragePersistenceServiceImpl implements StoragePersistenceService 
     @Override
     public PhotoBO getPhoto(final long photoId) throws StoragePersistenceServiceException {
         try {
-            return dualCrudService.read(String.valueOf(photoId));
+            SaveableID saveableID = new SaveableID();
+            saveableID.setSaveableId(String.valueOf(photoId));
+            return dualCrudService.read(saveableID);
         } catch (ItemNotFoundException e) {
             throw new PhotoNotFoundPersistenceServiceException(photoId);
         }  catch (CrudServiceException e) {
