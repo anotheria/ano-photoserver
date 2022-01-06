@@ -30,9 +30,8 @@ public class StoragePersistenceServiceImpl implements StoragePersistenceService 
      */
     public StoragePersistenceServiceImpl() {
         PhotoStoragePersistenceService photoStoragePersistenceService = new PhotoStoragePersistenceService();
-        if ( PhotoServerConfig.getInstance().isPhotoCephEnabled()) {
+        if (PhotoServerConfig.getInstance().isPhotoCephEnabled()) {
             DualCrudConfig config = DualCrudConfig.migrateOnTheFly();
-            config.setWriteToBoth(true);
             dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStoragePersistenceService, new PhotoCephClientService(), config);
         } else {
             dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStoragePersistenceService, null, DualCrudConfig.useLeftOnly());
