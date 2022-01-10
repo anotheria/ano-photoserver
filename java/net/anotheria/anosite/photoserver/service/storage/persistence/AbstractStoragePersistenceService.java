@@ -299,9 +299,9 @@ public abstract class AbstractStoragePersistenceService extends GenericPersisten
             st.setString(9, serialize(photo.getPreviewSettings()));
             st.setInt(10, photo.getApprovalStatus().getCode());
             st.setBoolean(11, photo.isRestricted());
+            createPhotoInStorage(photo);
             st.executeUpdate(); // should return 1;
 
-            createPhotoInStorage(photo);
             return photo;
         } catch (SQLException e) {
             log.error("SQL Exception: " + e.getMessage(), e);
@@ -338,7 +338,6 @@ public abstract class AbstractStoragePersistenceService extends GenericPersisten
             if (updated == 0)
                 throw new ItemNotFoundException("Photo with id: " + photo.getId() + " not found");
 
-            createPhotoInStorage(photo);
             return photo;
         } catch (SQLException e) {
             log.error("SQL Exception: " + e.getMessage(), e);

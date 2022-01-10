@@ -2,6 +2,7 @@ package net.anotheria.anosite.photoserver.service.storage.persistence.fs;
 
 import net.anotheria.anoprise.dualcrud.CrudServiceException;
 import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
+import net.anotheria.anosite.photoserver.service.storage.StorageConfig;
 import net.anotheria.anosite.photoserver.service.storage.persistence.AbstractStoragePersistenceService;
 import net.anotheria.util.StringUtils;
 import net.anotheria.util.concurrency.IdBasedLock;
@@ -46,6 +47,7 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
     @Override
     protected void createPhotoInStorage(PhotoBO photoBO) throws CrudServiceException {
         checkArguments(photoBO);
+        photoBO.setFileLocation(getFileLocation(photoBO));
         File file = new File(photoBO.getFileLocation());
         // checking folder structure and creating if needed
         if (!file.exists())
@@ -108,7 +110,7 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
 
     @Override
     protected String getFileLocation(PhotoBO photoBO) {
-        return photoBO.getFileLocation();
+        return StorageConfig.getStoreFolderPath(String.valueOf(photoBO.getUserId()));
     }
 
     @Override
@@ -175,8 +177,5 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
 
         if (photo.getPhotoFile() == null)
             throw new IllegalArgumentException("Photo file is null");
-
-        if (StringUtils.isEmpty(photo.getFileLocation()))
-            throw new IllegalArgumentException("PhotoVO.fileLocation is empty.");
     }
 }

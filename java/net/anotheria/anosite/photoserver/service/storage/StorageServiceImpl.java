@@ -407,11 +407,10 @@ public class StorageServiceImpl implements StorageService {
 		lock.lock();
 		try {
 			PhotoBO clonedPhoto = photo.clone();
-			clonedPhoto.setFileLocation(StorageConfig.getStoreFolderPath(String.valueOf(photo.getUserId())));
 			clonedPhoto.setModificationTime(System.currentTimeMillis());
 			clonedPhoto.setApprovalStatus(ApprovalStatus.WAITING_APPROVAL);
 
-			PhotoBO result = storagePersistenceService.createPhoto(photo);
+			PhotoBO result = storagePersistenceService.createPhoto(clonedPhoto);
 
 			// put to cache
 			cache.updateItem(result);
