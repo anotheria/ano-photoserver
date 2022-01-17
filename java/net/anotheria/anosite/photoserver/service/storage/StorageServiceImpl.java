@@ -425,6 +425,11 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public PhotoBO updatePhoto(final PhotoBO photo) throws StorageServiceException {
+		return updatePhoto(photo, false);
+	}
+
+	@Override
+	public PhotoBO updatePhoto(PhotoBO photo, boolean updateFile) throws StorageServiceException {
 		if (photo == null)
 			throw new IllegalArgumentException("Null photo");
 
@@ -433,7 +438,7 @@ public class StorageServiceImpl implements StorageService {
 		try {
 			PhotoBO oldPhoto = getPhoto(photo.getId());
 			photo.setModificationTime(System.currentTimeMillis());
-			persistenceService.updatePhoto(photo);
+			persistenceService.updatePhoto(photo, updateFile);
 
 			// remove photo from cache!
 			cache.removeItem(photo);

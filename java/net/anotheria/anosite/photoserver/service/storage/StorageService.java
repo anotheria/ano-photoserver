@@ -166,6 +166,18 @@ public interface StorageService extends Service {
 	PhotoBO updatePhoto(PhotoBO photo) throws StorageServiceException;
 
 	/**
+	 * This method updating photo information in persistence (Like: name, description, etc).
+	 * This method do not update approvalStatus - updatePhotoApprovalStatuses() method should be used for that.
+	 * With update file in storage system
+	 *
+	 * @param photo - photo information
+	 * @param updateFile - is file need to be updated
+	 * @return updated PhotoBO
+	 * @throws net.anotheria.anosite.photoserver.service.storage.StorageServiceException if any.
+	 */
+	PhotoBO updatePhoto(PhotoBO photo, boolean updateFile) throws StorageServiceException;
+
+	/**
 	 * Bulk update approvalStatus.
 	 *
 	 * @param statuses - mapping between photo IDs and their new statuses.
