@@ -129,7 +129,7 @@ final class StoragePersistenceServiceConstants {
             FIELD_NAME_NAME + " = ?, " +
             FIELD_NAME_DESCRIPTION + " = ?, " +
             FIELD_NAME_MODIFICATION_TIME + " = ?, " +
-            FIELD_NAME_PREVIEW_SETTINGS + " = ?" +
+            FIELD_NAME_PREVIEW_SETTINGS + " = ?," +
             FIELD_NAME_FILE_LOCATION_CEPH + " = ?" +
             SQL_WHERE + FIELD_NAME_ID + " = ?;";
 
