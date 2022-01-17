@@ -183,23 +183,13 @@
 			<version>3.5.6</version>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-bom</artifactId>
-			<version>${amazonaws-version}</version>
-			<type>pom</type>
-			<scope>import</scope>
-		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-ses</artifactId>
-			<version>${amazonaws-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk-s3</artifactId>
-			<version>${amazonaws-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -207,8 +197,19 @@
 			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.amazonaws</groupId>
+				<artifactId>aws-java-sdk-bom</artifactId>
+				<version>${amazonaws-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<sourceDirectory>${project.basedir}/java</sourceDirectory>

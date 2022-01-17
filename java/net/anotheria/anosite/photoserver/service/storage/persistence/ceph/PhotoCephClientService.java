@@ -6,32 +6,38 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import net.anotheria.anoprise.dualcrud.CrudService;
 import net.anotheria.anoprise.dualcrud.CrudServiceException;
-import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
-import net.anotheria.anosite.photoserver.service.storage.persistence.AbstractStoragePersistenceService;
+import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
+import net.anotheria.anoprise.dualcrud.Query;
+import net.anotheria.anoprise.dualcrud.SaveableID;
+import net.anotheria.anosite.photoserver.service.storage.persistence.PhotoFileHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
 
 /**
- * Implementation of {@link AbstractStoragePersistenceService} for ceph service for store photos.
+ * Implementation for ceph service for store photos.
  *
  * @author ykalapusha
  */
-public class PhotoCephClientService extends AbstractStoragePersistenceService {
+public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
     /**
      * {@link Logger} instance.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(PhotoCephClientService.class);
-    /**
-     * Persistence table name.
-     */
-    private static final String TABLE_NAME = "t_photos_ceph";
     /**
      * {@link AmazonS3} client.
      */
@@ -45,7 +51,6 @@ public class PhotoCephClientService extends AbstractStoragePersistenceService {
      * Constructor.
      */
     public PhotoCephClientService() {
-        super(TABLE_NAME, LOGGER);
         PhotoCephClientConfig cephClientConfig = PhotoCephClientConfig.getInstance();
         bucketName = cephClientConfig.getBucket();
         AWSCredentials credentials = new BasicAWSCredentials(cephClientConfig.getAccessKey(), cephClientConfig.getSecretKey());
@@ -56,19 +61,49 @@ public class PhotoCephClientService extends AbstractStoragePersistenceService {
     }
 
     @Override
-    protected void createPhotoInStorage(PhotoBO photoBO) throws CrudServiceException {
-        amazonS3Connection.putObject(bucketName, photoBO.getOwnerId() + ".dat", photoBO.getPhotoFile());
+    public PhotoFileHolder create(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        InputStream inputStream = null;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(photoFileHolder.getPhotoFile());
+            oos.flush();
+            oos.close();
+            inputStream = new ByteArrayInputStream(baos.toByteArray());
+            amazonS3Connection.putObject(bucketName, photoFileHolder.getOwnerId() + ".dat", inputStream, new ObjectMetadata());
+            return photoFileHolder;
+        } catch (IOException e) {
+            LOGGER.error("Input/Output Exception: " + e.getMessage(), e);
+            throw new CrudServiceException(e.getMessage(), e);
+        } finally {
+            try {
+                if (inputStream != null)
+                    inputStream.close();
+            } catch (IOException e) {
+                LOGGER.error("Unable to close input stream " + e.getMessage(), e);
+            }
+        }
     }
 
     @Override
-    protected File getPhotoFromStorage(PhotoBO photoBO) throws CrudServiceException {
+    public PhotoFileHolder read(SaveableID id) throws CrudServiceException, ItemNotFoundException {
         ObjectInputStream inputStream = null;
         try {
-            final S3Object s3Object = amazonS3Connection.getObject(bucketName, photoBO.getOwnerId() + ".dat");
+            final S3Object s3Object = amazonS3Connection.getObject(bucketName, id.getOwnerId() + ".dat");
             S3ObjectInputStream content = s3Object.getObjectContent();
             inputStream = new ObjectInputStream(content);
-            return (File) inputStream.readObject();
-        }catch (IOException | ClassNotFoundException e) {
+            File file = (File) inputStream.readObject();
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder();
+            photoFileHolder.setId(Long.parseLong(id.getOwnerId()));
+            photoFileHolder.setPhotoFile(file);
+            return photoFileHolder;
+        } catch (IOException | ClassNotFoundException e) {
+            LOGGER.error("Unable to read object", e);
+            throw new CrudServiceException("Unable to read object", e);
+        } catch (AmazonS3Exception e) {
+           if (e.getErrorCode().equals("NoSuchKey"))
+               throw new ItemNotFoundException(e.getMessage());
+
             LOGGER.error("Unable to read object", e);
             throw new CrudServiceException("Unable to read object", e);
         } finally {
@@ -82,12 +117,27 @@ public class PhotoCephClientService extends AbstractStoragePersistenceService {
     }
 
     @Override
-    protected String getFileLocation(PhotoBO photoBO) {
-        return "cephStorage:" + photoBO.getOwnerId() + ".dat";
+    public PhotoFileHolder update(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        return create(photoFileHolder);
     }
 
     @Override
-    protected void deletePhotoFromStorage(PhotoBO photoBO) {
-        amazonS3Connection.deleteObject(bucketName, photoBO.getOwnerId() + ".dat");
+    public void delete(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        amazonS3Connection.deleteObject(bucketName, photoFileHolder.getOwnerId() + ".dat");
+    }
+
+    @Override
+    public PhotoFileHolder save(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        return create(photoFileHolder);
+    }
+
+    @Override
+    public boolean exists(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        return amazonS3Connection.doesObjectExist(bucketName, photoFileHolder.getOwnerId());
+    }
+
+    @Override
+    public List<PhotoFileHolder> query(Query q) throws CrudServiceException {
+        return null;
     }
 }

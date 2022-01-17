@@ -6,14 +6,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import net.anotheria.anoprise.dualcrud.Query;
 import net.anotheria.anoprise.metafactory.MetaFactory;
 import net.anotheria.anoprise.metafactory.MetaFactoryException;
 import net.anotheria.anosite.photoserver.service.storage.event.EventAnnouncer;
 import net.anotheria.anosite.photoserver.service.storage.persistence.PhotoNotFoundPersistenceServiceException;
-import net.anotheria.anosite.photoserver.service.storage.persistence.PhotoQueryName;
 import net.anotheria.anosite.photoserver.service.storage.persistence.StoragePersistenceService;
 import net.anotheria.anosite.photoserver.service.storage.persistence.StoragePersistenceServiceException;
 import net.anotheria.anosite.photoserver.service.storage.persistence.album.AlbumNotFoundPersistenceServiceException;
@@ -61,7 +58,7 @@ public class StorageServiceImpl implements StorageService {
 	/**
 	 * Lock manager for safe operations.
 	 */
-	private static final IdBasedLockManager<String> LOCK_MANAGER = new SafeIdBasedLockManager<>();
+	private static final IdBasedLockManager LOCK_MANAGER = new SafeIdBasedLockManager();
 
 	/**
 	 * Album lock suffix.
@@ -75,24 +72,26 @@ public class StorageServiceImpl implements StorageService {
 	 * Photo lock suffix.
 	 */
 	private static final String PHOTO = "_PHOTO";
-	/**
-	 * {@link AlbumPersistenceService} instance.
-	 */
-	private final AlbumPersistenceService albumPersistenceService;
+
 	/**
 	 * {@link StoragePersistenceService} instance.
 	 */
-	private final StoragePersistenceService storagePersistenceService;
+	private StoragePersistenceService persistenceService;
+
+	/**
+	 * {@link AlbumPersistenceService} instance.
+	 */
+	private AlbumPersistenceService albumPersistenceService;
 
 	/**
 	 * {@link StorageServiceCache} cache.
 	 */
-	private final StorageServiceCache cache;
+	private StorageServiceCache cache;
 
 	/**
 	 * {@link PhotoServerConfig} instance.
 	 */
-	private final PhotoServerConfig configuration;
+	private PhotoServerConfig configuration;
 
 	/**
 	 * Events announcer.
@@ -104,11 +103,11 @@ public class StorageServiceImpl implements StorageService {
 	 */
 	protected StorageServiceImpl() {
 		try {
-			storagePersistenceService = MetaFactory.get(StoragePersistenceService.class);
+			persistenceService = MetaFactory.get(StoragePersistenceService.class);
 			albumPersistenceService = MetaFactory.get(AlbumPersistenceService.class);
 		} catch (MetaFactoryException mfe) {
-			LOG.error(MarkerFactory.getMarker("FATAL"), "Can't init AlbumPersistenceService", mfe);
-			throw new RuntimeException("Can't init AlbumPersistenceService", mfe);
+			LOG.error(MarkerFactory.getMarker("FATAL"), "Can't init StoragePersistenceService", mfe);
+			throw new RuntimeException("Can't init StoragePersistenceService", mfe);
 		}
 		cache = new StorageServiceCache();
 		announcer = new EventAnnouncer();
@@ -159,7 +158,7 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public AlbumBO getDefaultAlbum(final String userId) throws StorageServiceException {
-		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(userId + USER);
+		IdBasedLock lock = LOCK_MANAGER.obtainLock(userId + USER);
 		lock.lock();
 		try {
 			AlbumBO defaultAlbum = cache.getDefaultAlbum(userId);
@@ -195,7 +194,7 @@ public class StorageServiceImpl implements StorageService {
 
 	/**
 	 * Creates album.
-	 * 
+	 *
 	 * @param album
 	 *            {@link AlbumBO}
 	 * @return created {@link AlbumBO}
@@ -203,7 +202,7 @@ public class StorageServiceImpl implements StorageService {
 	 *             on errors
 	 */
 	private AlbumBO createAlbumInternally(final AlbumBO album) throws StorageServiceException {
-		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(album.getId() + ALBUM);
+		IdBasedLock lock = LOCK_MANAGER.obtainLock(album.getId() + ALBUM);
 		lock.lock();
 		try {
 			AlbumBO created = albumPersistenceService.createAlbum(album);
@@ -225,7 +224,7 @@ public class StorageServiceImpl implements StorageService {
 		if (album == null)
 			throw new IllegalArgumentException("Null album");
 
-		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(album.getId() + ALBUM);
+		IdBasedLock lock = LOCK_MANAGER.obtainLock(album.getId() + ALBUM);
 		lock.lock();
 		try {
 			albumPersistenceService.updateAlbum(album);
@@ -250,7 +249,7 @@ public class StorageServiceImpl implements StorageService {
 		if (!albumPhotos.isEmpty())
 			throw new AlbumWithPhotosServiceException(albumId);
 
-		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(albumId + ALBUM);
+		IdBasedLock lock = LOCK_MANAGER.obtainLock(albumId + ALBUM);
 		lock.lock();
 		try {
 			albumPersistenceService.deleteAlbum(albumId);
@@ -275,7 +274,7 @@ public class StorageServiceImpl implements StorageService {
 			if (photo != null)
 				return photo;
 
-			photo = storagePersistenceService.getPhoto(photoId);
+			photo = persistenceService.getPhoto(photoId);
 
 			// put to cache
 			cache.updateItem(photo);
@@ -311,9 +310,6 @@ public class StorageServiceImpl implements StorageService {
 	@Override
 	public List<PhotoBO> getPhotos(final String userId, final long albumId) throws StorageServiceException {
 		try {
-			if (StringUtils.isEmpty(userId))
-				throw new IllegalArgumentException("UserId is empty");
-
 			AlbumBO album = getAlbum(albumId);
 			if (album == null)
 				return Collections.emptyList();
@@ -322,8 +318,7 @@ public class StorageServiceImpl implements StorageService {
 			if (result != null)
 				return result;
 
-			Query q = buildQuery(PhotoQueryName.ALL_ALBUM_PHOTOS_BY_USER_ID, "userId=" + userId + "&albumId=" + albumId);
-			result = storagePersistenceService.getPhotosByQuery(q);
+			result = persistenceService.getUserPhotos(userId, albumId);
 			cache.addAlbumPhotosToCache(userId, albumId, result);
 			return result;
 		} catch (StoragePersistenceServiceException e) {
@@ -336,15 +331,11 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getPhotos(final String userId, final List<Long> photoIDs) throws StorageServiceException {
-		if (StringUtils.isEmpty(userId))
-			throw new IllegalArgumentException("UserId is empty");
-
 		if (photoIDs == null || photoIDs.isEmpty())
 			throw new IllegalArgumentException("Null photos id's");
 
 		try {
-			Query q = buildQuery(PhotoQueryName.ALL_PHOTOS_FOR_USER_BY_PHOTOS_IDS, "userId=" + userId + "&photosIds=" + String.join("," , StringUtils.toStringList(photoIDs)));
-			return storagePersistenceService.getPhotosByQuery(q);
+			return persistenceService.getUserPhotos(userId, photoIDs);
 		} catch (StoragePersistenceServiceException e) {
 			String message = "getPhotos" + userId + ", " + photoIDs + ") failed.";
 			LOG.warn(message, e);
@@ -355,10 +346,12 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public List<PhotoBO> getWaitingApprovalPhotos(int photosAmount) throws StorageServiceException {
+		if (photosAmount < 0)
+			throw new IllegalArgumentException("Illegal photos amount selected amount[" + photosAmount + "]");
 		try {
-			List<PhotoBO> result = new ArrayList<>(photosAmount);
-			Query q = buildQuery(PhotoQueryName.PHOTOS_BY_STATUS_AND_IF_EXISTS_AMOUNT, "statusCode=" + ApprovalStatus.WAITING_APPROVAL.getCode() + "&amount=" + photosAmount);
-			List<PhotoBO> fromService = storagePersistenceService.getPhotosByQuery(q);
+			List<PhotoBO> result = new ArrayList<PhotoBO>(photosAmount);
+			List<PhotoBO> fromService = persistenceService.getPhotosWithStatus(photosAmount, ApprovalStatus.WAITING_APPROVAL);
+
 			// sort by user
 			while (fromService.size() > 0 && result.size() < photosAmount) {
 				PhotoBO photo = fromService.remove(0);
@@ -386,8 +379,7 @@ public class StorageServiceImpl implements StorageService {
 	@Override
 	public int getWaitingApprovalPhotosCount() throws StorageServiceException {
 		try {
-			Query q = buildQuery(PhotoQueryName.PHOTOS_BY_STATUS_AND_IF_EXISTS_AMOUNT, "statusCode=" + ApprovalStatus.WAITING_APPROVAL.getCode());
-			return storagePersistenceService.getPhotosByQuery(q).size();
+			return persistenceService.getPhotosWithStatusCount(ApprovalStatus.WAITING_APPROVAL);
 		} catch (StoragePersistenceServiceException e) {
 			String message = "getWaitingApprovalPhotosCount() failed.";
 			LOG.warn(message, e);
@@ -403,14 +395,15 @@ public class StorageServiceImpl implements StorageService {
 
 		AlbumBO photoAlbum = getAlbum(photo.getAlbumId());
 
-		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photo.getId() + PHOTO);
+		IdBasedLock lock = LOCK_MANAGER.obtainLock(photo.getId() + PHOTO);
 		lock.lock();
 		try {
 			PhotoBO clonedPhoto = photo.clone();
+			clonedPhoto.setFileLocation(StorageConfig.getStoreFolderPath(String.valueOf(photo.getUserId())));
 			clonedPhoto.setModificationTime(System.currentTimeMillis());
 			clonedPhoto.setApprovalStatus(ApprovalStatus.WAITING_APPROVAL);
 
-			PhotoBO result = storagePersistenceService.createPhoto(clonedPhoto);
+			PhotoBO result = persistenceService.createPhoto(clonedPhoto);
 
 			// put to cache
 			cache.updateItem(result);
@@ -435,12 +428,12 @@ public class StorageServiceImpl implements StorageService {
 		if (photo == null)
 			throw new IllegalArgumentException("Null photo");
 
-		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photo.getId() + PHOTO);
+		IdBasedLock lock = LOCK_MANAGER.obtainLock(photo.getId() + PHOTO);
 		lock.lock();
 		try {
 			PhotoBO oldPhoto = getPhoto(photo.getId());
 			photo.setModificationTime(System.currentTimeMillis());
-			storagePersistenceService.updatePhoto(photo);
+			persistenceService.updatePhoto(photo);
 
 			// remove photo from cache!
 			cache.removeItem(photo);
@@ -467,11 +460,11 @@ public class StorageServiceImpl implements StorageService {
 			throw new IllegalArgumentException("Illegal statuses, incoming param");
 		try {
 			// map with photo id to UserId mapping!
-			Map<Long, String> photoIdToUserId = new HashMap<>();
+			Map<Long, String> photoIdToUserId = new HashMap<Long, String>();
 			// map with current statuses of photos!
-			Map<Long, ApprovalStatus> previousStatuses = new HashMap<>();
+			Map<Long, ApprovalStatus> previousStatuses = new HashMap<Long, ApprovalStatus>();
 			// real status update map! We should not execute update - if status which should be set - is already there :)
-			Map<Long, ApprovalStatus> statusesToUpdate = new HashMap<>();
+			Map<Long, ApprovalStatus> statusesToUpdate = new HashMap<Long, ApprovalStatus>();
 
 			for (Map.Entry<Long, ApprovalStatus> entry : statuses.entrySet()) {
 				PhotoBO photo = getPhoto(entry.getKey());
@@ -484,13 +477,7 @@ public class StorageServiceImpl implements StorageService {
 			if (statusesToUpdate.isEmpty())
 				return;
 
-
-			String mapAsString = statusesToUpdate.keySet().stream()
-					.map(key -> key + "=" + statusesToUpdate.get(key).getCode())
-					.collect(Collectors.joining("&"));
-
-			Query q = buildQuery(PhotoQueryName.UPDATE_PHOTO_APPROVAL_STATUSES, mapAsString);
-			storagePersistenceService.getPhotosByQuery(q);
+			persistenceService.updatePhotoApprovalStatuses(statusesToUpdate);
 
 			// update data in cache!!!
 			cache.updatePhotoApprovalsStatuses(statusesToUpdate);
@@ -519,11 +506,15 @@ public class StorageServiceImpl implements StorageService {
 
 			List<PhotoBO> albumPhotos = cache.getAllAlbumPhotos(album.getUserId(), albumId);
 			if (albumPhotos != null) {
-				return mapPhotosForApprovalStatus(albumPhotos);
+				// build result
+				Map<Long, ApprovalStatus> result = new HashMap<Long, ApprovalStatus>();
+				for (PhotoBO photo : albumPhotos)
+					result.put(photo.getId(), photo.getApprovalStatus());
+
+				return result;
 			}
 
-			Query q = buildQuery(PhotoQueryName.ALL_PHOTOS_BY_ALBUM_ID, "albumId=" + albumId);
-			return mapPhotosForApprovalStatus(storagePersistenceService.getPhotosByQuery(q));
+			return persistenceService.getAlbumPhotosApprovalStatus(albumId);
 		} catch (StoragePersistenceServiceException e) {
 			String message = "getAlbumPhotosApprovalStatus(" + albumId + ") failed. Underlying StoragePersistenceService failed.";
 			LOG.warn(message, e);
@@ -531,22 +522,14 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
-	private Map<Long, ApprovalStatus> mapPhotosForApprovalStatus(List<PhotoBO> photoBOs) {
-		Map<Long, ApprovalStatus> result = new HashMap<>();
-		for (PhotoBO photo : photoBOs)
-			result.put(photo.getId(), photo.getApprovalStatus());
-
-		return result;
-	}
-
 	/** {@inheritDoc} */
 	@Override
 	public void removePhoto(final long photoId) throws StorageServiceException {
-		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);
+		IdBasedLock lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);
 		lock.lock();
 		try {
-			final PhotoBO photo = storagePersistenceService.getPhoto(photoId);
-			storagePersistenceService.deletePhoto(photoId);
+			final PhotoBO photo = persistenceService.getPhoto(photoId);
+			persistenceService.deletePhoto(photoId);
 
 			cache.removeItem(photo);
 			announcer.photoDeleted(photoId, photo.getUserId());
@@ -570,14 +553,13 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public PhotoBO movePhoto(long photoId, long newAlbumId) throws StorageServiceException {
-		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);
+		IdBasedLock lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);
 		lock.lock();
 		try {
 			PhotoBO oldPhoto = getPhoto(photoId);
 			AlbumBO newAlbum = getAlbum(newAlbumId);
 
-			Query q = buildQuery(PhotoQueryName.MOVE_PHOTO_TO_NEW_ALBUM, "photoId=" + photoId + "&newAlbum=" + newAlbum.getId() + "&time=" + System.currentTimeMillis());
-			storagePersistenceService.getPhotosByQuery(q);
+			persistenceService.movePhoto(photoId, newAlbum.getId(), System.currentTimeMillis());
 
 			// remove photo from cache!
 			cache.removeItem(oldPhoto);
@@ -599,7 +581,7 @@ public class StorageServiceImpl implements StorageService {
 
 	/**
 	 * Return id of the Default photo, which belongs to selected album.
-	 * 
+	 *
 	 * @param album
 	 *            {@link AlbumBO}
 	 * @return id of the default photo if such exists
@@ -648,18 +630,4 @@ public class StorageServiceImpl implements StorageService {
 		throw new DefaultPhotoNotFoundServiceException(album.getId(), " Album does not contains approved photos.");
 	}
 
-
-	private Query buildQuery(PhotoQueryName photoQueryName, String value) {
-		return new Query() {
-			@Override
-			public String getName() {
-				return photoQueryName.name();
-			}
-
-			@Override
-			public String getValue() {
-				return value;
-			}
-		};
-	}
 }

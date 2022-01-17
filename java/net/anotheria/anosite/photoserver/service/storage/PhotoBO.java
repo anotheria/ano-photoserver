@@ -12,7 +12,7 @@ import java.io.File;
  * @author Alexandr Bolbat
  * @version $Id: $Id
  */
-public class PhotoBO extends PhotoVO implements Cloneable, CrudSaveable {
+public class PhotoBO extends PhotoVO implements Cloneable {
 
 	/**
 	 * Basic serialVersionUID variable.
@@ -50,10 +50,5 @@ public class PhotoBO extends PhotoVO implements Cloneable, CrudSaveable {
 	@Override
 	public PhotoBO clone() {
 		return PhotoBO.class.cast(super.clone());
-	}
-
-	@Override
-	public String getOwnerId() {
-		return String.valueOf(getId());
 	}
 }

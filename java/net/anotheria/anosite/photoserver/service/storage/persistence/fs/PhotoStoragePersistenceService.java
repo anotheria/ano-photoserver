@@ -1,14 +1,15 @@
 package net.anotheria.anosite.photoserver.service.storage.persistence.fs;
 
+import net.anotheria.anoprise.dualcrud.CrudService;
 import net.anotheria.anoprise.dualcrud.CrudServiceException;
-import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
-import net.anotheria.anosite.photoserver.service.storage.StorageConfig;
-import net.anotheria.anosite.photoserver.service.storage.persistence.AbstractStoragePersistenceService;
+import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
+import net.anotheria.anoprise.dualcrud.Query;
+import net.anotheria.anoprise.dualcrud.SaveableID;
+import net.anotheria.anosite.photoserver.service.storage.persistence.PhotoFileHolder;
 import net.anotheria.util.StringUtils;
 import net.anotheria.util.concurrency.IdBasedLock;
 import net.anotheria.util.concurrency.IdBasedLockManager;
 import net.anotheria.util.concurrency.SafeIdBasedLockManager;
-import net.anotheria.util.log.LogMessageUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +18,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 /**
- * Implementation of {@link AbstractStoragePersistenceService} for FS system.
+ * Store photo in FS system.
  *
  * @author ykalapusha
  */
-public class PhotoStoragePersistenceService extends AbstractStoragePersistenceService {
+public class PhotoStoragePersistenceService implements CrudService<PhotoFileHolder> {
     /**
      * {@link Logger} instance.
      */
@@ -32,36 +34,25 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
      * Lock manager for safe operations with files.
      */
     private static final IdBasedLockManager<String> LOCK_MANAGER = new SafeIdBasedLockManager<>();
-    /**
-     * Table name for storing photos meta information.
-     */
-    static final String TABLE_NAME = "t_photos";
 
-    /**
-     * Constructor.
-     */
-    public PhotoStoragePersistenceService() {
-        super(TABLE_NAME, LOGGER);
-    }
 
     @Override
-    protected void createPhotoInStorage(PhotoBO photoBO) throws CrudServiceException {
-        checkArguments(photoBO);
-        photoBO.setFileLocation(getFileLocation(photoBO));
-        File file = new File(photoBO.getFileLocation());
+    public PhotoFileHolder create(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        String fileLocation = photoFileHolder.getFileLocation();
+        File file = new File(fileLocation);
         // checking folder structure and creating if needed
         if (!file.exists())
             if (!file.mkdirs())
-                throw new CrudServiceException("writePhoto(InputStream, " + photoBO + ") fail. Can't create needed folder structure.");
+                throw new CrudServiceException("writePhoto(InputStream, " + photoFileHolder + ") fail. Can't create needed folder structure.");
 
-        String fileName = photoBO.getFilePath();
+        String fileName = photoFileHolder.getFilePath();
         // checking file name
         if (StringUtils.isEmpty(fileName))
             throw new CrudServiceException("Wrong photo file name[" + fileName + "].");
 
         file = new File(fileName);
         // removing previously stored file if it exist
-        removePhoto(photoBO);
+        removePhoto(photoFileHolder);
 
         // synchronizing on fileName for preventing concurrent modifications on same file
         IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(fileName);
@@ -71,12 +62,12 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
         FileInputStream is = null;
         try {
             out = new FileOutputStream(file);
-            is = new FileInputStream(photoBO.getPhotoFile());
+            is = new FileInputStream(photoFileHolder.getPhotoFile());
             // buffered copy from input to output
             IOUtils.copyLarge(is, out);
             out.flush();
         } catch (IOException ioe) {
-            String message = "writePhoto(InputStream, " + photoBO + ") fail.";
+            String message = "writePhoto(InputStream, " + photoFileHolder + ") fail.";
             LOGGER.error(message, ioe);
             throw new CrudServiceException(message, ioe);
         } finally {
@@ -86,16 +77,12 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
             // closing synchronization
             lock.unlock();
         }
+        return photoFileHolder;
     }
 
     @Override
-    protected File getPhotoFromStorage(PhotoBO photoBO) throws CrudServiceException {
-        if (photoBO == null)
-            throw new IllegalArgumentException("Photo is null");
-        if (StringUtils.isEmpty(photoBO.getFilePath()))
-            throw new IllegalArgumentException("Photo file path is empty");
-
-        String fileName = photoBO.getFilePath();
+    public PhotoFileHolder read(SaveableID id) throws CrudServiceException, ItemNotFoundException {
+        String fileName = id.getSaveableId();
         // checking file name
         if (StringUtils.isEmpty(fileName))
             throw new CrudServiceException("Wrong photo file name[" + fileName + "].");
@@ -103,29 +90,57 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
         File file = new File(fileName);
         // checking is photo file exist
         if (!file.exists() || file.isDirectory())
-            throw new CrudServiceException("getPhoto(" + photoBO + ") fail. Photo not exist or it a directory.");
+            throw new ItemNotFoundException("getPhoto(" + id + ") fail. Photo not exist or it a directory.");
 
-        return file;
+        PhotoFileHolder photoFileHolder = new PhotoFileHolder();
+        photoFileHolder.setId(getIdFromFile(file));
+        photoFileHolder.setPhotoFile(file);
+        return photoFileHolder;
+    }
+
+    private long getIdFromFile(File file) {
+        String fileName = stripExtension(file.getName());
+        return Long.parseLong(fileName);
+    }
+
+    private String stripExtension (String str) {
+        if (str == null)
+            return null;
+
+        int pos = str.lastIndexOf(".");
+        if (pos == -1)
+            return str;
+
+        return str.substring(0, pos);
     }
 
     @Override
-    protected String getFileLocation(PhotoBO photoBO) {
-        return StorageConfig.getStoreFolderPath(String.valueOf(photoBO.getUserId()));
+    public PhotoFileHolder update(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        return create(photoFileHolder);
     }
 
     @Override
-    protected void deletePhotoFromStorage(PhotoBO photoBO) {
-        try {
-            removePhoto(photoBO);
-        } catch (CrudServiceException e) {
-            LOGGER.error(LogMessageUtil.failMsg(e));
-        }
+    public void delete(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        removePhoto(photoFileHolder);
     }
 
-    public void removePhoto(final PhotoBO photo) throws CrudServiceException {
-        checkArguments(photo);
+    @Override
+    public PhotoFileHolder save(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        return create(photoFileHolder);
+    }
 
-        String fileName = photo.getFilePath();
+    @Override
+    public boolean exists(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        return new File(photoFileHolder.getFilePath()).exists();
+    }
+
+    @Override
+    public List<PhotoFileHolder> query(Query q) throws CrudServiceException {
+        return null;
+    }
+
+    public void removePhoto(final PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        String fileName = photoFileHolder.getFilePath();
         // checking file name
         if (StringUtils.isEmpty(fileName))
             throw new RuntimeException("Wrong photo file name[" + fileName + "].");
@@ -133,7 +148,7 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
         File file = new File(fileName);
         // checking is a file not a directory
         if (file.exists() && file.isDirectory()) {
-            String message = "removePhoto(" + photo + ") fail. File is a folder.";
+            String message = "removePhoto(" + photoFileHolder + ") fail. File is a folder.";
             LOGGER.error(message);
             throw new CrudServiceException(message);
         }
@@ -144,7 +159,7 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
 
         try {
             file.delete();
-            removeCachedVersions(photo.getFileLocation(), photo.getId() + photo.getExtension());
+            removeCachedVersions(photoFileHolder.getFileLocation(), photoFileHolder.getId() + photoFileHolder.getExtension());
         } finally {
             lock.unlock();
         }
@@ -169,13 +184,5 @@ public class PhotoStoragePersistenceService extends AbstractStoragePersistenceSe
 
                 toDelete.delete();
             }
-    }
-
-    private void checkArguments(final PhotoBO photo) {
-        if (photo == null)
-            throw new IllegalArgumentException("PhotoVO is null.");
-
-        if (photo.getPhotoFile() == null)
-            throw new IllegalArgumentException("Photo file is null");
     }
 }
