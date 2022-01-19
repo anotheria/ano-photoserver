@@ -73,7 +73,7 @@ public class StorageServiceTest {
 		when(albumPersistenceService.getAlbum(albums.get(1).getId())).thenReturn(albums.get(1));
 		when(storagePersistenceService.getPhoto(photosMap.get(USER_1).get(0).getId())).thenReturn(photos1.get(0));
 		doNothing().when(storagePersistenceService).deletePhoto(photos1.get(0).getId());
-		doNothing().when(storagePersistenceService).updatePhoto(photos1.get(0), false);
+		doNothing().when(storagePersistenceService).updatePhoto(photos1.get(0));
 
 		//add mocks to factory
 		MetaFactory.createOnTheFlyFactory(AlbumPersistenceService.class, Extension.NONE, albumPersistenceService);

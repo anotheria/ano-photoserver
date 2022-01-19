@@ -44,6 +44,11 @@ public class PhotoVO implements Serializable, Cloneable {
 	private String fileLocation;
 
 	/**
+	 * Path to photo in ceph storage.
+	 */
+	private String fileLocationCeph;
+
+	/**
 	 * Extension of the photo file.
 	 */
 	private String extension;
@@ -72,11 +77,6 @@ public class PhotoVO implements Serializable, Cloneable {
 	 * Photo approval status. WAITING_APPROVAL by default.
 	 */
 	private ApprovalStatus approvalStatus = ApprovalStatus.WAITING_APPROVAL;
-
-	/**
-	 * User photo.
-	 */
-	private File photoFile;
 
 	/**
 	 * <p>Setter for the field <code>id</code>.</p>
@@ -168,6 +168,14 @@ public class PhotoVO implements Serializable, Cloneable {
 		return fileLocation != null ? fileLocation : "";
 	}
 
+	public String getFileLocationCeph() {
+		return fileLocationCeph;
+	}
+
+	public void setFileLocationCeph(String fileLocationCeph) {
+		this.fileLocationCeph = fileLocationCeph;
+	}
+
 	/**
 	 * <p>Setter for the field <code>name</code>.</p>
 	 *
@@ -246,7 +254,7 @@ public class PhotoVO implements Serializable, Cloneable {
 	 * @return {@link java.lang.String} photo file name with full path
 	 */
 	public String getFilePath() {
-		return getFileLocation() + File.separator + String.valueOf(getId()) + getExtension();
+		return getFileLocation() + File.separator + getId() + getExtension();
 	}
 
 	/**
@@ -285,19 +293,22 @@ public class PhotoVO implements Serializable, Cloneable {
 		return approvalStatus;
 	}
 
-	public File getPhotoFile() {
-		return photoFile;
-	}
-
-	public void setPhotoFile(File photoFile) {
-		this.photoFile = photoFile;
-	}
-	
-	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return "PhotoVO [id=" + id + ", userId=" + userId + ", albumId=" + albumId + ", fileLocation=" + fileLocation + ", extension=" + extension + ", name="
-				+ name + ", description=" + description + ", modificationTime=" + modificationTime + ", previewSettings=" + previewSettings + ", approvalStatus=" + approvalStatus + "]";
+		return "PhotoVO{" +
+				"id=" + id +
+				", userId='" + userId + '\'' +
+				", albumId=" + albumId +
+				", restricted=" + restricted +
+				", fileLocation='" + fileLocation + '\'' +
+				", fileLocationCeph='" + fileLocationCeph + '\'' +
+				", extension='" + extension + '\'' +
+				", name='" + name + '\'' +
+				", description='" + description + '\'' +
+				", modificationTime=" + modificationTime +
+				", previewSettings=" + previewSettings +
+				", approvalStatus=" + approvalStatus +
+				'}';
 	}
 
 	/** {@inheritDoc} */

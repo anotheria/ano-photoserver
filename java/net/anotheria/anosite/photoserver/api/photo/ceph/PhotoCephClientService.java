@@ -1,4 +1,4 @@
-package net.anotheria.anosite.photoserver.service.storage.persistence.ceph;
+package net.anotheria.anosite.photoserver.api.photo.ceph;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import net.anotheria.anoprise.dualcrud.CrudService;
@@ -15,17 +16,15 @@ import net.anotheria.anoprise.dualcrud.CrudServiceException;
 import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
 import net.anotheria.anoprise.dualcrud.Query;
 import net.anotheria.anoprise.dualcrud.SaveableID;
-import net.anotheria.anosite.photoserver.service.storage.persistence.PhotoFileHolder;
+import net.anotheria.anosite.photoserver.api.photo.PhotoFileHolder;
+import net.anotheria.anosite.photoserver.api.photo.StorageUtil;
+import net.anotheria.util.concurrency.IdBasedLock;
+import net.anotheria.util.concurrency.IdBasedLockManager;
+import net.anotheria.util.concurrency.SafeIdBasedLockManager;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
 /**
@@ -38,6 +37,10 @@ public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
      * {@link Logger} instance.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(PhotoCephClientService.class);
+    /**
+     * Lock manager for safe operations with files.
+     */
+    private static final IdBasedLockManager<String> LOCK_MANAGER = new SafeIdBasedLockManager<>();
     /**
      * {@link AmazonS3} client.
      */
@@ -62,57 +65,38 @@ public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
 
     @Override
     public PhotoFileHolder create(PhotoFileHolder photoFileHolder) throws CrudServiceException {
-        InputStream inputStream = null;
+        IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photoFileHolder.getOwnerId());
+        lock.lock();
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(photoFileHolder.getPhotoFile());
-            oos.flush();
-            oos.close();
-            inputStream = new ByteArrayInputStream(baos.toByteArray());
-            amazonS3Connection.putObject(bucketName, photoFileHolder.getOwnerId() + ".dat", inputStream, new ObjectMetadata());
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, photoFileHolder.getOwnerId(), photoFileHolder.getPhotoFileInputStream(), new ObjectMetadata());
+            amazonS3Connection.putObject(putObjectRequest);
             return photoFileHolder;
-        } catch (IOException e) {
-            LOGGER.error("Input/Output Exception: " + e.getMessage(), e);
+        } catch (Exception e) {
             throw new CrudServiceException(e.getMessage(), e);
         } finally {
-            try {
-                if (inputStream != null)
-                    inputStream.close();
-            } catch (IOException e) {
-                LOGGER.error("Unable to close input stream " + e.getMessage(), e);
-            }
+            IOUtils.closeQuietly(photoFileHolder.getPhotoFileInputStream());
+            lock.unlock();
         }
     }
 
     @Override
     public PhotoFileHolder read(SaveableID id) throws CrudServiceException, ItemNotFoundException {
-        ObjectInputStream inputStream = null;
+        IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(id.getOwnerId());
+        lock.lock();
         try {
-            final S3Object s3Object = amazonS3Connection.getObject(bucketName, id.getOwnerId() + ".dat");
-            S3ObjectInputStream content = s3Object.getObjectContent();
-            inputStream = new ObjectInputStream(content);
-            File file = (File) inputStream.readObject();
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder();
-            photoFileHolder.setId(Long.parseLong(id.getOwnerId()));
-            photoFileHolder.setPhotoFile(file);
+            final S3Object s3Object = amazonS3Connection.getObject(bucketName, id.getOwnerId());
+            S3ObjectInputStream inputStream = s3Object.getObjectContent();
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(StorageUtil.getId(id.getOwnerId()), StorageUtil.getExtension(id.getOwnerId()));
+            photoFileHolder.setPhotoFileInputStream(inputStream);
             return photoFileHolder;
-        } catch (IOException | ClassNotFoundException e) {
-            LOGGER.error("Unable to read object", e);
-            throw new CrudServiceException("Unable to read object", e);
         } catch (AmazonS3Exception e) {
-           if (e.getErrorCode().equals("NoSuchKey"))
-               throw new ItemNotFoundException(e.getMessage());
+            if (e.getErrorCode().equals("NoSuchKey"))
+                throw new ItemNotFoundException(e.getMessage());
 
             LOGGER.error("Unable to read object", e);
             throw new CrudServiceException("Unable to read object", e);
         } finally {
-            try {
-                if (inputStream != null)
-                    inputStream.close();
-            } catch (IOException e) {
-                LOGGER.error("Unable to close ObjectInputStream stream " + e.getMessage(), e);
-            }
+            lock.unlock();
         }
     }
 
@@ -123,7 +107,7 @@ public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
 
     @Override
     public void delete(PhotoFileHolder photoFileHolder) throws CrudServiceException {
-        amazonS3Connection.deleteObject(bucketName, photoFileHolder.getOwnerId() + ".dat");
+        amazonS3Connection.deleteObject(bucketName, photoFileHolder.getOwnerId());
     }
 
     @Override

@@ -6,12 +6,19 @@ import net.anotheria.anoplass.api.APIInitException;
 import net.anotheria.anoplass.api.AbstractAPIImpl;
 import net.anotheria.anoplass.api.NoLoggedInUserException;
 import net.anotheria.anoplass.api.generic.login.LoginAPI;
+import net.anotheria.anoprise.dualcrud.CrudServiceException;
+import net.anotheria.anoprise.dualcrud.DualCrudConfig;
+import net.anotheria.anoprise.dualcrud.DualCrudService;
+import net.anotheria.anoprise.dualcrud.DualCrudServiceFactory;
+import net.anotheria.anoprise.dualcrud.SaveableID;
 import net.anotheria.anoprise.metafactory.MetaFactory;
 import net.anotheria.anoprise.metafactory.MetaFactoryException;
 import net.anotheria.anosite.photoserver.api.access.AlbumAction;
 import net.anotheria.anosite.photoserver.api.access.PhotoAction;
 import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPI;
 import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPIException;
+import net.anotheria.anosite.photoserver.api.photo.ceph.PhotoCephClientService;
+import net.anotheria.anosite.photoserver.api.photo.fs.PhotoStorageFSService;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig;
 import net.anotheria.anosite.photoserver.service.storage.AlbumBO;
 import net.anotheria.anosite.photoserver.service.storage.AlbumNotFoundServiceException;
@@ -33,6 +40,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -78,6 +88,11 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      */
     private BlurSettingsAPI blurSettingsAPI;
 
+    /**
+     * {@link DualCrudService} for photos.
+     */
+    private DualCrudService<PhotoFileHolder> dualCrudService;
+
     /** {@inheritDoc} */
     @Override
     public void init() throws APIInitException {
@@ -89,6 +104,15 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
         loginAPI = APIFinder.findAPI(LoginAPI.class);
         blurSettingsAPI = APIFinder.findAPI(BlurSettingsAPI.class);
+
+        PhotoStorageFSService photoStorageFSService = new PhotoStorageFSService();
+        if (PhotoServerConfig.getInstance().isPhotoCephEnabled()) {
+            DualCrudConfig config = DualCrudConfig.migrateOnTheFly();
+            config.setDeleteUponMigration(false);
+            dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, new PhotoCephClientService(), config);
+        } else {
+            dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, null, DualCrudConfig.useLeftOnly());
+        }
     }
 
     // album related method's ---------------------------------------------------------
@@ -479,16 +503,22 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         photo.setRestricted(restricted);
         photo.setExtension(PhotoUploadAPIConfig.getInstance().getFilePrefix());
         photo.setPreviewSettings(previewSettings);
-        photo.setPhotoFile(tempFile);
+
         try {
             // creating photo
             photo = storageService.createPhoto(photo);
+
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(photo.getId(), photo.getExtension());
+            photoFileHolder.setPhotoFileInputStream(new FileInputStream(tempFile));
+            photoFileHolder.setFileLocation(photo.getFileLocation());
+            dualCrudService.create(photoFileHolder);
+
             // updating photo album
             album.addPhotoToPhotoOrder(photo.getId());
             updateAlbum(album, userId);
 
             return new PhotoAO(photo);
-        } catch (StorageServiceException e) {
+        } catch (StorageServiceException | CrudServiceException | FileNotFoundException e) {
             String message = "createPhoto(" + userId + ", " + tempFile + ", " + previewSettings + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -540,11 +570,20 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
         try {
             storageService.removePhoto(photoId);
+
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(photoId, photo.getExtension());
+            photoFileHolder.setFileLocation(photo.getFileLocation());
+            dualCrudService.delete(photoFileHolder);
+
             return photo;
         } catch (PhotoNotFoundServiceException e) {
             throw new PhotoNotFoundPhotoAPIException(photo.getId());
         } catch (StorageServiceException e) {
             String message = "removePhoto(" + photo + ") fail.";
+            LOG.warn(message, e);
+            throw new PhotoAPIException(message, e);
+        } catch (CrudServiceException e) {
+            String message = "removePhoto(" + photo + ") fail. Delete from storage fail. ";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
         } finally {
@@ -726,6 +765,27 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    @Override
+    public InputStream getPhotoContent(PhotoAO photo) throws PhotoAPIException {
+        if (photo == null)
+            throw new IllegalArgumentException("Photo is null");
+
+        PhotoFileHolder photoFileHolder = new PhotoFileHolder(photo.getId(), photo.getExtension());
+        photoFileHolder.setFileLocation(photo.getFileLocation());
+
+        SaveableID saveableID = new SaveableID();
+        saveableID.setOwnerId(photoFileHolder.getOwnerId());
+        saveableID.setSaveableId(photoFileHolder.getFilePath());
+
+        try {
+            return dualCrudService.read(saveableID).getPhotoFileInputStream();
+        } catch (CrudServiceException e) {
+            String message = "Unable to read photo stream from storage: " + e.getMessage();
+            LOG.error(message, e);
+            throw new PhotoAPIException(message, e);
+        }
+    }
+
     private List<PhotoAO> filterNotApproved(List<PhotoAO> photos, PhotosFiltering filtering) throws PhotoAPIException {
         if (filtering == null)
             filtering = PhotosFiltering.DEFAULT;
@@ -778,5 +838,4 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             throw new PhotoAPIException("filterNotApproved(" + albumId + ", " + photosIds + ") fail.", e);
         }
     }
-
 }

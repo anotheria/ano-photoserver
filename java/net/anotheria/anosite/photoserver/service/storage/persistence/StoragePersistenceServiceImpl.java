@@ -1,16 +1,7 @@
 package net.anotheria.anosite.photoserver.service.storage.persistence;
 
-import net.anotheria.anoprise.dualcrud.CrudServiceException;
-import net.anotheria.anoprise.dualcrud.DualCrudConfig;
-import net.anotheria.anoprise.dualcrud.DualCrudService;
-import net.anotheria.anoprise.dualcrud.DualCrudServiceFactory;
-import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
-import net.anotheria.anoprise.dualcrud.Query;
-import net.anotheria.anoprise.dualcrud.SaveableID;
 import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
 import net.anotheria.anosite.photoserver.service.storage.StorageConfig;
-import net.anotheria.anosite.photoserver.service.storage.persistence.ceph.PhotoCephClientService;
-import net.anotheria.anosite.photoserver.service.storage.persistence.fs.PhotoStoragePersistenceService;
 import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
 import net.anotheria.anosite.photoserver.shared.PhotoServerConfig;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
@@ -53,23 +44,10 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
     private static final String LOG_PREFIX = "PHOTO_SERVER STORAGE PERSISTENCE SERVICE: ";
 
     /**
-     * {@link DualCrudService} for photos.
-     */
-    private final DualCrudService<PhotoFileHolder> dualCrudService;
-
-    /**
      * Constructor.
      */
     public StoragePersistenceServiceImpl() {
         initialize();
-        PhotoStoragePersistenceService photoStoragePersistenceService = new PhotoStoragePersistenceService();
-        if (PhotoServerConfig.getInstance().isPhotoCephEnabled()) {
-            DualCrudConfig config = DualCrudConfig.migrateOnTheFly();
-            config.setDeleteUponMigration(false);
-            dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStoragePersistenceService, new PhotoCephClientService(), config);
-        } else {
-            dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStoragePersistenceService, null, DualCrudConfig.useLeftOnly());
-        }
     }
 
     /** {@inheritDoc} */
@@ -116,26 +94,13 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
             st.setString(9, serialize(photo.getPreviewSettings()));
             st.setInt(10, photo.getApprovalStatus().getCode());
             st.setBoolean(11, photo.isRestricted());
-            st.setString(12, PhotoServerConfig.getInstance().isPhotoCephEnabled() ?"cephStorage:" + photo.getId() + ".dat" : "none");
-
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder();
-            photoFileHolder.setId(photo.getId());
-            photoFileHolder.setPhotoFile(photo.getPhotoFile());
-            photoFileHolder.setUserId(photo.getUserId());
-            photoFileHolder.setFileLocation(photo.getFileLocation());
-            photoFileHolder.setExtension(photo.getExtension());
-
-            dualCrudService.create(photoFileHolder);
-
+            st.setString(12, PhotoServerConfig.getInstance().isPhotoCephEnabled() ?"cephStorage:" + photo.getId() + photo.getExtension() : "none");
             st.executeUpdate(); // should return 1;
 
             return photo;
         } catch (SQLException sqlE) {
             LOG.error(LOG_PREFIX + "SQL Exception: " + sqlE.getMessage(), sqlE);
             throw new StoragePersistenceServiceException(sqlE.getMessage(), sqlE);
-        } catch (CrudServiceException e) {
-            LOG.error(LOG_PREFIX + "CRUD Service exception: " + e.getMessage(), e);
-            throw new StoragePersistenceServiceException(e.getMessage(), e);
         } finally {
             close(st);
             close(conn);
@@ -145,10 +110,8 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
     /** {@inheritDoc} */
     @Override
     public void deletePhoto(final long photoId) throws StoragePersistenceServiceException {
-        PhotoBO toDelete = getPhoto(photoId).clone();
         Connection conn = null;
         PreparedStatement st = null;
-        ResultSet rs = null;
         try {
             conn = getConnection();
             st = conn.prepareStatement(SQL_DELETE_BY_ID);
@@ -158,21 +121,10 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
             if (deletedRows == 0)
                 throw new PhotoNotFoundPersistenceServiceException(photoId);
 
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder();
-            photoFileHolder.setId(photoId);
-            photoFileHolder.setUserId(toDelete.getUserId());
-            photoFileHolder.setFileLocation(toDelete.getFileLocation());
-            photoFileHolder.setExtension(toDelete.getExtension());
-            dualCrudService.delete(photoFileHolder);
-
         } catch (SQLException sqlE) {
             LOG.error(LOG_PREFIX + "SQL Exception: " + sqlE.getMessage());
             throw new StoragePersistenceServiceException(sqlE.getMessage(), sqlE);
-        } catch (CrudServiceException e) {
-            LOG.error(LOG_PREFIX + "CRUD Service exception: " + e.getMessage());
-            throw new StoragePersistenceServiceException(e.getMessage(), e);
         } finally {
-            close(rs);
             close(st);
             close(conn);
         }
@@ -197,9 +149,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
         } catch (SQLException sqlE) {
             LOG.error(LOG_PREFIX + "SQL Exception: " + sqlE.getMessage());
             throw new StoragePersistenceServiceException(sqlE.getMessage(), sqlE);
-        } catch (CrudServiceException e) {
-            LOG.error(LOG_PREFIX + "CRUD Service Exception: " + e.getMessage());
-            throw new StoragePersistenceServiceException(e.getMessage(), e);
         } finally {
             close(rs);
             close(st);
@@ -210,11 +159,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
     /** {@inheritDoc} */
     @Override
     public void updatePhoto(final PhotoBO photo) throws StoragePersistenceServiceException {
-        updatePhoto(photo, false);
-    }
-
-    @Override
-    public void updatePhoto(PhotoBO photo, boolean updateFile) throws StoragePersistenceServiceException {
         Connection conn = null;
         PreparedStatement st = null;
         try {
@@ -225,18 +169,8 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
             st.setString(2, photo.getDescription());
             st.setLong(3, photo.getModificationTime());
             st.setString(4, serialize(photo.getPreviewSettings()));
-            st.setString(5, PhotoServerConfig.getInstance().isPhotoCephEnabled() ?"cephStorage:" + photo.getId() + ".dat" : "none");
+            st.setString(5, photo.getFileLocationCeph());
             st.setLong(6, photo.getId());
-
-            if (updateFile) {
-                PhotoFileHolder photoFileHolder = new PhotoFileHolder();
-                photoFileHolder.setId(photo.getId());
-                photoFileHolder.setPhotoFile(photo.getPhotoFile());
-                photoFileHolder.setUserId(photo.getUserId());
-                photoFileHolder.setFileLocation(photo.getFileLocation());
-                photoFileHolder.setExtension(photo.getExtension());
-                dualCrudService.update(photoFileHolder);
-            }
 
             int updated = st.executeUpdate(); // should return 1;
             if (updated == 0)
@@ -244,9 +178,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
         } catch (SQLException sqlE) {
             LOG.error(LOG_PREFIX + "SQL Exception: " + sqlE.getMessage(), sqlE);
             throw new StoragePersistenceServiceException(sqlE.getMessage(), sqlE);
-        }catch (CrudServiceException e) {
-            LOG.error(LOG_PREFIX + "CRUD Service Exception: " + e.getMessage());
-            throw new StoragePersistenceServiceException(e.getMessage(), e);
         } finally {
             close(st);
             close(conn);
@@ -275,9 +206,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
         } catch (SQLException sqlE) {
             LOG.error(LOG_PREFIX + "SQL Exception: " + sqlE.getMessage());
             throw new StoragePersistenceServiceException(sqlE.getMessage(), sqlE);
-        } catch (CrudServiceException e) {
-            LOG.error(LOG_PREFIX + "CRUD Service Exception: " + e.getMessage());
-            throw new StoragePersistenceServiceException(e.getMessage(), e);
         } finally {
             close(rs);
             close(st);
@@ -306,9 +234,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
         } catch (SQLException sqlE) {
             LOG.error(LOG_PREFIX + "SQL Exception: " + sqlE.getMessage());
             throw new StoragePersistenceServiceException(sqlE.getMessage(), sqlE);
-        } catch (CrudServiceException e) {
-            LOG.error(LOG_PREFIX + "CRUD Service Exception: " + e.getMessage());
-            throw new StoragePersistenceServiceException(e.getMessage(), e);
         } finally {
             close(rs);
             close(st);
@@ -342,9 +267,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
         } catch (SQLException sqlE) {
             LOG.error(LOG_PREFIX + "SQL Exception: " + sqlE.getMessage());
             throw new StoragePersistenceServiceException(sqlE.getMessage(), sqlE);
-        } catch (CrudServiceException e) {
-            LOG.error(LOG_PREFIX + "CRUD Service Exception: " + e.getMessage());
-            throw new StoragePersistenceServiceException(e.getMessage(), e);
         } finally {
             close(rs);
             close(st);
@@ -379,9 +301,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
         } catch (SQLException sqlE) {
             LOG.error(LOG_PREFIX + "SQL Exception: " + sqlE.getMessage());
             throw new StoragePersistenceServiceException(sqlE.getMessage(), sqlE);
-        } catch (CrudServiceException e) {
-            LOG.error(LOG_PREFIX + "CRUD Service Exception: " + e.getMessage());
-            throw new StoragePersistenceServiceException(e.getMessage(), e);
         } finally {
             close(rs);
             close(st);
@@ -421,7 +340,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
     public void updatePhotoApprovalStatuses(Map<Long, ApprovalStatus> statuses) throws StoragePersistenceServiceException {
         Connection conn = null;
         PreparedStatement st = null;
-        ResultSet rs = null;
         try {
             conn = getConnection();
             st = conn.prepareStatement(SQL_UPDATE_STATUS);
@@ -448,7 +366,6 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
             LOG.error(LOG_PREFIX + "SQL Exception: " + sqlE.getMessage());
             throw new StoragePersistenceServiceException(sqlE.getMessage(), sqlE);
         } finally {
-            close(rs);
             close(st);
             close(conn);
         }
@@ -506,7 +423,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
         }
     }
 
-    PhotoBO mapResult(ResultSet rs) throws SQLException, CrudServiceException {
+    PhotoBO mapResult(ResultSet rs) throws SQLException, StoragePersistenceServiceException {
         PhotoBO photo = new PhotoBO();
         photo.setId(rs.getLong(FIELD_NAME_ID));
         photo.setUserId(rs.getString(FIELD_NAME_USER_ID));
@@ -519,22 +436,11 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
         photo.setPreviewSettings(mapPreviewSettings(rs.getString(FIELD_NAME_PREVIEW_SETTINGS)));
         photo.setApprovalStatus(ApprovalStatus.getStatusByCode(rs.getInt(FIELD_NAME_APPROVAL_STATUS)));
         photo.setRestricted(rs.getBoolean(FIELD_NAME_RESTRICTED));
-
-        PhotoFileHolder photoFileHolder = new PhotoFileHolder();
-        photoFileHolder.setId(photo.getId());
-        photoFileHolder.setUserId(photo.getUserId());
-        photoFileHolder.setFileLocation(photo.getFileLocation());
-        photoFileHolder.setExtension(photo.getExtension());
-
-        SaveableID saveableID = new SaveableID();
-        saveableID.setOwnerId(photoFileHolder.getOwnerId());
-        saveableID.setSaveableId(photoFileHolder.getFilePath());
-
-        photo.setPhotoFile(dualCrudService.read(saveableID).getPhotoFile());
+        photo.setFileLocationCeph(rs.getString(FIELD_NAME_FILE_LOCATION_CEPH));
         return photo;
     }
 
-        private PreviewSettingsVO mapPreviewSettings(String serialized) throws CrudServiceException {
+        private PreviewSettingsVO mapPreviewSettings(String serialized) throws StoragePersistenceServiceException {
         PreviewSettingsVO result = null;
         if (!StringUtils.isEmpty(serialized)) {
             String[] settings = StringUtils.tokenize(serialized, true, ',');
@@ -542,7 +448,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
                 result = new PreviewSettingsVO(Integer.parseInt(settings[0]), Integer.parseInt(settings[1]), Integer.parseInt(settings[2]),
                         Integer.parseInt(settings[3]));
             else
-                throw new CrudServiceException("Can't deserialize PreviewSettingsVO : '" + serialized + "'");
+                throw new StoragePersistenceServiceException("Can't deserialize PreviewSettingsVO : '" + serialized + "'");
         }
         return result;
     }

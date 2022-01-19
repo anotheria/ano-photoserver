@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MarkerFactory;
 
 /**
- * {@link net.anotheria.anosite.photoserver.service.storage.StorageService} implementation.
+ * {@link StorageService} implementation.
  *
  * @author Alexandr Bolbat
  * @version $Id: $Id
@@ -58,7 +58,7 @@ public class StorageServiceImpl implements StorageService {
 	/**
 	 * Lock manager for safe operations.
 	 */
-	private static final IdBasedLockManager LOCK_MANAGER = new SafeIdBasedLockManager();
+	private static final IdBasedLockManager<String> LOCK_MANAGER = new SafeIdBasedLockManager<>();
 
 	/**
 	 * Album lock suffix.
@@ -76,22 +76,22 @@ public class StorageServiceImpl implements StorageService {
 	/**
 	 * {@link StoragePersistenceService} instance.
 	 */
-	private StoragePersistenceService persistenceService;
+	private final StoragePersistenceService persistenceService;
 
 	/**
 	 * {@link AlbumPersistenceService} instance.
 	 */
-	private AlbumPersistenceService albumPersistenceService;
+	private final AlbumPersistenceService albumPersistenceService;
 
 	/**
 	 * {@link StorageServiceCache} cache.
 	 */
-	private StorageServiceCache cache;
+	private final StorageServiceCache cache;
 
 	/**
 	 * {@link PhotoServerConfig} instance.
 	 */
-	private PhotoServerConfig configuration;
+	private final PhotoServerConfig configuration;
 
 	/**
 	 * Events announcer.
@@ -158,7 +158,7 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public AlbumBO getDefaultAlbum(final String userId) throws StorageServiceException {
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(userId + USER);
+		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(userId + USER);
 		lock.lock();
 		try {
 			AlbumBO defaultAlbum = cache.getDefaultAlbum(userId);
@@ -202,7 +202,7 @@ public class StorageServiceImpl implements StorageService {
 	 *             on errors
 	 */
 	private AlbumBO createAlbumInternally(final AlbumBO album) throws StorageServiceException {
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(album.getId() + ALBUM);
+		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(album.getId() + ALBUM);
 		lock.lock();
 		try {
 			AlbumBO created = albumPersistenceService.createAlbum(album);
@@ -224,7 +224,7 @@ public class StorageServiceImpl implements StorageService {
 		if (album == null)
 			throw new IllegalArgumentException("Null album");
 
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(album.getId() + ALBUM);
+		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(album.getId() + ALBUM);
 		lock.lock();
 		try {
 			albumPersistenceService.updateAlbum(album);
@@ -249,7 +249,7 @@ public class StorageServiceImpl implements StorageService {
 		if (!albumPhotos.isEmpty())
 			throw new AlbumWithPhotosServiceException(albumId);
 
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(albumId + ALBUM);
+		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(albumId + ALBUM);
 		lock.lock();
 		try {
 			albumPersistenceService.deleteAlbum(albumId);
@@ -395,11 +395,10 @@ public class StorageServiceImpl implements StorageService {
 
 		AlbumBO photoAlbum = getAlbum(photo.getAlbumId());
 
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(photo.getId() + PHOTO);
+		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photo.getId() + PHOTO);
 		lock.lock();
 		try {
 			PhotoBO clonedPhoto = photo.clone();
-			clonedPhoto.setFileLocation(StorageConfig.getStoreFolderPath(String.valueOf(photo.getUserId())));
 			clonedPhoto.setModificationTime(System.currentTimeMillis());
 			clonedPhoto.setApprovalStatus(ApprovalStatus.WAITING_APPROVAL);
 
@@ -425,20 +424,15 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public PhotoBO updatePhoto(final PhotoBO photo) throws StorageServiceException {
-		return updatePhoto(photo, false);
-	}
-
-	@Override
-	public PhotoBO updatePhoto(PhotoBO photo, boolean updateFile) throws StorageServiceException {
 		if (photo == null)
 			throw new IllegalArgumentException("Null photo");
 
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(photo.getId() + PHOTO);
+		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photo.getId() + PHOTO);
 		lock.lock();
 		try {
 			PhotoBO oldPhoto = getPhoto(photo.getId());
 			photo.setModificationTime(System.currentTimeMillis());
-			persistenceService.updatePhoto(photo, updateFile);
+			persistenceService.updatePhoto(photo);
 
 			// remove photo from cache!
 			cache.removeItem(photo);
@@ -465,11 +459,11 @@ public class StorageServiceImpl implements StorageService {
 			throw new IllegalArgumentException("Illegal statuses, incoming param");
 		try {
 			// map with photo id to UserId mapping!
-			Map<Long, String> photoIdToUserId = new HashMap<Long, String>();
+			Map<Long, String> photoIdToUserId = new HashMap<>();
 			// map with current statuses of photos!
-			Map<Long, ApprovalStatus> previousStatuses = new HashMap<Long, ApprovalStatus>();
+			Map<Long, ApprovalStatus> previousStatuses = new HashMap<>();
 			// real status update map! We should not execute update - if status which should be set - is already there :)
-			Map<Long, ApprovalStatus> statusesToUpdate = new HashMap<Long, ApprovalStatus>();
+			Map<Long, ApprovalStatus> statusesToUpdate = new HashMap<>();
 
 			for (Map.Entry<Long, ApprovalStatus> entry : statuses.entrySet()) {
 				PhotoBO photo = getPhoto(entry.getKey());
@@ -512,7 +506,7 @@ public class StorageServiceImpl implements StorageService {
 			List<PhotoBO> albumPhotos = cache.getAllAlbumPhotos(album.getUserId(), albumId);
 			if (albumPhotos != null) {
 				// build result
-				Map<Long, ApprovalStatus> result = new HashMap<Long, ApprovalStatus>();
+				Map<Long, ApprovalStatus> result = new HashMap<>();
 				for (PhotoBO photo : albumPhotos)
 					result.put(photo.getId(), photo.getApprovalStatus());
 
@@ -530,7 +524,7 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public void removePhoto(final long photoId) throws StorageServiceException {
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);
+		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);
 		lock.lock();
 		try {
 			final PhotoBO photo = persistenceService.getPhoto(photoId);
@@ -558,7 +552,7 @@ public class StorageServiceImpl implements StorageService {
 	/** {@inheritDoc} */
 	@Override
 	public PhotoBO movePhoto(long photoId, long newAlbumId) throws StorageServiceException {
-		IdBasedLock lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);
+		IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photoId + PHOTO);
 		lock.lock();
 		try {
 			PhotoBO oldPhoto = getPhoto(photoId);

@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,11 +83,11 @@ public class DeliveryServlet extends BaseServlet {
 	/**
 	 * Pattern for single size parameter - number.
 	 */
-	private static Pattern sizePattern = Pattern.compile("\\d+|-1");
+	private static final Pattern sizePattern = Pattern.compile("\\d+|-1");
 	/**
 	 * Pattern for bounding area sizes - two numbers comma separated.
 	 */
-	private static Pattern boundingAreaPattern = Pattern.compile("(\\d+),(\\d+)|-1");
+	private static final Pattern boundingAreaPattern = Pattern.compile("(\\d+),(\\d+)|-1");
 	// APIs
 	/**
 	 * {@link AccessAPI} instance.
@@ -107,7 +108,7 @@ public class DeliveryServlet extends BaseServlet {
 	/**
 	 * {@link IdBasedLockManager} instance.
 	 */
-	private static final IdBasedLockManager<String> LOCK_MANAGER = new SafeIdBasedLockManager<String>();
+	private static final IdBasedLockManager<String> LOCK_MANAGER = new SafeIdBasedLockManager<>();
 
 	/**
 	 * Sets appropriate HTTP status and other response info if photo can't be found.
@@ -210,7 +211,7 @@ public class DeliveryServlet extends BaseServlet {
 		boolean resized = modifyPhotoSettings.isResized();
 		boolean blurred = req.getParameter(PARAM_BLUR) != null || (photo.isBlurred() && blurredPathParameter.equals("b"));
 
-        Map<AccessParameter, String> optionalParameters = new HashMap<AccessParameter, String>();
+        Map<AccessParameter, String> optionalParameters = new HashMap<>();
         optionalParameters.put(AccessParameter.SOURCE, req.getParameter(PARAM_SOURCE));
         optionalParameters.put(AccessParameter.BLUR, req.getParameter(PARAM_BLUR));
         optionalParameters.put(AccessParameter.PREVIEW, req.getParameter(PARAM_PREVIEW));
@@ -233,22 +234,21 @@ public class DeliveryServlet extends BaseServlet {
                     return;
             }
 
-		String fileNameWithPath = photo.getPhotoFile().getAbsolutePath() + File.separator + photo.getPhotoFile().getName();
 		try {
 			// check is delivering for original photos enabled
 			if (!cropped && !DeliveryConfig.getInstance().isOriginalPhotosAccessible()) {
-				debug("Delivering of original photo is denied. Original photo id: " + photo.getId() + ", path: " + fileNameWithPath);
+				debug("Delivering of original photo is denied. Original photo id: " + photo.getId());
 				responseSetNotFound(resp);
 				return;
 			}
 
+			InputStream photoInputStream = photoAPI.getPhotoContent(photo);
 			// delivering original photo
 			if (!cropped && !resized && !blurred) {
-				debug("Returning original photo: " + fileNameWithPath);
+				debug("Returning original photo: " + photo.getFilePath());
 
-				File photoFile = photo.getPhotoFile();
 				writeImageHeaders(resp);
-				streamImageFile(resp, photoFile);
+				stream(resp, photoInputStream);
 				return;
 			}
 
@@ -285,7 +285,7 @@ public class DeliveryServlet extends BaseServlet {
 				modifyPhotoSettings.setCroppingType(CroppingType.valueOf(croppingType));
 
 				// modifying photo and storing to new photo file
-				modifyPhoto(photo.getPhotoFile(), cachedFile, photo.getPreviewSettings(), modifyPhotoSettings);
+				modifyPhoto(photoInputStream, cachedFile, photo.getPreviewSettings(), modifyPhotoSettings);
 			} finally {
 				lock.unlock();
 			}
@@ -307,7 +307,7 @@ public class DeliveryServlet extends BaseServlet {
 	 * @param resp
 	 * 		- response
 	 * @return <code>true</code> if photo steamed or <code>false</code>
-	 * @throws java.io.IOException
+	 * @throws java.io.IOException if any errors
 	 */
 	private boolean streamPhoto(final String photoPath, final HttpServletResponse resp) throws IOException {
 		File cachedPhoto = new File(photoPath);
@@ -334,15 +334,15 @@ public class DeliveryServlet extends BaseServlet {
 
 		Matcher m = sizePattern.matcher(params);
 		if (m.matches()) {
-			modifyPhotoSettings.setSize(Integer.valueOf(params));
+			modifyPhotoSettings.setSize(Integer.parseInt(params));
 			modifyPhotoSettings.setResizeType(ResizeType.SIZE);
 			return true;
 		}
 
 		m = boundingAreaPattern.matcher(params);
 		if (m.matches()) {
-			modifyPhotoSettings.setBoundaryWidth(Integer.valueOf(m.group(1)));
-			modifyPhotoSettings.setBoundaryHeight(Integer.valueOf(m.group(2)));
+			modifyPhotoSettings.setBoundaryWidth(Integer.parseInt(m.group(1)));
+			modifyPhotoSettings.setBoundaryHeight(Integer.parseInt(m.group(2)));
 			modifyPhotoSettings.setResizeType(ResizeType.BOUNDING_AREA);
 			return true;
 		}
@@ -353,18 +353,18 @@ public class DeliveryServlet extends BaseServlet {
 	/**
 	 * Modify photo with some settings and store it to some file.
 	 *
-	 * @param photoFile photo file
+	 * @param inputStream {@link InputStream} photo file
 	 * @param resultPhotoPath  full result photo file path
 	 * @param pvSettings crop settings
 	 * @param modifyPhotoSettings {@link ModifyPhotoSettings}
 	 * @throws java.io.IOException on errors
 	 */
-	private void modifyPhoto(final File photoFile, final String resultPhotoPath, final PreviewSettingsVO pvSettings, final ModifyPhotoSettings modifyPhotoSettings) throws IOException {
-		debug("Changing original photo: " + photoFile.getName());
+	private void modifyPhoto(final InputStream inputStream, final String resultPhotoPath, final PreviewSettingsVO pvSettings, final ModifyPhotoSettings modifyPhotoSettings) throws IOException {
+		debug("Changing original photo: ");
 
 		// read photo file
 		PhotoUtil putil = new PhotoUtil();
-		putil.read(photoFile);
+		putil.read(inputStream);
 
 		// if blur param is present or photo should be blurred for user we have to blur image
 		if (modifyPhotoSettings.isBlurred())
@@ -503,9 +503,9 @@ public class DeliveryServlet extends BaseServlet {
 		Cookie result = null;
 		Cookie[] cookies = req.getCookies();
 		if (cookies != null){
-			for(int i=0; i<cookies.length; i++) {
-				if(name.equals(cookies[i].getName())) {
-					return cookies[i];
+			for (Cookie cookie : cookies) {
+				if (name.equals(cookie.getName())) {
+					return cookie;
 				}
 			}
 		}

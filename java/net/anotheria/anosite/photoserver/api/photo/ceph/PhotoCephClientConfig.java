@@ -1,4 +1,4 @@
-package net.anotheria.anosite.photoserver.service.storage.persistence.ceph;
+package net.anotheria.anosite.photoserver.api.photo.ceph;
 
 import org.configureme.ConfigurationManager;
 import org.configureme.annotations.Configure;

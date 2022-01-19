@@ -5,6 +5,7 @@ import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -375,4 +376,12 @@ public interface PhotoAPI extends API {
      */
     PhotoAO movePhoto(long photoId, long newAlbumId) throws PhotoAPIException;
 
+	/**
+	 * Get {@link InputStream} photo content.
+	 *
+	 * @param photo		{@link PhotoAO} photo
+	 * @return			{@link InputStream} of photo
+	 * @throws PhotoAPIException if any errors occurs
+	 */
+	InputStream getPhotoContent(PhotoAO photo) throws PhotoAPIException;
 }

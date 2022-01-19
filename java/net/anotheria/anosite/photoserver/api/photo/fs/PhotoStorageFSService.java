@@ -1,11 +1,12 @@
-package net.anotheria.anosite.photoserver.service.storage.persistence.fs;
+package net.anotheria.anosite.photoserver.api.photo.fs;
 
 import net.anotheria.anoprise.dualcrud.CrudService;
 import net.anotheria.anoprise.dualcrud.CrudServiceException;
 import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
 import net.anotheria.anoprise.dualcrud.Query;
 import net.anotheria.anoprise.dualcrud.SaveableID;
-import net.anotheria.anosite.photoserver.service.storage.persistence.PhotoFileHolder;
+import net.anotheria.anosite.photoserver.api.photo.PhotoFileHolder;
+import net.anotheria.anosite.photoserver.api.photo.StorageUtil;
 import net.anotheria.util.StringUtils;
 import net.anotheria.util.concurrency.IdBasedLock;
 import net.anotheria.util.concurrency.IdBasedLockManager;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -25,11 +27,11 @@ import java.util.List;
  *
  * @author ykalapusha
  */
-public class PhotoStoragePersistenceService implements CrudService<PhotoFileHolder> {
+public class PhotoStorageFSService implements CrudService<PhotoFileHolder> {
     /**
      * {@link Logger} instance.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhotoStoragePersistenceService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhotoStorageFSService.class);
     /**
      * Lock manager for safe operations with files.
      */
@@ -43,7 +45,7 @@ public class PhotoStoragePersistenceService implements CrudService<PhotoFileHold
         // checking folder structure and creating if needed
         if (!file.exists())
             if (!file.mkdirs())
-                throw new CrudServiceException("writePhoto(InputStream, " + photoFileHolder + ") fail. Can't create needed folder structure.");
+                throw new CrudServiceException("writePhoto([ " + photoFileHolder + "]) fail. Can't create needed folder structure.");
 
         String fileName = photoFileHolder.getFilePath();
         // checking file name
@@ -59,12 +61,10 @@ public class PhotoStoragePersistenceService implements CrudService<PhotoFileHold
         lock.lock();
 
         FileOutputStream out = null;
-        FileInputStream is = null;
         try {
             out = new FileOutputStream(file);
-            is = new FileInputStream(photoFileHolder.getPhotoFile());
             // buffered copy from input to output
-            IOUtils.copyLarge(is, out);
+            IOUtils.copyLarge(photoFileHolder.getPhotoFileInputStream(), out);
             out.flush();
         } catch (IOException ioe) {
             String message = "writePhoto(InputStream, " + photoFileHolder + ") fail.";
@@ -73,7 +73,7 @@ public class PhotoStoragePersistenceService implements CrudService<PhotoFileHold
         } finally {
             // closing output with ignoring exceptions
             IOUtils.closeQuietly(out);
-            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(photoFileHolder.getPhotoFileInputStream());
             // closing synchronization
             lock.unlock();
         }
@@ -92,26 +92,14 @@ public class PhotoStoragePersistenceService implements CrudService<PhotoFileHold
         if (!file.exists() || file.isDirectory())
             throw new ItemNotFoundException("getPhoto(" + id + ") fail. Photo not exist or it a directory.");
 
-        PhotoFileHolder photoFileHolder = new PhotoFileHolder();
-        photoFileHolder.setId(getIdFromFile(file));
-        photoFileHolder.setPhotoFile(file);
-        return photoFileHolder;
-    }
 
-    private long getIdFromFile(File file) {
-        String fileName = stripExtension(file.getName());
-        return Long.parseLong(fileName);
-    }
-
-    private String stripExtension (String str) {
-        if (str == null)
-            return null;
-
-        int pos = str.lastIndexOf(".");
-        if (pos == -1)
-            return str;
-
-        return str.substring(0, pos);
+        try {
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(StorageUtil.getId(id.getOwnerId()), StorageUtil.getExtension(id.getOwnerId()));
+            photoFileHolder.setPhotoFileInputStream(new FileInputStream(file));
+            return photoFileHolder;
+        } catch (FileNotFoundException e) {
+            throw new ItemNotFoundException("Item [" + id + "] not found.");
+        }
     }
 
     @Override

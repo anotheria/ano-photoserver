@@ -3,6 +3,7 @@ package net.anotheria.anosite.photoserver.api.photo;
 import net.anotheria.anoplass.api.APICallContext;
 import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.generic.login.LoginAPI;
+import net.anotheria.anoprise.dualcrud.DualCrudService;
 import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPI;
 import net.anotheria.anosite.photoserver.service.storage.AlbumBO;
 import net.anotheria.anosite.photoserver.service.storage.AlbumNotFoundServiceException;
@@ -55,6 +56,9 @@ public class PhotoAPITest {
 	@Mock
 	private StorageService storageService;
 
+	@Mock
+	private DualCrudService<PhotoFileHolder> dualCrudServiceMock;
+
 	private static final String USER1_ID = 1L + "";
 	private static final String USER2_ID = 2L + "";
 
@@ -64,6 +68,7 @@ public class PhotoAPITest {
 	private static AlbumBO testAlbum2_BO;
 	private static AlbumAO defaultAlbum;
 	private static AlbumBO defaultAlbum_BO;
+	private static PhotoFileHolder photoFileHolder;
 
 	@BeforeClass
 	public static void init() throws APIException {
@@ -578,13 +583,16 @@ public class PhotoAPITest {
 	public void testCreatePhotoInDefaultAlbum() throws Exception {
 		PhotoBO expectedBO = getPhotosForTest(1, defaultAlbum.getId(), USER1_ID).get(0);
 		PhotoAO expected = new PhotoAO(expectedBO);
+		File file = File.createTempFile("foo", "bar");
 
 		when(storageService.getDefaultAlbum(USER1_ID)).thenReturn(defaultAlbum_BO);
 		when(storageService.getAlbum(defaultAlbum_BO.getId())).thenReturn(defaultAlbum_BO);
 		when(storageService.createPhoto(expectedBO)).thenReturn(expectedBO);
 		when(storageService.updateAlbum(any(AlbumBO.class))).thenReturn(defaultAlbum_BO);
+		when(dualCrudServiceMock.create(any(PhotoFileHolder.class))).thenReturn(photoFileHolder);
 
-		PhotoAO actual = photoAPI.createPhoto(USER1_ID, new File("foo"), new PreviewSettingsVO(0,0,0));
+		PhotoAO actual = photoAPI.createPhoto(USER1_ID, file, new PreviewSettingsVO(0,0,0));
+		file.delete();
 
 		assertEquals(expected.getId(), actual.getId());
 		assertEquals(expected.getUserId(), actual.getUserId());
@@ -593,18 +601,22 @@ public class PhotoAPITest {
 		verify(storageService, atLeastOnce()).getAlbum(defaultAlbum_BO.getId());
 		verify(storageService, atLeastOnce()).createPhoto(expectedBO);
 		verify(storageService, atLeastOnce()).updateAlbum(any(AlbumBO.class));
+		verify(dualCrudServiceMock, atLeastOnce()).create(any(PhotoFileHolder.class));
 	}
 
 	@Test
 	public void testCreatePhoto() throws Exception {
 		PhotoBO expectedBO = getPhotosForTest(1, testAlbum2.getId(), USER1_ID).get(0);
 		PhotoAO expected = new PhotoAO(expectedBO);
+		File file = File.createTempFile("foo", "bar");
 
 		when(storageService.getAlbum(testAlbum2.getId())).thenReturn(testAlbum2_BO);
 		when(storageService.createPhoto(expectedBO)).thenReturn(expectedBO);
 		when(storageService.updateAlbum(any(AlbumBO.class))).thenReturn(testAlbum2_BO);
+		when(dualCrudServiceMock.create(any(PhotoFileHolder.class))).thenReturn(photoFileHolder);
 
-		PhotoAO actual = photoAPI.createPhoto(USER1_ID, testAlbum2.getId(), false, new File("foo"), new PreviewSettingsVO(0,0,0));
+		PhotoAO actual = photoAPI.createPhoto(USER1_ID, testAlbum2.getId(), false, file, new PreviewSettingsVO(0,0,0));
+		file.delete();
 
 		assertEquals(expected.getId(), actual.getId());
 		assertEquals(expected.getUserId(), actual.getUserId());
@@ -612,6 +624,7 @@ public class PhotoAPITest {
 		verify(storageService, atLeastOnce()).getAlbum(testAlbum2.getId());
 		verify(storageService, atLeastOnce()).createPhoto(expectedBO);
 		verify(storageService, atLeastOnce()).updateAlbum(any(AlbumBO.class));
+		verify(dualCrudServiceMock, atLeastOnce()).create(any(PhotoFileHolder.class));
 	}
 
 	@Test
