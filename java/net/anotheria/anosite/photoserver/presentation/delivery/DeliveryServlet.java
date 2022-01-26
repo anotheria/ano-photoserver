@@ -285,7 +285,7 @@ public class DeliveryServlet extends BaseServlet {
 				modifyPhotoSettings.setCroppingType(CroppingType.valueOf(croppingType));
 
 				// modifying photo and storing to new photo file
-				modifyPhoto(photoInputStream, cachedFile, photo.getPreviewSettings(), modifyPhotoSettings);
+				modifyPhoto(photoInputStream, cachedFile, photo.getPreviewSettings(), modifyPhotoSettings, photo.getFileLocation());
 			} finally {
 				lock.unlock();
 			}
@@ -359,7 +359,7 @@ public class DeliveryServlet extends BaseServlet {
 	 * @param modifyPhotoSettings {@link ModifyPhotoSettings}
 	 * @throws java.io.IOException on errors
 	 */
-	private void modifyPhoto(final InputStream inputStream, final String resultPhotoPath, final PreviewSettingsVO pvSettings, final ModifyPhotoSettings modifyPhotoSettings) throws IOException {
+	private void modifyPhoto(final InputStream inputStream, final String resultPhotoPath, final PreviewSettingsVO pvSettings, final ModifyPhotoSettings modifyPhotoSettings, final String fileLocation) throws IOException {
 		debug("Changing original photo: ");
 
 		// read photo file
@@ -442,8 +442,9 @@ public class DeliveryServlet extends BaseServlet {
 		// caching changed photo
 		debug("Storing changed photo: " + resultPhotoPath);
 		File cachedPhoto = new File(resultPhotoPath);
-		if (!cachedPhoto.exists())
-			cachedPhoto.mkdirs();
+		File dir = new File(fileLocation);
+		if (!dir.exists())
+			dir.mkdirs();
 
 		putil.write(photoAPIConfig.getJpegQuality(), cachedPhoto);
 	}
