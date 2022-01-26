@@ -442,6 +442,9 @@ public class DeliveryServlet extends BaseServlet {
 		// caching changed photo
 		debug("Storing changed photo: " + resultPhotoPath);
 		File cachedPhoto = new File(resultPhotoPath);
+		if (!cachedPhoto.exists())
+			cachedPhoto.mkdirs();
+
 		putil.write(photoAPIConfig.getJpegQuality(), cachedPhoto);
 	}
 
