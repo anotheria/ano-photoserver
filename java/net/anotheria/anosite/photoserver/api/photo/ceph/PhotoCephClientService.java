@@ -82,9 +82,12 @@ public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
             IOUtils.copyLarge(photoFileHolder.getPhotoFileInputStream(), baos);
             byte[] bytes = baos.toByteArray();
             bais = new ByteArrayInputStream(bytes);
-
             photoFileHolder.setPhotoFileInputStream(bais);
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, photoFileHolder.getOwnerId(), photoFileHolder.getPhotoFileInputStream(), new ObjectMetadata());
+
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentLength(bytes.length);
+
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, photoFileHolder.getOwnerId(), photoFileHolder.getPhotoFileInputStream(), objectMetadata);
             amazonS3Connection.putObject(putObjectRequest);
             photoFileHolder.setPhotoFileInputStream(new ByteArrayInputStream(bytes));
             return photoFileHolder;
