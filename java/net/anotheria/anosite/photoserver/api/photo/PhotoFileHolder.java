@@ -21,6 +21,10 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
      */
     private String id;
     /**
+     * Original photo id.
+     */
+    private long originalPhotoId;
+    /**
      * {@link InputStream} of photo.
      */
     private InputStream photoFileInputStream;
@@ -39,8 +43,9 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
      * @param id        photo id
      * @param extension photo extension
      */
-    public PhotoFileHolder(String id, String extension) {
+    public PhotoFileHolder(String id, long originalPhotoId, String extension) {
         this.id = id;
+        this.originalPhotoId = originalPhotoId;
         this.extension = extension;
     }
 
@@ -55,6 +60,14 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public long getOriginalPhotoId() {
+        return originalPhotoId;
+    }
+
+    public void setOriginalPhotoId(long originalPhotoId) {
+        this.originalPhotoId = originalPhotoId;
     }
 
     public InputStream getPhotoFileInputStream() {

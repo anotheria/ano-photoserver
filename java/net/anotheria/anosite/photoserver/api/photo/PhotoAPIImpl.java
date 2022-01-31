@@ -526,7 +526,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             // creating photo
             photo = storageService.createPhoto(photo);
 
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photo.getId()), photo.getExtension());
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photo.getId()), photo.getId(), photo.getExtension());
             photoFileHolder.setPhotoFileInputStream(new FileInputStream(tempFile));
             photoFileHolder.setFileLocation(photo.getFileLocation());
             dualCrudService.create(photoFileHolder);
@@ -589,7 +589,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             storageService.removePhoto(photoId);
 
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photoId), photo.getExtension());
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photoId), photoId, photo.getExtension());
             photoFileHolder.setFileLocation(photo.getFileLocation());
             dualCrudService.delete(photoFileHolder);
 
@@ -939,7 +939,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         File tmpFile = new File(baseFolder, cachedFileName + photoAO.getExtension());
         putil.write(photoAPIConfig.getJpegQuality(), tmpFile);
 
-        PhotoFileHolder photoFileHolder = new PhotoFileHolder(cachedFileName, photoAO.getExtension());
+        PhotoFileHolder photoFileHolder = new PhotoFileHolder(cachedFileName, photoAO.getId(), photoAO.getExtension());
         photoFileHolder.setPhotoFileInputStream(new FileInputStream(tmpFile));
         photoFileHolder.setFileLocation(photoAO.getFileLocation());
         dualCrudService.create(photoFileHolder);
@@ -947,7 +947,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     }
 
     private InputStream getPhotoContent(String id, PhotoAO photoAO) throws CrudServiceException {
-        PhotoFileHolder photoFileHolder = new PhotoFileHolder(id, photoAO.getExtension());
+        PhotoFileHolder photoFileHolder = new PhotoFileHolder(id, photoAO.getId(), photoAO.getExtension());
         photoFileHolder.setFileLocation(photoAO.getFileLocation());
 
         SaveableID saveableID = new SaveableID();

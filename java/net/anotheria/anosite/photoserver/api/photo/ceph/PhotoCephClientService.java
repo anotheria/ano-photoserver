@@ -7,17 +7,20 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import net.anotheria.anoprise.dualcrud.CrudService;
 import net.anotheria.anoprise.dualcrud.CrudServiceException;
 import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
 import net.anotheria.anoprise.dualcrud.Query;
 import net.anotheria.anoprise.dualcrud.SaveableID;
 import net.anotheria.anosite.photoserver.api.photo.PhotoFileHolder;
-import net.anotheria.anosite.photoserver.api.photo.StorageUtil;
+import net.anotheria.anosite.photoserver.api.photo.PhotoStorageUtil;
 import net.anotheria.util.concurrency.IdBasedLock;
 import net.anotheria.util.concurrency.IdBasedLockManager;
 import net.anotheria.util.concurrency.SafeIdBasedLockManager;
@@ -102,7 +105,7 @@ public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
         try {
             final S3Object s3Object = amazonS3Connection.getObject(bucketName, id.getOwnerId());
             S3ObjectInputStream inputStream = s3Object.getObjectContent();
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder(StorageUtil.getId(id.getOwnerId()), StorageUtil.getExtension(id.getOwnerId()));
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()));
             photoFileHolder.setPhotoFileInputStream(inputStream);
             return photoFileHolder;
         } catch (AmazonS3Exception e) {
@@ -123,7 +126,21 @@ public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
 
     @Override
     public void delete(PhotoFileHolder photoFileHolder) throws CrudServiceException {
-        amazonS3Connection.deleteObject(bucketName, photoFileHolder.getOwnerId());
+        try {
+            amazonS3Connection.deleteObject(bucketName, photoFileHolder.getOwnerId());
+
+            //delete cached versions
+            ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
+            listObjectsRequest.setBucketName(bucketName);
+            listObjectsRequest.setPrefix(photoFileHolder.getOriginalPhotoId() + "_");
+
+            ObjectListing objectListing = amazonS3Connection.listObjects(listObjectsRequest);
+            for (S3ObjectSummary summary :objectListing.getObjectSummaries()) {
+                amazonS3Connection.deleteObject(bucketName, summary.getKey());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Unable to delete photo from ceph: " + e.getMessage());
+        }
     }
 
     @Override

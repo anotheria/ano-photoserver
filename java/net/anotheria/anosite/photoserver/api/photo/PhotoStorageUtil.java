@@ -7,9 +7,9 @@ import net.anotheria.util.StringUtils;
  *
  * @author ykalapusha
  */
-public final class StorageUtil {
+public final class PhotoStorageUtil {
 
-    private StorageUtil() {}
+    private PhotoStorageUtil() {}
 
     /**
      * Get id from owner id.
@@ -48,5 +48,19 @@ public final class StorageUtil {
             return "";
 
         return name.substring(pos);
+    }
+
+    public static long getOriginalId(String name) {
+        if (StringUtils.isEmpty(name))
+            return -1;
+
+
+        int pos = name.indexOf("_");
+        if (pos == -1) {
+            String id = getId(name);
+            return StringUtils.isEmpty(id) ? -1 : Long.parseLong(id);
+        }
+
+        return Long.parseLong(name.substring(0, pos));
     }
 }

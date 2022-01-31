@@ -6,7 +6,7 @@ import net.anotheria.anoprise.dualcrud.ItemNotFoundException;
 import net.anotheria.anoprise.dualcrud.Query;
 import net.anotheria.anoprise.dualcrud.SaveableID;
 import net.anotheria.anosite.photoserver.api.photo.PhotoFileHolder;
-import net.anotheria.anosite.photoserver.api.photo.StorageUtil;
+import net.anotheria.anosite.photoserver.api.photo.PhotoStorageUtil;
 import net.anotheria.util.StringUtils;
 import net.anotheria.util.concurrency.IdBasedLock;
 import net.anotheria.util.concurrency.IdBasedLockManager;
@@ -94,7 +94,7 @@ public class PhotoStorageFSService implements CrudService<PhotoFileHolder> {
 
 
         try {
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder(StorageUtil.getId(id.getOwnerId()), StorageUtil.getExtension(id.getOwnerId()));
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()));
             photoFileHolder.setPhotoFileInputStream(new FileInputStream(file));
             return photoFileHolder;
         } catch (FileNotFoundException e) {
@@ -147,7 +147,7 @@ public class PhotoStorageFSService implements CrudService<PhotoFileHolder> {
 
         try {
             file.delete();
-            removeCachedVersions(photoFileHolder.getFileLocation(), photoFileHolder.getId() + photoFileHolder.getExtension());
+            removeCachedVersions(photoFileHolder.getFileLocation(), photoFileHolder.getId());
         } finally {
             lock.unlock();
         }
