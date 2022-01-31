@@ -14,25 +14,32 @@ public class StorageUtilTest {
     @Test
     public void testId() {
         long id = 1111L;
+        String actualId = String.valueOf(id);
         String extension = ".tmp";
 
-        long expected = StorageUtil.getId(id + extension);
-        assertEquals(expected, id);
+        String expected = StorageUtil.getId(id + extension);
+        assertEquals(expected, actualId);
 
-        long expected2 = StorageUtil.getId(extension);
-        assertEquals(expected2, 0);
+        String expected2 = StorageUtil.getId(extension);
+        assertEquals(expected2, "");
 
-        long expected3 = StorageUtil.getId(123456 + "");
-        assertEquals(expected3, 123456L);
+        String expected3 = StorageUtil.getId(123456 + "");
+        assertEquals(expected3, String.valueOf(123456L));
 
-        long expected4 = StorageUtil.getId(null);
-        assertEquals(expected4, 0);
+        String expected4 = StorageUtil.getId(null);
+        assertEquals(expected4, "");
 
-        long expected5 = StorageUtil.getId("");
-        assertEquals(expected5, 0);
+        String expected5 = StorageUtil.getId("");
+        assertEquals(expected5, "");
 
-        long expected6 = StorageUtil.getId(id + ".");
-        assertEquals(expected6, id);
+        String expected6 = StorageUtil.getId(id + ".");
+        assertEquals(expected6, actualId);
+
+        String expected7 = StorageUtil.getId("123456_c_t4_s400.JPEG");
+        assertEquals(expected7, "123456_c_t4_s400");
+
+        String expected8 = StorageUtil.getId("123456._c_t4_s400.JPEG");
+        assertEquals(expected8, "123456._c_t4_s400");
     }
 
     @Test

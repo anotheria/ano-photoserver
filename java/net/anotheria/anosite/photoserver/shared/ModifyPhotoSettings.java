@@ -1,11 +1,13 @@
-package net.anotheria.anosite.photoserver.presentation.delivery;
+package net.anotheria.anosite.photoserver.shared;
+
+import net.anotheria.anosite.photoserver.presentation.delivery.DeliveryServlet;
 
 /**
  * Photo settings holder used by {@link DeliveryServlet}.
  *
  * @author Illya Bogatyrchuk
  */
-class ModifyPhotoSettings {
+public class ModifyPhotoSettings {
 	/**
 	 * Indicates that photo should be cropped or not.
 	 */
@@ -38,7 +40,7 @@ class ModifyPhotoSettings {
 	/**
 	 * Constructor.
 	 */
-	ModifyPhotoSettings() {
+	public ModifyPhotoSettings() {
 		this.size = -1;
 		this.boundaryWidth = -1;
 		this.boundaryHeight = -1;
@@ -139,7 +141,7 @@ class ModifyPhotoSettings {
 	/**
 	 * <p>Getter for the field <code>croppingType</code>.</p>
 	 *
-	 * @return a {@link net.anotheria.anosite.photoserver.presentation.delivery.CroppingType} object.
+	 * @return a {@link CroppingType} object.
 	 */
 	public CroppingType getCroppingType() {
 		return croppingType;
@@ -148,7 +150,7 @@ class ModifyPhotoSettings {
 	/**
 	 * <p>Setter for the field <code>croppingType</code>.</p>
 	 *
-	 * @param croppingType a {@link net.anotheria.anosite.photoserver.presentation.delivery.CroppingType} object.
+	 * @param croppingType a {@link CroppingType} object.
 	 */
 	public void setCroppingType(CroppingType croppingType) {
 		this.croppingType = croppingType;
@@ -157,7 +159,7 @@ class ModifyPhotoSettings {
 	/**
 	 * <p>Getter for the field <code>resizeType</code>.</p>
 	 *
-	 * @return a {@link net.anotheria.anosite.photoserver.presentation.delivery.ResizeType} object.
+	 * @return a {@link ResizeType} object.
 	 */
 	public ResizeType getResizeType() {
 		return resizeType;
@@ -166,7 +168,7 @@ class ModifyPhotoSettings {
 	/**
 	 * <p>Setter for the field <code>resizeType</code>.</p>
 	 *
-	 * @param resizeType a {@link net.anotheria.anosite.photoserver.presentation.delivery.ResizeType} object.
+	 * @param resizeType a {@link ResizeType} object.
 	 */
 	public void setResizeType(ResizeType resizeType) {
 		this.resizeType = resizeType;

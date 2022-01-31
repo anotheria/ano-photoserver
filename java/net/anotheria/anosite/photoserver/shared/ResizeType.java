@@ -1,4 +1,4 @@
-package net.anotheria.anosite.photoserver.presentation.delivery;
+package net.anotheria.anosite.photoserver.shared;
 
 /**
  * Resize types.

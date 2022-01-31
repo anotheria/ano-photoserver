@@ -1,6 +1,7 @@
 package net.anotheria.anosite.photoserver.presentation.delivery;
 
 import net.anotheria.anosite.photoserver.api.access.ViewAccessResponse;
+import net.anotheria.anosite.photoserver.shared.CroppingType;
 import org.configureme.ConfigurationManager;
 import org.configureme.annotations.Configure;
 import org.configureme.annotations.ConfigureMe;
@@ -195,7 +196,7 @@ public final class DeliveryConfig implements Serializable {
     /**
      * <p>Getter for the field <code>croppingType</code>.</p>
      *
-     * @return a {@link net.anotheria.anosite.photoserver.presentation.delivery.CroppingType} object.
+     * @return a {@link CroppingType} object.
      */
     public CroppingType getCroppingType(){
         return croppingType;
@@ -204,7 +205,7 @@ public final class DeliveryConfig implements Serializable {
     /**
      * <p>Setter for the field <code>croppingType</code>.</p>
      *
-     * @param croppingType a {@link net.anotheria.anosite.photoserver.presentation.delivery.CroppingType} object.
+     * @param croppingType a {@link CroppingType} object.
      */
     public void setCroppingType(CroppingType croppingType){
         this.croppingType = croppingType;

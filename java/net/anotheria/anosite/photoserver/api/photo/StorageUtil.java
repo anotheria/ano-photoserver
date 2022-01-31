@@ -17,9 +17,9 @@ public final class StorageUtil {
      * @param name  owner id
      * @return      id of photo
      */
-    public static long getId(String name) {
+    public static String getId(String name) {
         String fileName = stripExtension(name);
-        return StringUtils.isEmpty(fileName) ? 0 : Long.parseLong(fileName);
+        return StringUtils.isEmpty(fileName) ? "" : fileName;
     }
 
     private static String stripExtension (String str) {
