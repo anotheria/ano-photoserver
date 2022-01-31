@@ -94,7 +94,6 @@ public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
         } catch (Exception e) {
             throw new CrudServiceException(e.getMessage(), e);
         } finally {
-            IOUtils.closeQuietly(photoFileHolder.getPhotoFileInputStream());
             IOUtils.closeQuietly(baos);
             IOUtils.closeQuietly(bais);
             lock.unlock();
