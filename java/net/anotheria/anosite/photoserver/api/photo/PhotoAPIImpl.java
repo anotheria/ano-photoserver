@@ -126,6 +126,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (PhotoServerConfig.getInstance().isPhotoCephEnabled()) {
             DualCrudConfig config = DualCrudConfig.migrateOnTheFly();
             config.setDeleteUponMigration(false);
+            config.setWriteToBoth(true);
             dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, new PhotoCephClientService(), config);
         } else {
             dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, null, DualCrudConfig.useLeftOnly());
