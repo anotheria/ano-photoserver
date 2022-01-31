@@ -25,6 +25,8 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 /**
@@ -63,18 +65,32 @@ public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
         amazonS3Connection.setEndpoint(cephClientConfig.getEndpoint());
     }
 
+
     @Override
     public PhotoFileHolder create(PhotoFileHolder photoFileHolder) throws CrudServiceException {
         IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(photoFileHolder.getOwnerId());
         lock.lock();
+
+        //first of all we try to write into the ceph storage, so we will read input stream and can not use it for second dual crud service, that`s why we create new one.
+        ByteArrayOutputStream baos = null;
+        ByteArrayInputStream bais = null;
         try {
+            baos = new ByteArrayOutputStream();
+            IOUtils.copyLarge(photoFileHolder.getPhotoFileInputStream(), baos);
+            byte[] bytes = baos.toByteArray();
+            bais = new ByteArrayInputStream(bytes);
+
+            photoFileHolder.setPhotoFileInputStream(bais);
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, photoFileHolder.getOwnerId(), photoFileHolder.getPhotoFileInputStream(), new ObjectMetadata());
             amazonS3Connection.putObject(putObjectRequest);
+            photoFileHolder.setPhotoFileInputStream(new ByteArrayInputStream(bytes));
             return photoFileHolder;
         } catch (Exception e) {
             throw new CrudServiceException(e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(photoFileHolder.getPhotoFileInputStream());
+            IOUtils.closeQuietly(baos);
+            IOUtils.closeQuietly(bais);
             lock.unlock();
         }
     }
