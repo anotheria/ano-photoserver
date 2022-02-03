@@ -80,6 +80,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
             PhotoBO photo = photoBO.clone();
             photo.setId(getNextId());
             photo.setFileLocation(StorageConfig.getStoreFolderPath(String.valueOf(photoBO.getUserId())));
+            photo.setFileLocationCeph(PhotoServerConfig.getInstance().isPhotoCephEnabled() ? "cephStorage:" + photo.getId() + photo.getExtension() : "none");
 
             // Prepare statement.
             st = conn.prepareStatement(SQL_CREATE);
@@ -94,7 +95,7 @@ public class StoragePersistenceServiceImpl extends GenericPersistenceService imp
             st.setString(9, serialize(photo.getPreviewSettings()));
             st.setInt(10, photo.getApprovalStatus().getCode());
             st.setBoolean(11, photo.isRestricted());
-            st.setString(12, PhotoServerConfig.getInstance().isPhotoCephEnabled() ?"cephStorage:" + photo.getId() + photo.getExtension() : "none");
+            st.setString(12, photo.getFileLocationCeph());
             st.executeUpdate(); // should return 1;
 
             return photo;
