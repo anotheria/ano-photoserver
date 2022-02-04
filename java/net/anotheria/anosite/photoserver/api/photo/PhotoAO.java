@@ -40,6 +40,7 @@ public class PhotoAO extends PhotoVO {
 		setUserId(photo.getUserId());
 		setAlbumId(photo.getAlbumId());
 		setFileLocation(photo.getFileLocation());
+		setFileLocationCeph(photo.getFileLocationCeph());
 		setExtension(photo.getExtension());
 		setName(photo.getName());
 		setDescription(photo.getDescription());

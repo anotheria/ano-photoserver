@@ -44,6 +44,11 @@ public class PhotoVO implements Serializable, Cloneable {
 	private String fileLocation;
 
 	/**
+	 * Path to photo in ceph storage.
+	 */
+	private String fileLocationCeph;
+
+	/**
 	 * Extension of the photo file.
 	 */
 	private String extension;
@@ -163,6 +168,14 @@ public class PhotoVO implements Serializable, Cloneable {
 		return fileLocation != null ? fileLocation : "";
 	}
 
+	public String getFileLocationCeph() {
+		return fileLocationCeph;
+	}
+
+	public void setFileLocationCeph(String fileLocationCeph) {
+		this.fileLocationCeph = fileLocationCeph;
+	}
+
 	/**
 	 * <p>Setter for the field <code>name</code>.</p>
 	 *
@@ -241,7 +254,7 @@ public class PhotoVO implements Serializable, Cloneable {
 	 * @return {@link java.lang.String} photo file name with full path
 	 */
 	public String getFilePath() {
-		return getFileLocation() + File.separator + String.valueOf(getId()) + getExtension();
+		return getFileLocation() + File.separator + getId() + getExtension();
 	}
 
 	/**
@@ -279,12 +292,23 @@ public class PhotoVO implements Serializable, Cloneable {
 	public ApprovalStatus getApprovalStatus() {
 		return approvalStatus;
 	}
-	
-	/** {@inheritDoc} */
+
 	@Override
 	public String toString() {
-		return "PhotoVO [id=" + id + ", userId=" + userId + ", albumId=" + albumId + ", fileLocation=" + fileLocation + ", extension=" + extension + ", name="
-				+ name + ", description=" + description + ", modificationTime=" + modificationTime + ", previewSettings=" + previewSettings + ", approvalStatus=" + approvalStatus + "]";
+		return "PhotoVO{" +
+				"id=" + id +
+				", userId='" + userId + '\'' +
+				", albumId=" + albumId +
+				", restricted=" + restricted +
+				", fileLocation='" + fileLocation + '\'' +
+				", fileLocationCeph='" + fileLocationCeph + '\'' +
+				", extension='" + extension + '\'' +
+				", name='" + name + '\'' +
+				", description='" + description + '\'' +
+				", modificationTime=" + modificationTime +
+				", previewSettings=" + previewSettings +
+				", approvalStatus=" + approvalStatus +
+				'}';
 	}
 
 	/** {@inheritDoc} */

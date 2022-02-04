@@ -45,6 +45,11 @@ public final class PhotoServerConfig implements Serializable {
 	 */
 	@Configure
 	private boolean photoApprovingEnabled = true;
+	/**
+	 * Is we will use second storage (ceph) for storing photos.
+	 */
+	@Configure
+	private boolean photoCephEnabled = false;
 
 	private PhotoServerConfig() {
 		try {
@@ -73,14 +78,19 @@ public final class PhotoServerConfig implements Serializable {
 		return photoApprovingEnabled;
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("PhotoServerConfig [photoApprovingEnabled=");
-		builder.append(photoApprovingEnabled);
-		builder.append("]");
-		return builder.toString();
+	public boolean isPhotoCephEnabled() {
+		return photoCephEnabled;
 	}
 
+	public void setPhotoCephEnabled(boolean photoCephEnabled) {
+		this.photoCephEnabled = photoCephEnabled;
+	}
+
+	@Override
+	public String toString() {
+		return "PhotoServerConfig{" +
+				"photoApprovingEnabled=" + photoApprovingEnabled +
+				", photoCephEnabled=" + photoCephEnabled +
+				'}';
+	}
 }

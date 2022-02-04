@@ -3,6 +3,8 @@ package net.anotheria.anosite.photoserver.service.storage;
 import net.anotheria.anosite.photoserver.shared.vo.PhotoVO;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
 
+import java.io.File;
+
 /**
  * User photo information.
  *
@@ -34,6 +36,7 @@ public class PhotoBO extends PhotoVO implements Cloneable {
 		setUserId(photo.getUserId());
 		setAlbumId(photo.getAlbumId());
 		setFileLocation(photo.getFileLocation());
+		setFileLocationCeph(photo.getFileLocationCeph());
 		setExtension(photo.getExtension());
 		setName(photo.getName());
 		setDescription(photo.getDescription());

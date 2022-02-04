@@ -6,35 +6,53 @@ import net.anotheria.anoplass.api.APIInitException;
 import net.anotheria.anoplass.api.AbstractAPIImpl;
 import net.anotheria.anoplass.api.NoLoggedInUserException;
 import net.anotheria.anoplass.api.generic.login.LoginAPI;
+import net.anotheria.anoprise.dualcrud.CrudServiceException;
+import net.anotheria.anoprise.dualcrud.DualCrudConfig;
+import net.anotheria.anoprise.dualcrud.DualCrudService;
+import net.anotheria.anoprise.dualcrud.DualCrudServiceFactory;
+import net.anotheria.anoprise.dualcrud.SaveableID;
 import net.anotheria.anoprise.metafactory.MetaFactory;
 import net.anotheria.anoprise.metafactory.MetaFactoryException;
 import net.anotheria.anosite.photoserver.api.access.AlbumAction;
 import net.anotheria.anosite.photoserver.api.access.PhotoAction;
 import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPI;
 import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPIException;
+import net.anotheria.anosite.photoserver.api.photo.ceph.PhotoCephClientService;
+import net.anotheria.anosite.photoserver.api.photo.fs.PhotoStorageFSService;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig;
+import net.anotheria.anosite.photoserver.presentation.shared.PhotoDimension;
+import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtil;
 import net.anotheria.anosite.photoserver.service.storage.AlbumBO;
 import net.anotheria.anosite.photoserver.service.storage.AlbumNotFoundServiceException;
 import net.anotheria.anosite.photoserver.service.storage.AlbumWithPhotosServiceException;
 import net.anotheria.anosite.photoserver.service.storage.DefaultPhotoNotFoundServiceException;
 import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
 import net.anotheria.anosite.photoserver.service.storage.PhotoNotFoundServiceException;
+import net.anotheria.anosite.photoserver.service.storage.StorageConfig;
 import net.anotheria.anosite.photoserver.service.storage.StorageService;
 import net.anotheria.anosite.photoserver.service.storage.StorageServiceException;
-import net.anotheria.anosite.photoserver.service.storage.StorageUtil;
-import net.anotheria.anosite.photoserver.service.storage.StorageUtilException;
 import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
+import net.anotheria.anosite.photoserver.shared.CroppingType;
+import net.anotheria.anosite.photoserver.shared.ModifyPhotoSettings;
 import net.anotheria.anosite.photoserver.shared.PhotoServerConfig;
 import net.anotheria.anosite.photoserver.shared.vo.PhotoVO;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
+import net.anotheria.anosite.photoserver.shared.ResizeType;
 import net.anotheria.moskito.aop.annotation.Accumulate;
 import net.anotheria.moskito.aop.annotation.Accumulates;
 import net.anotheria.moskito.aop.annotation.Monitor;
 import net.anotheria.util.StringUtils;
+import net.anotheria.util.concurrency.IdBasedLock;
+import net.anotheria.util.concurrency.IdBasedLockManager;
+import net.anotheria.util.concurrency.SafeIdBasedLockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -59,26 +77,38 @@ import java.util.Map;
         @Accumulate(valueName = "Time", intervalName = "1h")
 })
 public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
-
     /**
      * Logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(PhotoAPIImpl.class);
-
+    /**
+     * {@link IdBasedLockManager} instance.
+     */
+    private static final IdBasedLockManager<String> LOCK_MANAGER = new SafeIdBasedLockManager<>();
+    /**
+     * {@link PhotoUploadAPIConfig} instance.
+     */
+    private static final PhotoUploadAPIConfig photoUploadAPIConfig = PhotoUploadAPIConfig.getInstance();
+    /**
+     * {@link PhotoAPIConfig} instance.
+     */
+    private static final PhotoAPIConfig photoAPIConfig = PhotoAPIConfig.getInstance();
     /**
      * StorageService instance.
      */
     private StorageService storageService;
-
     /**
      * {@link LoginAPI} instance.
      */
     private LoginAPI loginAPI;
-
     /**
      * {@link BlurSettingsAPI} instance.
      */
     private BlurSettingsAPI blurSettingsAPI;
+    /**
+     * {@link DualCrudService} for photos.
+     */
+    private DualCrudService<PhotoFileHolder> dualCrudService;
 
     /** {@inheritDoc} */
     @Override
@@ -91,6 +121,16 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
         loginAPI = APIFinder.findAPI(LoginAPI.class);
         blurSettingsAPI = APIFinder.findAPI(BlurSettingsAPI.class);
+
+        PhotoStorageFSService photoStorageFSService = new PhotoStorageFSService();
+        if (PhotoServerConfig.getInstance().isPhotoCephEnabled()) {
+            DualCrudConfig config = DualCrudConfig.migrateOnTheFly();
+            config.setDeleteUponMigration(false);
+            config.setWriteToBoth(true);
+            dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, new PhotoCephClientService(), config);
+        } else {
+            dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, null, DualCrudConfig.useLeftOnly());
+        }
     }
 
     // album related method's ---------------------------------------------------------
@@ -113,7 +153,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             AlbumBO album = storageService.getAlbum(albumId);
 
-            isAllowedForAction(AlbumAction.VIEW, albumId, album.getUserId(), null); // security check
+            isAllowedForAction(AlbumAction.VIEW, album.getUserId(), authorId); // security check
 
             album.setPhotosOrder(filterNotApproved(album.getUserId(), album.getId(), album.getPhotosOrder(), filtering)); // filtering not approved photos from
             // order
@@ -146,10 +186,10 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (StringUtils.isEmpty(userId))
             throw new IllegalArgumentException("UserId is not valid");
 
-        isAllowedForAction(AlbumAction.VIEW, 0, userId, authorId); // security check
+        isAllowedForAction(AlbumAction.VIEW, userId, authorId); // security check
 
         try {
-            List<AlbumAO> result = new ArrayList<AlbumAO>();
+            List<AlbumAO> result = new ArrayList<>();
             for (AlbumBO album : storageService.getAlbums(userId)) {
                 album.setPhotosOrder(filterNotApproved(album.getUserId(), album.getId(), album.getPhotosOrder(), filtering)); // filtering not approved photos
                 // from order
@@ -167,8 +207,6 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     /** {@inheritDoc} */
     @Override
     public AlbumAO getDefaultAlbum(String userId) throws PhotoAPIException {
-        if (StringUtils.isEmpty(userId))
-            throw new IllegalArgumentException("UserId is not valid");
         return getDefaultAlbum(userId, PhotosFiltering.DEFAULT);
     }
 
@@ -186,7 +224,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             AlbumBO album = storageService.getDefaultAlbum(userId);
 
-            isAllowedForAction(AlbumAction.VIEW, album.getId(), album.getUserId(), authorId); // security check
+            isAllowedForAction(AlbumAction.VIEW, album.getUserId(), authorId); // security check
             album.setPhotosOrder(filterNotApproved(album.getUserId(), album.getId(), album.getPhotosOrder(), filtering)); // filtering not approved photos from
             // order
 
@@ -210,7 +248,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (album == null)
             throw new IllegalArgumentException("Null album");
 
-        isAllowedForAction(AlbumAction.CREATE, 0, album.getUserId(), authorId); // security check
+        isAllowedForAction(AlbumAction.CREATE, album.getUserId(), authorId); // security check
 
         try {
             return new AlbumAO(storageService.createAlbum(new AlbumBO(album)));
@@ -233,7 +271,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (album == null)
             throw new IllegalArgumentException("Null album");
 
-        isAllowedForAction(AlbumAction.EDIT, album.getId(), album.getUserId(), authorId); // security check
+        isAllowedForAction(AlbumAction.EDIT, album.getUserId(), authorId); // security check
 
         try {
             return new AlbumAO(storageService.updateAlbum(new AlbumBO(album)));
@@ -255,7 +293,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     public AlbumAO removeAlbum(long albumId, String authorId) throws PhotoAPIException {
         AlbumAO result = getAlbum(albumId, PhotosFiltering.DISABLED);
 
-        isAllowedForAction(AlbumAction.REMOVE_PHOTO, albumId, result.getUserId(), authorId); // security check
+        isAllowedForAction(AlbumAction.REMOVE_PHOTO, result.getUserId(), authorId); // security check
 
         try {
             return new AlbumAO(storageService.removeAlbum(albumId));
@@ -298,7 +336,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
         try {
             PhotoBO photo = storageService.getDefaultPhoto(userId);
-            isAllowedToMe(PhotoAction.VIEW, photo.getId(), photo.getUserId(), userId, photo.getApprovalStatus()); // security check
+            isAllowedToMe(PhotoAction.VIEW, photo.getUserId(), userId); // security check
             PhotoAO result = new PhotoAO(photo);
             // populate Blur settings!
             result.setBlurred(blurSettingsAPI.readMyBlurSettings(photo.getAlbumId(), photo.getId()));
@@ -306,11 +344,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         } catch (DefaultPhotoNotFoundServiceException e) {
             LOG.debug("getDefaultPhoto(" + userId + ") failed");
             throw new DefaultPhotoNotFoundAPIException(e.getMessage());
-        } catch (StorageServiceException e) {
-            String message = "getDefaultPhoto(" + userId + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (BlurSettingsAPIException e) {
+        } catch (StorageServiceException | BlurSettingsAPIException e) {
             String message = "getDefaultPhoto(" + userId + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -324,7 +358,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             throw new IllegalArgumentException("UserId is not valid");
         try {
             PhotoBO photo = storageService.getDefaultPhoto(userId, albumId);
-            isAllowedToMe(PhotoAction.VIEW, photo.getId(), photo.getUserId(), userId, photo.getApprovalStatus()); // security check
+            isAllowedToMe(PhotoAction.VIEW, photo.getUserId(), userId); // security check
             PhotoAO result = new PhotoAO(photo);
             // populate Blur settings!
             result.setBlurred(blurSettingsAPI.readMyBlurSettings(photo.getAlbumId(), photo.getId()));
@@ -332,11 +366,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         } catch (DefaultPhotoNotFoundServiceException e) {
             LOG.error("getDefaultPhoto(" + userId + ", " + albumId + ") failed", e);
             throw new DefaultPhotoNotFoundAPIException(e.getMessage());
-        } catch (StorageServiceException e) {
-            String message = "getDefaultPhoto(" + userId + "," + albumId + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (BlurSettingsAPIException e) {
+        } catch (StorageServiceException | BlurSettingsAPIException e) {
             String message = "getDefaultPhoto(" + userId + "," + albumId + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -349,17 +379,13 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             PhotoVO photo = storageService.getPhoto(photoId);
 
-            isAllowedToMe(PhotoAction.VIEW, photoId, photo.getUserId(), photo.getUserId(), photo.getApprovalStatus()); // security check
+            isAllowedToMe(PhotoAction.VIEW, photo.getUserId(), photo.getUserId()); // security check
             PhotoAO result = new PhotoAO(photo);
             result.setBlurred(blurSettingsAPI.readMyBlurSettings(photo.getAlbumId(), photo.getId()));
             return result;
         } catch (PhotoNotFoundServiceException e) {
             throw new PhotoNotFoundPhotoAPIException(photoId);
-        } catch (StorageServiceException e) {
-            String message = "getPhoto(" + photoId + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (BlurSettingsAPIException e) {
+        } catch (StorageServiceException | BlurSettingsAPIException e) {
             String message = "getPhoto(" + photoId + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -377,7 +403,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     public List<PhotoAO> getPhotos(long albumId, PhotosFiltering filtering, boolean orderByPhotosOrder) throws PhotoAPIException {
 
         final String defaultPhotoOwnerId = "-10"; //remove  after  refactoring - for  now  it's  actual for  failing security check.
-        isAllowedToMe(PhotoAction.VIEW, 0, defaultPhotoOwnerId, defaultPhotoOwnerId, ApprovalStatus.DEFAULT); // security check
+        isAllowedToMe(PhotoAction.VIEW, defaultPhotoOwnerId, defaultPhotoOwnerId); // security check
 
         try {
             AlbumAO album = getAlbum(albumId, filtering);
@@ -386,11 +412,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             if (orderByPhotosOrder)
                 photos = orderByPhotosOrder(photos, album.getPhotosOrder());
             return photos;
-        } catch (StorageServiceException e) {
-            String message = "getPhotos(" + albumId + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (BlurSettingsAPIException e) {
+        } catch (StorageServiceException | BlurSettingsAPIException e) {
             String message = "getPhotos(" + albumId + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -402,7 +424,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      *
      * @param photos - photos that need ordering.
      * @param ids    - photoOrder from Album
-     * @return
+     * @return       - {@link List} of {@link PhotoBO}
      */
     private List<PhotoAO> orderByPhotosOrder(List<PhotoAO> photos, List<Long> ids) {
         if (photos == null)
@@ -410,8 +432,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (photos.isEmpty() || ids == null || ids.isEmpty())
             return photos;
 
-        Map<Long, PhotoAO> photosMap = new LinkedHashMap<Long, PhotoAO>();
-        List<PhotoAO> result = new ArrayList<PhotoAO>();
+        Map<Long, PhotoAO> photosMap = new LinkedHashMap<>();
+        List<PhotoAO> result = new ArrayList<>();
         for (PhotoAO photo : photos)
             photosMap.put(photo.getId(), photo);
 
@@ -438,9 +460,9 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      */
     private List<PhotoAO> preparePhotos(long albumId, List<PhotoBO> photoVOs) throws BlurSettingsAPIException {
         if (photoVOs.isEmpty())
-            return new ArrayList<PhotoAO>();
-        List<PhotoAO> result = new ArrayList<PhotoAO>(photoVOs.size());
-        List<Long> ids = new ArrayList<Long>(photoVOs.size());
+            return new ArrayList<>();
+        List<PhotoAO> result = new ArrayList<>(photoVOs.size());
+        List<Long> ids = new ArrayList<>(photoVOs.size());
         for (PhotoBO photo : photoVOs) {
             result.add(new PhotoAO(photo));
             ids.add(photo.getId());
@@ -469,7 +491,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (tempFile == null)
             throw new IllegalArgumentException("Null temp file");
 
-        isAllowedToMe(PhotoAction.ADD, 0, userId, userId, ApprovalStatus.DEFAULT); // security check
+        isAllowedToMe(PhotoAction.ADD, userId, userId); // security check
 
         long albumId = getDefaultAlbum(userId, PhotosFiltering.DISABLED).getId();
         return createPhoto(userId, albumId, restricted, tempFile, previewSettings);
@@ -489,7 +511,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (tempFile == null)
             throw new IllegalArgumentException("Null temp file");
 
-        isAllowedToMe(PhotoAction.ADD, 0, userId, userId, ApprovalStatus.DEFAULT); // security check
+        isAllowedToMe(PhotoAction.ADD, userId, userId); // security check
 
         AlbumAO album = getAlbum(albumId, PhotosFiltering.DISABLED, userId);
 
@@ -499,23 +521,22 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         photo.setRestricted(restricted);
         photo.setExtension(PhotoUploadAPIConfig.getInstance().getFilePrefix());
         photo.setPreviewSettings(previewSettings);
+
         try {
             // creating photo
             photo = storageService.createPhoto(photo);
 
-            // writing photo file
-            StorageUtil.writePhoto(tempFile, photo, true);
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photo.getId()), photo.getId(), photo.getExtension());
+            photoFileHolder.setPhotoFileInputStream(new FileInputStream(tempFile));
+            photoFileHolder.setFileLocation(photo.getFileLocation());
+            dualCrudService.create(photoFileHolder);
 
             // updating photo album
             album.addPhotoToPhotoOrder(photo.getId());
             updateAlbum(album, userId);
 
             return new PhotoAO(photo);
-        } catch (StorageServiceException e) {
-            String message = "createPhoto(" + userId + ", " + tempFile + ", " + previewSettings + ") fail.";
-            LOG.warn(message, e);
-            throw new PhotoAPIException(message, e);
-        } catch (StorageUtilException e) {
+        } catch (StorageServiceException | CrudServiceException | FileNotFoundException e) {
             String message = "createPhoto(" + userId + ", " + tempFile + ", " + previewSettings + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -536,7 +557,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (StringUtils.isEmpty(userId))
             throw new IllegalArgumentException("UserId is not valid");
 
-        isAllowedToMe(PhotoAction.EDIT, photo.getId(), photo.getUserId(), userId, photo.getApprovalStatus()); // security check
+        isAllowedToMe(PhotoAction.EDIT, photo.getUserId(), userId); // security check
 
         try {
             return new PhotoAO(storageService.updatePhoto(new PhotoBO(photo)));
@@ -563,15 +584,24 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
         PhotoAO photo = getPhoto(photoId);
 
-        isAllowedToMe(PhotoAction.EDIT, photo.getId(), photo.getUserId(), userId, photo.getApprovalStatus()); // security check
+        isAllowedToMe(PhotoAction.EDIT, photo.getUserId(), userId); // security check
 
         try {
             storageService.removePhoto(photoId);
+
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photoId), photoId, photo.getExtension());
+            photoFileHolder.setFileLocation(photo.getFileLocation());
+            dualCrudService.delete(photoFileHolder);
+
             return photo;
         } catch (PhotoNotFoundServiceException e) {
             throw new PhotoNotFoundPhotoAPIException(photo.getId());
         } catch (StorageServiceException e) {
             String message = "removePhoto(" + photo + ") fail.";
+            LOG.warn(message, e);
+            throw new PhotoAPIException(message, e);
+        } catch (CrudServiceException e) {
+            String message = "removePhoto(" + photo + ") fail. Delete from storage fail. ";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
         } finally {
@@ -604,41 +634,25 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      * Check is user can perform action on photo.
      *
      * @param photoAction  - action that user tries to perform.
-     * @param photoId      - photo id
      * @param userId       - user id that try to do action
      * @param photoOwnerId - photo owner user id
-     * @throws PhotoAPIException
+     * @throws PhotoAPIException if any errors occurs
      */
-    private void isAllowedToMe(PhotoAction photoAction, long photoId, String photoOwnerId, String userId, ApprovalStatus status) throws PhotoAPIException {
-        // TODO: fix this ugly method in future
+    private void isAllowedToMe(PhotoAction photoAction, String photoOwnerId, String userId) throws PhotoAPIException {
+        if (PhotoAction.VIEW.equals(photoAction) || photoOwnerId.equals(userId))
+            return;
 
-        boolean result;
-
-        switch (photoAction) {
-            case VIEW:
-                result = true; // all can see all photos
-                break;
-            case ADD:
-                result = !StringUtils.isEmpty(userId) && photoOwnerId.equals(userId); // logged in users can add photos
-                break;
-            default:
-                result = !StringUtils.isEmpty(userId) && photoOwnerId.equals(userId); // logged in users can do anything with own photos
-                break;
-        }
-
-        if (!result)
-            throw new NoAccessPhotoAPIException("No access.");
+        throw new NoAccessPhotoAPIException("No access.");
     }
 
     /**
      * Check is user can perform action on photo.
      *
      * @param albumAction  - action that user tries to perform.
-     * @param albumId      - album id
      * @param albumOwnerId - album owner id
-     * @throws PhotoAPIException
+     * @throws PhotoAPIException if any errors occurs
      */
-    private void isAllowedForAction(AlbumAction albumAction, long albumId, String albumOwnerId, String authorId) throws PhotoAPIException {
+    private void isAllowedForAction(AlbumAction albumAction, String albumOwnerId, String authorId) throws PhotoAPIException {
         // TODO: fix this ugly method in future
 
         boolean result = false;
@@ -680,6 +694,10 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         if (amount < 0)
             throw new IllegalArgumentException("Illegal photos amount selected amount[" + amount + "]");
 
+        if (amount == 0) {
+            return new ArrayList<>();
+        }
+
         try {
             // use same method as for bulk change of approval statuses.
             return map(storageService.getWaitingApprovalPhotos(amount));
@@ -697,7 +715,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
      * @return mapped result
      */
     private List<PhotoAO> map(List<PhotoBO> waitingApprovalPhotos) {
-        List<PhotoAO> result = new ArrayList<PhotoAO>(waitingApprovalPhotos.size());
+        List<PhotoAO> result = new ArrayList<>(waitingApprovalPhotos.size());
         for (PhotoBO photoBO : waitingApprovalPhotos)
             result.add(new PhotoAO(photoBO));
         return result;
@@ -745,8 +763,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             throw new NoAccessPhotoAPIException("No access.");
 
 
-        isAllowedToMe(PhotoAction.EDIT, photo.getId(), photo.getUserId(), photo.getUserId(), photo.getApprovalStatus()); // security check
-        isAllowedForAction(AlbumAction.EDIT, album.getId(), album.getUserId(), photo.getUserId()); // security check
+        isAllowedToMe(PhotoAction.EDIT, photo.getUserId(), photo.getUserId()); // security check
+        isAllowedForAction(AlbumAction.EDIT, album.getUserId(), photo.getUserId()); // security check
 
         try {
             PhotoAO updatedPhoto = new PhotoAO(storageService.movePhoto(photoId, newAlbumId));
@@ -765,13 +783,215 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         }
     }
 
+    @Override
+    public InputStream getPhotoContent(PhotoAO photo) throws PhotoAPIException {
+        if (photo == null)
+            throw new IllegalArgumentException("Photo is null");
+
+        try {
+            return getPhotoContent(String.valueOf(photo.getId()), photo);
+        } catch (CrudServiceException e) {
+            String message = "Unable to read photo stream from storage: " + e.getMessage();
+            LOG.error(message, e);
+            throw new PhotoAPIException(message, e);
+        }
+    }
+
+    @Override
+    public InputStream getCachedPhotoContent(PhotoAO photoAO, ModifyPhotoSettings modifyPhotoSettings, boolean cropped, int croppingType, boolean blurred) throws PhotoAPIException {
+        // preparing cached photo postfix
+        String cachedFileName = String.valueOf(photoAO.getId());
+        cachedFileName += cropped ? "_c_t" + croppingType : "";
+        if (modifyPhotoSettings.isResized()) {
+            switch (modifyPhotoSettings.getResizeType()) {
+                case SIZE:
+                    cachedFileName += "_s" + modifyPhotoSettings.getSize();
+                    break;
+                case BOUNDING_AREA:
+                    cachedFileName += "_ba" + modifyPhotoSettings.getBoundaryWidth() + "_" + modifyPhotoSettings.getBoundaryHeight();
+                    break;
+            }
+        }
+        cachedFileName += blurred ? "_b" : "";
+
+        try {
+            return getPhotoContent(cachedFileName, photoAO);
+        } catch (CrudServiceException e) {
+            //Cached file not found, try to generate new.
+        }
+
+
+        // locking all incoming photo modification requests for same picture
+        IdBasedLock<String> lock = LOCK_MANAGER.obtainLock(cachedFileName);
+        lock.lock();
+        try {
+            // checking again cached photo and steaming it if exist
+            try {
+                return getPhotoContent(cachedFileName, photoAO);
+            } catch (CrudServiceException e) {
+                //Cached file not found in lock again, try to generate new.
+            }
+
+            modifyPhotoSettings.setCropped(cropped);
+            modifyPhotoSettings.setBlurred(blurred);
+            modifyPhotoSettings.setCroppingType(CroppingType.valueOf(croppingType));
+
+            // modifying photo and storing to new photo file
+            modifyPhoto(cachedFileName, modifyPhotoSettings, photoAO);
+
+            //try to read cached photo again after save
+            return getPhotoContent(cachedFileName, photoAO);
+
+        } catch (IOException | CrudServiceException e) {
+            String failMsg = "Unable to process cached file after save. " + e.getMessage();
+            LOG.error(failMsg, e);
+            throw new PhotoAPIException(failMsg);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Modify photo and store new file in storage.
+     *
+     * @param cachedFileName        file name
+     * @param modifyPhotoSettings   {@link ModifyPhotoSettings} for photo
+     * @param photoAO               {@link PhotoAO} instance
+     * @throws PhotoAPIException    if errors occurs
+     * @throws IOException          if errors occurs
+     * @throws CrudServiceException if errors occurs
+     */
+    private void modifyPhoto(String cachedFileName, ModifyPhotoSettings modifyPhotoSettings, PhotoAO photoAO) throws PhotoAPIException, IOException, CrudServiceException {
+        final PreviewSettingsVO pvSettings = photoAO.getPreviewSettings();
+
+        // read photo file
+        PhotoUtil putil = new PhotoUtil();
+        putil.read(getPhotoContent(photoAO));
+
+        // if blur param is present or photo should be blurred for user we have to blur image
+        if (modifyPhotoSettings.isBlurred())
+            putil.blur();
+
+        // if preview param is present we have to crop image first
+        if (modifyPhotoSettings.isCropped()) {
+            PhotoDimension move = new PhotoDimension(pvSettings.getX(), pvSettings.getY());
+            PhotoDimension crop = new PhotoDimension(pvSettings.getWidth(), pvSettings.getHeight());
+            PhotoDimension originalDimension = new PhotoDimension(putil.getWidth(), putil.getHeight());
+            PhotoDimension workbenchDimension;
+            if (putil.getHeight() > putil.getWidth()) {
+                workbenchDimension = new PhotoDimension(photoUploadAPIConfig.getWorkbenchWidth() * putil.getWidth() / putil.getHeight(),
+                        photoUploadAPIConfig.getWorkbenchWidth());
+            } else {
+                workbenchDimension = new PhotoDimension(photoUploadAPIConfig.getWorkbenchWidth(), photoUploadAPIConfig.getWorkbenchWidth() * putil.getHeight()
+                        / putil.getWidth());
+            }
+            PhotoDimension xy = move.getRelationTo(workbenchDimension, originalDimension);
+            PhotoDimension wh = crop.getRelationTo(workbenchDimension, originalDimension);
+            putil.crop(xy.w, xy.h, wh.w, wh.h);
+        }
+
+        // scale photo if needed
+        if (modifyPhotoSettings.isResized()) {
+            int height = putil.getHeight();
+            int width = putil.getWidth();
+
+            switch (modifyPhotoSettings.getResizeType()) {
+                // scale by size
+                case SIZE:
+                    int size = modifyPhotoSettings.getSize();
+                    switch (modifyPhotoSettings.getCroppingType()) {
+                        case HEIGHT:
+                            putil.scale((int) ((double) size / height * width), size);
+                            break;
+                        case NATURAL_HEIGHT:
+                            height = height < size ? height : size;
+                            width = (int) ((double) height / putil.getHeight() * width);
+
+                            putil.scale(width, height);
+                            break;
+                        case WIDTH:
+                            putil.scale(size, (int) ((double) size / width * height));
+                            break;
+                        case NATURAL_WIDTH:
+                            width = width < size ? width : size;
+                            height = (int) ((double) width / putil.getWidth() * height);
+
+                            putil.scale(width, height);
+                            break;
+                        case BOTH:
+                            putil.scale(size);
+                            break;
+                        case NATURAL_BOTH:
+                            if (width > size && height > size)
+                                putil.scale(size);
+                            break;
+                    }
+                    break;
+                // scale along the bounding area
+                case BOUNDING_AREA:
+                    scaleAlongBoundary(putil, width, height, modifyPhotoSettings.getBoundaryWidth(), modifyPhotoSettings.getBoundaryHeight());
+                    break;
+            }
+        }
+
+        File baseFolder = new File(StorageConfig.getTmpStoreFolderPath(photoAO.getUserId()));
+        baseFolder.mkdirs();
+        File tmpFile = new File(baseFolder, cachedFileName + photoAO.getExtension());
+        putil.write(photoAPIConfig.getJpegQuality(), tmpFile);
+
+        PhotoFileHolder photoFileHolder = new PhotoFileHolder(cachedFileName, photoAO.getId(), photoAO.getExtension());
+        photoFileHolder.setPhotoFileInputStream(new FileInputStream(tmpFile));
+        photoFileHolder.setFileLocation(photoAO.getFileLocation());
+        dualCrudService.create(photoFileHolder);
+        tmpFile.delete();
+    }
+
+    private InputStream getPhotoContent(String id, PhotoAO photoAO) throws CrudServiceException {
+        PhotoFileHolder photoFileHolder = new PhotoFileHolder(id, photoAO.getId(), photoAO.getExtension());
+        photoFileHolder.setFileLocation(photoAO.getFileLocation());
+
+        SaveableID saveableID = new SaveableID();
+        saveableID.setOwnerId(photoFileHolder.getOwnerId());
+        saveableID.setSaveableId(photoFileHolder.getFilePath());
+
+        return dualCrudService.read(saveableID).getPhotoFileInputStream();
+    }
+
+    /**
+     * Scale width and height of the original image along the incoming width and height of the bounding area .
+     *
+     * @param photoUtil      {@link PhotoUtil}
+     * @param width          original image width
+     * @param height         original image height
+     * @param boundaryWidth  width of the bounding area
+     * @param boundaryHeight height of the bounding area
+     */
+    private void scaleAlongBoundary(final PhotoUtil photoUtil, int width, int height, int boundaryWidth, int boundaryHeight) {
+        double boundaryAspectRatio = (double) boundaryWidth / boundaryHeight;
+        double originalImageAspectRatio = (double) width / height;
+
+        if (boundaryAspectRatio < originalImageAspectRatio) {
+            photoUtil.scale(boundaryWidth, (int) ((double) boundaryWidth / width * height));
+            return;
+        }
+
+        if (boundaryAspectRatio > originalImageAspectRatio) {
+            photoUtil.scale((int) ((double) boundaryHeight / height * width), boundaryHeight);
+            return;
+        }
+
+        // case when aspect ratio is the same
+        int size = boundaryWidth >= boundaryHeight ? boundaryWidth : boundaryHeight;
+        photoUtil.scale(size);
+    }
+
     private List<PhotoAO> filterNotApproved(List<PhotoAO> photos, PhotosFiltering filtering) throws PhotoAPIException {
         if (filtering == null)
             filtering = PhotosFiltering.DEFAULT;
         if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled())
             return photos;
 
-        List<PhotoAO> result = new ArrayList<PhotoAO>();
+        List<PhotoAO> result = new ArrayList<>();
         try {
             for (PhotoAO photo : photos) {
                 if (loginAPI.isLogedIn() && loginAPI.getLogedUserId().equalsIgnoreCase(String.valueOf(photo.getUserId()))) {
@@ -806,7 +1026,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             Map<Long, ApprovalStatus> approvalStatuses = storageService.getAlbumPhotosApprovalStatus(albumId);
 
-            List<Long> result = new ArrayList<Long>();
+            List<Long> result = new ArrayList<>();
             for (long photoId : photosIds) {
                 ApprovalStatus status = approvalStatuses.get(photoId);
                 if (status != null && filtering.allowedStatuses.contains(status))
@@ -817,5 +1037,4 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             throw new PhotoAPIException("filterNotApproved(" + albumId + ", " + photosIds + ") fail.", e);
         }
     }
-
 }

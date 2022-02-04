@@ -50,7 +50,7 @@ public class AlbumBO extends AlbumVO {
 		AlbumBO cloned = (AlbumBO) super.clone();
 		cloned.setPhotosOrder(getPhotosOrder());
 		return cloned;
-
 	}
+
 
 }

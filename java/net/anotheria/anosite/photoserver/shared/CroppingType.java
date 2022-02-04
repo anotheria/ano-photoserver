@@ -1,4 +1,4 @@
-package net.anotheria.anosite.photoserver.presentation.delivery;
+package net.anotheria.anosite.photoserver.shared;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,10 +71,10 @@ public enum CroppingType {
     }
 
     /**
-     * Returns {@link net.anotheria.anosite.photoserver.presentation.delivery.CroppingType} by given value. If there is no such {@link net.anotheria.anosite.photoserver.presentation.delivery.CroppingType} with specified value - return {@code null}.
+     * Returns {@link CroppingType} by given value. If there is no such {@link CroppingType} with specified value - return {@code null}.
      *
      * @param value {@code int} value
-     * @return corresponding {@link net.anotheria.anosite.photoserver.presentation.delivery.CroppingType} or {@code null} if there is no such gender
+     * @return corresponding {@link CroppingType} or {@code null} if there is no such gender
      */
     public static CroppingType valueOf(final int value) {
         for (CroppingType gender : CroppingType.values())
