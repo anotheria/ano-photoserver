@@ -20,7 +20,7 @@
 		<ano-db-version>2.1.0</ano-db-version>
 		<ano-util-version>2.1.6</ano-util-version>
 
-		<moskito-version>2.9.1</moskito-version>
+		<moskito-version>2.10.1</moskito-version>
 		<moskito-webui-version>${moskito-version}</moskito-webui-version>
 
 		<ano-plass-version>2.1.0</ano-plass-version>
