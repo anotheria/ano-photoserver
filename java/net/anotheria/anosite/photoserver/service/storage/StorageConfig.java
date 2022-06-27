@@ -62,6 +62,19 @@ public final class StorageConfig implements Serializable {
 	private String storageRoot = S + "work" + S + "data" + S + "photoserver";
 
 	/**
+	 *  Second storage root folder,
+	 *  if the value is not empty, the file will also be written to the second persistence (if ceph is disabled).
+	 */
+	@Configure
+	private String storageRootSecond = null;
+
+	/**
+	 * Boolean attribute to check if we need to use both storage root directories or only first one.
+	 */
+	@Configure
+	private boolean useSecondStorageRootOnly = false;
+
+	/**
 	 * Temporary storage root folder.
 	 */
 	@Configure
@@ -124,6 +137,22 @@ public final class StorageConfig implements Serializable {
 	 */
 	public String getStorageRoot() {
 		return storageRoot;
+	}
+
+	public String getStorageRootSecond() {
+		return storageRootSecond;
+	}
+
+	public void setStorageRootSecond(String storageRootSecond) {
+		this.storageRootSecond = storageRootSecond;
+	}
+
+	public boolean isUseSecondStorageRootOnly() {
+		return useSecondStorageRootOnly;
+	}
+
+	public void setUseSecondStorageRootOnly(boolean useSecondStorageRootOnly) {
+		this.useSecondStorageRootOnly = useSecondStorageRootOnly;
 	}
 
 	/**

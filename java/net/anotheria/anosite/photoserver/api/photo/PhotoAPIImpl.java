@@ -19,6 +19,7 @@ import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPI;
 import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPIException;
 import net.anotheria.anosite.photoserver.api.photo.ceph.PhotoCephClientService;
 import net.anotheria.anosite.photoserver.api.photo.fs.PhotoStorageFSService;
+import net.anotheria.anosite.photoserver.api.photo.fs.PhotoStorageToFoldersFSService;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoDimension;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtil;
@@ -128,6 +129,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             config.setDeleteUponMigration(false);
             config.setWriteToBoth(true);
             dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, new PhotoCephClientService(), config);
+        } else if (!StringUtils.isEmpty(StorageConfig.getInstance().getStorageRootSecond())) {
+            dualCrudService = DualCrudServiceFactory.createDualCrudService(new PhotoStorageToFoldersFSService(), null, DualCrudConfig.useLeftOnly());
         } else {
             dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, null, DualCrudConfig.useLeftOnly());
         }
