@@ -88,32 +88,35 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
         String secondLocationPath = firstLocationPath.replace(firstFolder, secondFolder);
 
         PhotoFileHolder photoFileHolder = readFromFS(secondLocationPath, id);
+        if (photoFileHolder != null)
+            return photoFileHolder;
+
+        photoFileHolder = readFromFS(firstLocationPath, id);
+
         if (photoFileHolder == null) {
-            photoFileHolder = readFromFS(firstLocationPath, id);
-            if (photoFileHolder == null) {
-                throw new ItemNotFoundException("Item [" + id + "] not found.");
-            }
-            ByteArrayOutputStream baos = null;
-            ByteArrayInputStream bais = null;
-            try {
-               baos = new ByteArrayOutputStream();
-               IOUtils.copyLarge(photoFileHolder.getPhotoFileInputStream(), baos);
-               byte[] bytes = baos.toByteArray();
-               bais = new ByteArrayInputStream(bytes);
-               photoFileHolder.setPhotoFileInputStream(bais);
-               photoFileHolder.setFileLocation(photoFileHolder.getFileLocation().replace(firstFolder, secondFolder));
-               saveFileInFS(photoFileHolder);
-               photoFileHolder.setPhotoFileInputStream(new ByteArrayInputStream(bytes));
-               return photoFileHolder;
-            } catch (Exception e) {
-                throw new CrudServiceException(e.getMessage(), e);
-            } finally {
-                IOUtils.closeQuietly(baos);
-                IOUtils.closeQuietly(bais);
-            }
+            throw new ItemNotFoundException("Item [" + id + "] not found.");
         }
-        //we should not be here
-        throw new CrudServiceException("Unable to process read photo from two storages");
+        ByteArrayOutputStream baos = null;
+        ByteArrayInputStream bais = null;
+        try {
+           baos = new ByteArrayOutputStream();
+           IOUtils.copyLarge(photoFileHolder.getPhotoFileInputStream(), baos);
+           byte[] bytes = baos.toByteArray();
+           bais = new ByteArrayInputStream(bytes);
+           if (StorageConfig.getInstance().isUseSecondStorageRootOnly())
+               removePhoto(photoFileHolder);                //we will remove photo from first persistence
+
+           photoFileHolder.setPhotoFileInputStream(bais);
+           photoFileHolder.setFileLocation(photoFileHolder.getFileLocation().replace(firstFolder, secondFolder));
+           saveFileInFS(photoFileHolder);
+           photoFileHolder.setPhotoFileInputStream(new ByteArrayInputStream(bytes));
+           return photoFileHolder;
+        } catch (Exception e) {
+            throw new CrudServiceException(e.getMessage(), e);
+        } finally {
+            IOUtils.closeQuietly(baos);
+            IOUtils.closeQuietly(bais);
+        }
     }
 
     @Override
