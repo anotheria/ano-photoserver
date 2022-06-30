@@ -186,6 +186,7 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
         try {
             PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()));
             photoFileHolder.setPhotoFileInputStream(new FileInputStream(file));
+            photoFileHolder.setFileLocation(file.getPath().substring(0, file.getPath().lastIndexOf(File.separator)));
             return photoFileHolder;
         } catch (FileNotFoundException e) {
             return null;
