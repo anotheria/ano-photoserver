@@ -2,7 +2,6 @@ package net.anotheria.anosite.photoserver.api.photo;
 
 import net.anotheria.anoprise.dualcrud.CrudSaveable;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 
@@ -36,6 +35,10 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
      * File extension.
      */
     private String extension;
+    /**
+     * Photo owner.
+     */
+    private String userId;
 
     /**
      * Constructor.
@@ -43,10 +46,11 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
      * @param id        photo id
      * @param extension photo extension
      */
-    public PhotoFileHolder(String id, long originalPhotoId, String extension) {
+    public PhotoFileHolder(String id, long originalPhotoId, String extension, String userId) {
         this.id = id;
         this.originalPhotoId = originalPhotoId;
         this.extension = extension;
+        this.userId = userId;
     }
 
     @Override
@@ -98,13 +102,23 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
         return getFileLocation() + getId() + getExtension();
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return "PhotoFileHolder{" +
-                "id=" + id +
+                "id='" + id + '\'' +
+                ", originalPhotoId=" + originalPhotoId +
                 ", photoFileInputStream=" + photoFileInputStream +
                 ", fileLocation='" + fileLocation + '\'' +
                 ", extension='" + extension + '\'' +
+                ", userId='" + userId + '\'' +
                 '}';
     }
 }

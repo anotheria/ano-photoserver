@@ -82,7 +82,7 @@ public class PhotoStorageFSService implements CrudService<PhotoFileHolder> {
 
     @Override
     public PhotoFileHolder read(SaveableID id) throws CrudServiceException, ItemNotFoundException {
-        String fileName = id.getSaveableId();
+        String fileName = id.getSaveableId().split("______USER_ID______")[0];
         // checking file name
         if (StringUtils.isEmpty(fileName))
             throw new CrudServiceException("Wrong photo file name[" + fileName + "].");
@@ -94,7 +94,8 @@ public class PhotoStorageFSService implements CrudService<PhotoFileHolder> {
 
 
         try {
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()));
+            String userId = id.getSaveableId().split("______USER_ID______")[1];
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()), userId);
             photoFileHolder.setPhotoFileInputStream(new FileInputStream(file));
             return photoFileHolder;
         } catch (FileNotFoundException e) {

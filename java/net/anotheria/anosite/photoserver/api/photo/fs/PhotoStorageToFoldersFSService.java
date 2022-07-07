@@ -39,19 +39,12 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
      * Lock manager for safe operations with files.
      */
     private static final IdBasedLockManager<String> LOCK_MANAGER = new SafeIdBasedLockManager<>();
-    /**
-     * Storage root first base folder.
-     */
-    private final String firstFolder;
-    /**
-     * Storage root second base folder.
-     */
-    private final String secondFolder;
 
-
+    /**
+     * Default constructor.
+     */
     public PhotoStorageToFoldersFSService() {
-        firstFolder = getCorrectPath(StorageConfig.getInstance().getStorageRoot());
-        secondFolder = getCorrectPath(StorageConfig.getInstance().getStorageRootSecond());
+
     }
 
     @Override
@@ -64,12 +57,12 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
             byte[] bytes = baos.toByteArray();
             bais = new ByteArrayInputStream(bytes);
             photoFileHolder.setPhotoFileInputStream(bais);
-            photoFileHolder.setFileLocation(photoFileHolder.getFileLocation().replace(firstFolder, secondFolder));
             saveFileInFS(photoFileHolder);
 
             if (!StorageConfig.getInstance().isUseSecondStorageRootOnly()) {
                 photoFileHolder.setPhotoFileInputStream(new ByteArrayInputStream(bytes));
-                photoFileHolder.setFileLocation(photoFileHolder.getFileLocation().replace(secondFolder, firstFolder));
+                String fileLocation = StorageConfig.getStorageFolderPathSecond(photoFileHolder.getUserId());
+                photoFileHolder.setFileLocation(fileLocation);
                 saveFileInFS(photoFileHolder);
             }
             return photoFileHolder;
@@ -84,8 +77,9 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
 
     @Override
     public PhotoFileHolder read(SaveableID id) throws CrudServiceException, ItemNotFoundException {
-        String firstLocationPath = id.getSaveableId();
-        String secondLocationPath = firstLocationPath.replace(firstFolder, secondFolder);
+        String userId = id.getSaveableId().split("______USER_ID______")[1];
+        String firstLocationPath = StorageConfig.getStoreFolderPathFirst(userId);
+        String secondLocationPath = StorageConfig.getStorageFolderPathSecond(userId);
 
         PhotoFileHolder photoFileHolder = readFromFS(secondLocationPath, id);
         if (photoFileHolder != null)
@@ -93,9 +87,9 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
 
         photoFileHolder = readFromFS(firstLocationPath, id);
 
-        if (photoFileHolder == null) {
+        if (photoFileHolder == null)
             throw new ItemNotFoundException("Item [" + id + "] not found.");
-        }
+
         ByteArrayOutputStream baos = null;
         ByteArrayInputStream bais = null;
         try {
@@ -107,7 +101,7 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
                removePhoto(photoFileHolder);                //we will remove photo from first persistence
 
            photoFileHolder.setPhotoFileInputStream(bais);
-           photoFileHolder.setFileLocation(photoFileHolder.getFileLocation().replace(firstFolder, secondFolder));
+           photoFileHolder.setFileLocation(secondLocationPath);
            saveFileInFS(photoFileHolder);
            photoFileHolder.setPhotoFileInputStream(new ByteArrayInputStream(bytes));
            return photoFileHolder;
@@ -127,8 +121,10 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
     @Override
     public void delete(PhotoFileHolder photoFileHolder) throws CrudServiceException {
         removePhoto(photoFileHolder);
-        photoFileHolder.setFileLocation(photoFileHolder.getFileLocation().replace(firstFolder, secondFolder));
-        removePhoto(photoFileHolder);
+        if (!StorageConfig.getInstance().isUseSecondStorageRootOnly()) {
+            photoFileHolder.setFileLocation(StorageConfig.getStorageFolderPathSecond(photoFileHolder.getUserId()));
+            removePhoto(photoFileHolder);
+        }
     }
 
     @Override
@@ -138,7 +134,7 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
 
     @Override
     public boolean exists(PhotoFileHolder photoFileHolder) throws CrudServiceException {
-        String path = photoFileHolder.getFilePath().replace(firstFolder, secondFolder);
+        String path = StorageConfig.getStorageFolderPathSecond(photoFileHolder.getUserId());
         return new File(path).exists();
     }
 
@@ -178,15 +174,16 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
         }
     }
 
-    public PhotoFileHolder readFromFS(String fileName, SaveableID id) {
-        File file = new File(fileName);
+    public PhotoFileHolder readFromFS(String filePath, SaveableID id) {
+        File file = new File(filePath + id.getOwnerId());
         if (!file.exists() || file.isDirectory())
             return null;
 
         try {
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()));
+            String userId = id.getSaveableId().split("______USER_ID______")[1];
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()), userId);
             photoFileHolder.setPhotoFileInputStream(new FileInputStream(file));
-            photoFileHolder.setFileLocation(file.getPath().substring(0, file.getPath().lastIndexOf(File.separator) + 1));
+            photoFileHolder.setFileLocation(filePath);
             return photoFileHolder;
         } catch (FileNotFoundException e) {
             return null;
@@ -235,13 +232,5 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
 
                 toDelete.delete();
             }
-    }
-
-    private String getCorrectPath(String path) {
-        String lastChar = path.substring(path.length() - 1);
-        if (!lastChar.equals(File.separator))
-            path += File.separator;
-
-        return path;
     }
 }

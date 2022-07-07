@@ -235,7 +235,28 @@ public final class StorageConfig implements Serializable {
 	 * @return folder path
 	 */
 	public static String getStoreFolderPath(String ownerId) {
+		return getInstance().useSecondStorageRootOnly ? getStorageFolderPathSecond(ownerId) : getStorageFolderPath(ownerId, getInstance().storageRoot);
+	}
+
+	public static String getStoreFolderPathFirst(String ownerId) {
 		return getStorageFolderPath(ownerId, getInstance().storageRoot);
+	}
+
+	public static String getStorageFolderPathSecond(String ownerId) {
+		String id = validateOwnerId(ownerId);
+		String token = id.split("-")[0];
+
+		String path = getInstance().storageRootSecond;
+		String lastChar = path.substring(path.length() - 1);
+		if (!lastChar.equals(File.separator))
+			path += File.separator;
+
+		String[] fragments = fragmentOwnerId(token, 0, getInstance().fragmentLegth);
+		StringBuilder ret = new StringBuilder();
+		for (String f : fragments)
+			ret.append(f).append(File.separatorChar);
+
+		return path + ret + ownerId + File.separator;
 	}
 
 	/**

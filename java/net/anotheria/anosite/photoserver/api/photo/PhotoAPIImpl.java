@@ -529,7 +529,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             // creating photo
             photo = storageService.createPhoto(photo);
 
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photo.getId()), photo.getId(), photo.getExtension());
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photo.getId()), photo.getId(), photo.getExtension(), photo.getUserId());
             photoFileHolder.setPhotoFileInputStream(new FileInputStream(tempFile));
             photoFileHolder.setFileLocation(photo.getFileLocation());
             dualCrudService.create(photoFileHolder);
@@ -592,7 +592,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         try {
             storageService.removePhoto(photoId);
 
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photoId), photoId, photo.getExtension());
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photoId), photoId, photo.getExtension(), photo.getUserId());
             photoFileHolder.setFileLocation(photo.getFileLocation());
             dualCrudService.delete(photoFileHolder);
 
@@ -942,7 +942,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         File tmpFile = new File(baseFolder, cachedFileName + photoAO.getExtension());
         putil.write(photoAPIConfig.getJpegQuality(), tmpFile);
 
-        PhotoFileHolder photoFileHolder = new PhotoFileHolder(cachedFileName, photoAO.getId(), photoAO.getExtension());
+        PhotoFileHolder photoFileHolder = new PhotoFileHolder(cachedFileName, photoAO.getId(), photoAO.getExtension(), photoAO.getUserId());
         photoFileHolder.setPhotoFileInputStream(new FileInputStream(tmpFile));
         photoFileHolder.setFileLocation(photoAO.getFileLocation());
         dualCrudService.create(photoFileHolder);
@@ -950,12 +950,12 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     }
 
     private InputStream getPhotoContent(String id, PhotoAO photoAO) throws CrudServiceException {
-        PhotoFileHolder photoFileHolder = new PhotoFileHolder(id, photoAO.getId(), photoAO.getExtension());
+        PhotoFileHolder photoFileHolder = new PhotoFileHolder(id, photoAO.getId(), photoAO.getExtension(), photoAO.getUserId());
         photoFileHolder.setFileLocation(photoAO.getFileLocation());
 
         SaveableID saveableID = new SaveableID();
         saveableID.setOwnerId(photoFileHolder.getOwnerId());
-        saveableID.setSaveableId(photoFileHolder.getFilePath());
+        saveableID.setSaveableId(photoFileHolder.getFilePath() + "______USER_ID______" + photoAO.getUserId());
 
         return dualCrudService.read(saveableID).getPhotoFileInputStream();
     }
