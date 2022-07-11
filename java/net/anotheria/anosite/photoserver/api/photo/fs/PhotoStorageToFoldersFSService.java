@@ -12,6 +12,7 @@ import net.anotheria.util.StringUtils;
 import net.anotheria.util.concurrency.IdBasedLock;
 import net.anotheria.util.concurrency.IdBasedLockManager;
 import net.anotheria.util.concurrency.SafeIdBasedLockManager;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +90,8 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
 
         if (photoFileHolder == null)
             throw new ItemNotFoundException("Item [" + id + "] not found.");
+
+        saveOriginalPhotoIfNeeded(photoFileHolder);
 
         ByteArrayOutputStream baos = null;
         ByteArrayInputStream bais = null;
@@ -232,5 +235,24 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
 
                 toDelete.delete();
             }
+    }
+
+    private void saveOriginalPhotoIfNeeded(PhotoFileHolder photoFileHolder) {
+        try {
+            if (photoFileHolder.getId().equals(String.valueOf(photoFileHolder.getOriginalPhotoId())))
+                return;
+
+            File dist = new File(StorageConfig.getStorageFolderPathSecond(photoFileHolder.getUserId()) + photoFileHolder.getOriginalPhotoId() + photoFileHolder.getExtension());
+            if (dist.exists())
+                return;
+
+            File src = new File(StorageConfig.getStoreFolderPathFirst(photoFileHolder.getUserId()) + photoFileHolder.getOriginalPhotoId() + photoFileHolder.getExtension());
+            FileUtils.copyFile(src, dist);
+            if (StorageConfig.getInstance().isUseSecondStorageRootOnly())
+                removeCachedVersions(StorageConfig.getStoreFolderPathFirst(photoFileHolder.getOwnerId()), String.valueOf(photoFileHolder.getOriginalPhotoId()));
+
+        } catch (Exception any) {
+            LOGGER.warn("Unable to process user:{} original photo. {}", photoFileHolder.getUserId(), any.getMessage());
+        }
     }
 }
