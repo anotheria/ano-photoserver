@@ -121,7 +121,8 @@ public class PhotoCephClientService implements CrudService<PhotoFileHolder> {
         try {
             final S3Object s3Object = amazonS3Connection.getObject(bucketName, id.getOwnerId());
             S3ObjectInputStream inputStream = s3Object.getObjectContent();
-            PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()));
+            String userId = id.getSaveableId().split("______USER_ID______")[1];
+            PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()), userId);
             photoFileHolder.setPhotoFileInputStream(inputStream);
             statsProducer.getDefaultStats().incReadPhotos();
             return photoFileHolder;

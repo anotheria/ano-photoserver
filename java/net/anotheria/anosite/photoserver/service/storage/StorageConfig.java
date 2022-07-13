@@ -62,6 +62,19 @@ public final class StorageConfig implements Serializable {
 	private String storageRoot = S + "work" + S + "data" + S + "photoserver";
 
 	/**
+	 *  Second storage root folder,
+	 *  if the value is not empty, the file will also be written to the second persistence (if ceph is disabled).
+	 */
+	@Configure
+	private String storageRootSecond = null;
+
+	/**
+	 * Boolean attribute to check if we need to use both storage root directories or only first one.
+	 */
+	@Configure
+	private boolean useSecondStorageRootOnly = false;
+
+	/**
 	 * Temporary storage root folder.
 	 */
 	@Configure
@@ -124,6 +137,22 @@ public final class StorageConfig implements Serializable {
 	 */
 	public String getStorageRoot() {
 		return storageRoot;
+	}
+
+	public String getStorageRootSecond() {
+		return storageRootSecond;
+	}
+
+	public void setStorageRootSecond(String storageRootSecond) {
+		this.storageRootSecond = storageRootSecond;
+	}
+
+	public boolean isUseSecondStorageRootOnly() {
+		return useSecondStorageRootOnly;
+	}
+
+	public void setUseSecondStorageRootOnly(boolean useSecondStorageRootOnly) {
+		this.useSecondStorageRootOnly = useSecondStorageRootOnly;
 	}
 
 	/**
@@ -206,7 +235,28 @@ public final class StorageConfig implements Serializable {
 	 * @return folder path
 	 */
 	public static String getStoreFolderPath(String ownerId) {
+		return getInstance().useSecondStorageRootOnly ? getStorageFolderPathSecond(ownerId) : getStorageFolderPath(ownerId, getInstance().storageRoot);
+	}
+
+	public static String getStoreFolderPathFirst(String ownerId) {
 		return getStorageFolderPath(ownerId, getInstance().storageRoot);
+	}
+
+	public static String getStorageFolderPathSecond(String ownerId) {
+		String id = validateOwnerId(ownerId);
+		String token = id.split("-")[0];
+
+		String path = getInstance().storageRootSecond;
+		String lastChar = path.substring(path.length() - 1);
+		if (!lastChar.equals(File.separator))
+			path += File.separator;
+
+		String[] fragments = fragmentOwnerId(token, 0, getInstance().fragmentLegth);
+		StringBuilder ret = new StringBuilder();
+		for (String f : fragments)
+			ret.append(f).append(File.separatorChar);
+
+		return path + ret + ownerId + File.separator;
 	}
 
 	/**
