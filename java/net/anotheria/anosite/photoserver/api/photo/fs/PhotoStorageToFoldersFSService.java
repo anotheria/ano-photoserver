@@ -249,7 +249,7 @@ public class PhotoStorageToFoldersFSService implements CrudService<PhotoFileHold
             File src = new File(StorageConfig.getStoreFolderPathFirst(photoFileHolder.getUserId()) + photoFileHolder.getOriginalPhotoId() + photoFileHolder.getExtension());
             FileUtils.copyFile(src, dist);
             if (StorageConfig.getInstance().isUseSecondStorageRootOnly())
-                removeCachedVersions(StorageConfig.getStoreFolderPathFirst(photoFileHolder.getOwnerId()), String.valueOf(photoFileHolder.getOriginalPhotoId()));
+                removeCachedVersions(StorageConfig.getStoreFolderPathFirst(photoFileHolder.getUserId()), String.valueOf(photoFileHolder.getOriginalPhotoId()));
 
         } catch (Exception any) {
             LOGGER.warn("Unable to process user:{} original photo. {}", photoFileHolder.getUserId(), any.getMessage());
