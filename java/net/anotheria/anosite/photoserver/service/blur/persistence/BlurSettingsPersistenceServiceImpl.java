@@ -311,7 +311,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 	@Override
 	public void blurPicture(long albumId, long pictureId) throws BlurSettingsPersistenceServiceException {
 		if (isPictureBlurredForAllUsers(albumId, pictureId))
-			throw new PictureIsBlurredPersistenceException(albumId, pictureId);
+			return;
 		Connection conn = null;
 		PreparedStatement stDel = null;
 		PreparedStatement stCR = null;
@@ -385,7 +385,7 @@ public class BlurSettingsPersistenceServiceImpl extends GenericPersistenceServic
 	@Override
 	public void unBlurPicture(long albumId, long pictureId) throws BlurSettingsPersistenceServiceException {
 		if (!isPictureBlurredForAllUsers(albumId, pictureId))
-			throw new PictureIsNotBlurredPersistenceException(albumId, pictureId);
+			return;
 
 		Connection conn = null;
 		PreparedStatement stDel = null;
