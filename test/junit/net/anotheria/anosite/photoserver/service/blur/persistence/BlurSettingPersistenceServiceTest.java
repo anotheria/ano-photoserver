@@ -192,12 +192,12 @@ public class BlurSettingPersistenceServiceTest {
 				}
 
 				//try to Unblur  not blurred Picture!!!
-				try {
-					testService.unBlurPicture(albumId, pictureId);
-					Assert.fail("Picture is not Blurred ! there is  nothing to unBlur :))");
-				} catch (Exception e) {
-					Assert.assertTrue(e instanceof PictureIsNotBlurredPersistenceException);
-				}
+//				try {
+//					testService.unBlurPicture(albumId, pictureId);
+//					Assert.fail("Picture is not Blurred ! there is  nothing to unBlur :))");
+//				} catch (Exception e) {
+//					Assert.assertTrue(e instanceof PictureIsNotBlurredPersistenceException);
+//				}
 
 				//try to Unblur  not blurred Picture!!!
 				try {
