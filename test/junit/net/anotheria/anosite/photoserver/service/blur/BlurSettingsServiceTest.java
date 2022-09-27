@@ -422,13 +422,13 @@ public class BlurSettingsServiceTest {
 					Assert.assertTrue(e instanceof AlbumIsNotBlurredException);
 				}
 
-				//try to UnBlur  not blurred Picture!!!
-				try {
-					testService.unBlurPicture(albumId, pictureIdLong);
-					Assert.fail("Picture is not Blurred ! there is  nothing to unBlur :))");
-				} catch (Exception e) {
-					Assert.assertTrue(e instanceof PictureIsNotBlurredException);
-				}
+//				//try to UnBlur  not blurred Picture!!!
+//				try {
+//					testService.unBlurPicture(albumId, pictureIdLong);
+//					Assert.fail("Picture is not Blurred ! there is  nothing to unBlur :))");
+//				} catch (Exception e) {
+//					Assert.assertTrue(e instanceof PictureIsNotBlurredException);
+//				}
 
 				//try to UnBlur  not blurred Picture!!!
 				try {
