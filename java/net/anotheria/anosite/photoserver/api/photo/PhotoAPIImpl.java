@@ -6,6 +6,7 @@ import net.anotheria.anoplass.api.APIInitException;
 import net.anotheria.anoplass.api.AbstractAPIImpl;
 import net.anotheria.anoplass.api.NoLoggedInUserException;
 import net.anotheria.anoplass.api.generic.login.LoginAPI;
+import net.anotheria.anoprise.dualcrud.CrudService;
 import net.anotheria.anoprise.dualcrud.CrudServiceException;
 import net.anotheria.anoprise.dualcrud.DualCrudConfig;
 import net.anotheria.anoprise.dualcrud.DualCrudService;
@@ -50,8 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -131,9 +130,9 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             config.setDeleteUponMigration(false);
             config.setWriteToBoth(true);
             dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, new PhotoCephClientService(), config);
-        } else if (PhotoServerConfig.getInstance().isPhotoGoogleCloudEnabled() && !StringUtils.isEmpty(StorageConfig.getInstance().getStorageRootSecond())) {
-            DualCrudConfig config = DualCrudConfig.migrateOnTheFly();
-            dualCrudService = DualCrudServiceFactory.createDualCrudService(new PhotoStorageToFoldersFSService(), new PhotoGoogleCloudStorageService(), config);
+        } else if (PhotoServerConfig.getInstance().isPhotoGoogleCloudEnabled()) {
+            CrudService<PhotoFileHolder> left = StringUtils.isEmpty(StorageConfig.getInstance().getStorageRootSecond()) ? photoStorageFSService : new PhotoGoogleCloudStorageService();
+            dualCrudService = DualCrudServiceFactory.createDualCrudService(left, new PhotoGoogleCloudStorageService(), DualCrudConfig.migrateOnTheFly());
         } else if (!StringUtils.isEmpty(StorageConfig.getInstance().getStorageRootSecond())) {
             dualCrudService = DualCrudServiceFactory.createDualCrudService(new PhotoStorageToFoldersFSService(), null, DualCrudConfig.useLeftOnly());
         } else {
