@@ -20,6 +20,7 @@ import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPIException;
 import net.anotheria.anosite.photoserver.api.photo.ceph.PhotoCephClientService;
 import net.anotheria.anosite.photoserver.api.photo.fs.PhotoStorageFSService;
 import net.anotheria.anosite.photoserver.api.photo.fs.PhotoStorageToFoldersFSService;
+import net.anotheria.anosite.photoserver.api.photo.google.cloud.PhotoGoogleCloudStorageService;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoDimension;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtil;
@@ -38,7 +39,6 @@ import net.anotheria.anosite.photoserver.shared.ModifyPhotoSettings;
 import net.anotheria.anosite.photoserver.shared.PhotoServerConfig;
 import net.anotheria.anosite.photoserver.shared.vo.PhotoVO;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
-import net.anotheria.anosite.photoserver.shared.ResizeType;
 import net.anotheria.moskito.aop.annotation.Accumulate;
 import net.anotheria.moskito.aop.annotation.Accumulates;
 import net.anotheria.moskito.aop.annotation.Monitor;
@@ -54,6 +54,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -124,11 +125,15 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         blurSettingsAPI = APIFinder.findAPI(BlurSettingsAPI.class);
 
         PhotoStorageFSService photoStorageFSService = new PhotoStorageFSService();
+
         if (PhotoServerConfig.getInstance().isPhotoCephEnabled()) {
             DualCrudConfig config = DualCrudConfig.migrateOnTheFly();
             config.setDeleteUponMigration(false);
             config.setWriteToBoth(true);
             dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, new PhotoCephClientService(), config);
+        } else if (PhotoServerConfig.getInstance().isPhotoGoogleCloudEnabled() && !StringUtils.isEmpty(StorageConfig.getInstance().getStorageRootSecond())) {
+            DualCrudConfig config = DualCrudConfig.migrateOnTheFly();
+            dualCrudService = DualCrudServiceFactory.createDualCrudService(new PhotoStorageToFoldersFSService(), new PhotoGoogleCloudStorageService(), config);
         } else if (!StringUtils.isEmpty(StorageConfig.getInstance().getStorageRootSecond())) {
             dualCrudService = DualCrudServiceFactory.createDualCrudService(new PhotoStorageToFoldersFSService(), null, DualCrudConfig.useLeftOnly());
         } else {
@@ -530,16 +535,17 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             photo = storageService.createPhoto(photo);
 
             PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photo.getId()), photo.getId(), photo.getExtension(), photo.getUserId());
-            photoFileHolder.setPhotoFileInputStream(new FileInputStream(tempFile));
+            photoFileHolder.setPhotoFileInputStream(Files.newInputStream(tempFile.toPath()));
             photoFileHolder.setFileLocation(photo.getFileLocation());
             dualCrudService.create(photoFileHolder);
+            photoFileHolder.closeInputStream();
 
             // updating photo album
             album.addPhotoToPhotoOrder(photo.getId());
             updateAlbum(album, userId);
 
             return new PhotoAO(photo);
-        } catch (StorageServiceException | CrudServiceException | FileNotFoundException e) {
+        } catch (StorageServiceException | CrudServiceException | IOException e) {
             String message = "createPhoto(" + userId + ", " + tempFile + ", " + previewSettings + ") fail.";
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
@@ -943,9 +949,10 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         putil.write(photoAPIConfig.getJpegQuality(), tmpFile);
 
         PhotoFileHolder photoFileHolder = new PhotoFileHolder(cachedFileName, photoAO.getId(), photoAO.getExtension(), photoAO.getUserId());
-        photoFileHolder.setPhotoFileInputStream(new FileInputStream(tmpFile));
+        photoFileHolder.setPhotoFileInputStream(Files.newInputStream(tmpFile.toPath()));
         photoFileHolder.setFileLocation(photoAO.getFileLocation());
         dualCrudService.create(photoFileHolder);
+        photoFileHolder.closeInputStream();
         tmpFile.delete();
     }
 
@@ -957,7 +964,11 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         saveableID.setOwnerId(photoFileHolder.getOwnerId());
         saveableID.setSaveableId(photoFileHolder.getFilePath() + "______USER_ID______" + photoAO.getUserId());
 
-        return dualCrudService.read(saveableID).getPhotoFileInputStream();
+        PhotoFileHolder ret = dualCrudService.read(saveableID);
+        InputStream inputStream = ret.getPhotoFileInputStream();
+        ret.closeInputStream();
+
+        return inputStream;
     }
 
     /**

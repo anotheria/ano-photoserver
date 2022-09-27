@@ -42,6 +42,7 @@
 		<checkstyle-version>2.7</checkstyle-version>
 		<pmd-version>2.5</pmd-version>
 		<amazonaws-version>1.12.107</amazonaws-version>
+		<google.cloud-version>25.3.0</google.cloud-version>
 	</properties>
 
 	<dependencies>
@@ -197,6 +198,10 @@
 			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-storage</artifactId>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -205,6 +210,13 @@
 				<groupId>com.amazonaws</groupId>
 				<artifactId>aws-java-sdk-bom</artifactId>
 				<version>${amazonaws-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.google.cloud</groupId>
+				<artifactId>libraries-bom</artifactId>
+				<version>${google.cloud-version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

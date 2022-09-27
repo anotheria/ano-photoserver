@@ -1,7 +1,11 @@
 package net.anotheria.anosite.photoserver.api.photo;
 
 import net.anotheria.anoprise.dualcrud.CrudSaveable;
+import org.apache.commons.io.IOUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 
@@ -24,10 +28,6 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
      */
     private long originalPhotoId;
     /**
-     * {@link InputStream} of photo.
-     */
-    private InputStream photoFileInputStream;
-    /**
      * File location is FS.
      */
     private String fileLocation;
@@ -39,6 +39,11 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
      * Photo owner.
      */
     private String userId;
+
+    /**
+     * Data.
+     */
+    private ByteArrayOutputStream baos;
 
     /**
      * Constructor.
@@ -75,11 +80,13 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
     }
 
     public InputStream getPhotoFileInputStream() {
-        return photoFileInputStream;
+        return new ByteArrayInputStream(baos.toByteArray());
     }
 
-    public void setPhotoFileInputStream(InputStream photoFileInputStream) {
-        this.photoFileInputStream = photoFileInputStream;
+    public void setPhotoFileInputStream(InputStream photoFileInputStream) throws IOException {
+        baos = new ByteArrayOutputStream();
+        IOUtils.copyLarge(photoFileInputStream, baos);
+        IOUtils.closeQuietly(photoFileInputStream);
     }
 
     public String getFileLocation() {
@@ -110,12 +117,15 @@ public class PhotoFileHolder implements Serializable, CrudSaveable {
         this.userId = userId;
     }
 
+    public void closeInputStream() {
+        IOUtils.closeQuietly(baos);
+    }
+
     @Override
     public String toString() {
         return "PhotoFileHolder{" +
                 "id='" + id + '\'' +
                 ", originalPhotoId=" + originalPhotoId +
-                ", photoFileInputStream=" + photoFileInputStream +
                 ", fileLocation='" + fileLocation + '\'' +
                 ", extension='" + extension + '\'' +
                 ", userId='" + userId + '\'' +

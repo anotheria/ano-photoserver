@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 /**
@@ -73,7 +74,6 @@ public class PhotoStorageFSService implements CrudService<PhotoFileHolder> {
         } finally {
             // closing output with ignoring exceptions
             IOUtils.closeQuietly(out);
-            IOUtils.closeQuietly(photoFileHolder.getPhotoFileInputStream());
             // closing synchronization
             lock.unlock();
         }
@@ -96,9 +96,9 @@ public class PhotoStorageFSService implements CrudService<PhotoFileHolder> {
         try {
             String userId = id.getSaveableId().split("______USER_ID______")[1];
             PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()), userId);
-            photoFileHolder.setPhotoFileInputStream(new FileInputStream(file));
+            photoFileHolder.setPhotoFileInputStream(Files.newInputStream(file.toPath()));
             return photoFileHolder;
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new ItemNotFoundException("Item [" + id + "] not found.");
         }
     }

@@ -259,6 +259,18 @@ public final class StorageConfig implements Serializable {
 		return path + ret + ownerId + File.separator;
 	}
 
+	public static String getFolderPathSecond(String ownerId) {
+		String id = validateOwnerId(ownerId);
+		String token = id.split("-")[0];
+
+		String[] fragments = fragmentOwnerId(token, 0, getInstance().fragmentLegth);
+		StringBuilder ret = new StringBuilder();
+		for (String f : fragments)
+			ret.append(f).append(File.separatorChar);
+
+		return File.separator + ret + ownerId + File.separator;
+	}
+
 	/**
 	 * Return temporary store folder path.
 	 *

@@ -46,10 +46,15 @@ public final class PhotoServerConfig implements Serializable {
 	@Configure
 	private boolean photoApprovingEnabled = true;
 	/**
-	 * Is we will use second storage (ceph) for storing photos.
+	 * Is we will use another storage (ceph) for storing photos.
 	 */
 	@Configure
 	private boolean photoCephEnabled = false;
+	/**
+	 * Is we will use another storage (Google Cloud Storage) for storing photos.
+	 */
+	@Configure
+	private boolean photoGoogleCloudEnabled = false;
 
 	private PhotoServerConfig() {
 		try {
@@ -84,6 +89,14 @@ public final class PhotoServerConfig implements Serializable {
 
 	public void setPhotoCephEnabled(boolean photoCephEnabled) {
 		this.photoCephEnabled = photoCephEnabled;
+	}
+
+	public boolean isPhotoGoogleCloudEnabled() {
+		return photoGoogleCloudEnabled;
+	}
+
+	public void setPhotoGoogleCloudEnabled(boolean photoGoogleCloudEnabled) {
+		this.photoGoogleCloudEnabled = photoGoogleCloudEnabled;
 	}
 
 	@Override
