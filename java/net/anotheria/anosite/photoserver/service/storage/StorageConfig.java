@@ -268,7 +268,7 @@ public final class StorageConfig implements Serializable {
 		for (String f : fragments)
 			ret.append(f).append(File.separatorChar);
 
-		return File.separator + ret + ownerId + File.separator;
+		return ret + ownerId + File.separator;
 	}
 
 	/**
