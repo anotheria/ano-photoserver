@@ -1,5 +1,6 @@
 package net.anotheria.anosite.photoserver.api.photo.google.cloud;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
@@ -20,7 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,8 +45,18 @@ public class PhotoGoogleCloudStorageService implements CrudService<PhotoFileHold
     private final Storage storage;
 
     public PhotoGoogleCloudStorageService() {
-        storage = StorageOptions.newBuilder().setProjectId(PhotoGoogleCloudStorageConfig.getInstance().getProjectId()).build().getService();
-        initializeBuckets();
+        try {
+            GoogleCredentials googleCredentials = GoogleCredentials.fromStream(Files.newInputStream(Paths.get(PhotoGoogleCloudStorageConfig.getInstance().getCredentialsPath())));
+            storage = StorageOptions.newBuilder()
+                    .setCredentials(googleCredentials)
+                    .setProjectId(PhotoGoogleCloudStorageConfig.getInstance().getProjectId())
+                    .build()
+                    .getService();
+
+            initializeBuckets();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to initialize google storage. ", e);
+        }
     }
 
     @Override

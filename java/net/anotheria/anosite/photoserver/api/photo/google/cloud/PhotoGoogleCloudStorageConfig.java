@@ -51,6 +51,11 @@ public class PhotoGoogleCloudStorageConfig implements Serializable {
      */
     @Configure
     private String projectId;
+    /**
+     * Credential path for google service account file.
+     */
+    @Configure
+    private String credentialsPath;
 
     /**
      * Private constructor.
@@ -107,12 +112,21 @@ public class PhotoGoogleCloudStorageConfig implements Serializable {
         this.projectId = projectId;
     }
 
+    public String getCredentialsPath() {
+        return credentialsPath;
+    }
+
+    public void setCredentialsPath(String credentialsPath) {
+        this.credentialsPath = credentialsPath;
+    }
+
     @Override
     public String toString() {
         return "PhotoGoogleCloudStorageConfig{" +
                 "originalBucketName='" + originalBucketName + '\'' +
                 ", scaledBucketName='" + scaledBucketName + '\'' +
                 ", projectId='" + projectId + '\'' +
+                ", credentialsPath='" + credentialsPath + '\'' +
                 '}';
     }
 }
