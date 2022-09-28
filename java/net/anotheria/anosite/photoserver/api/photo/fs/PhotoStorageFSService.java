@@ -7,6 +7,7 @@ import net.anotheria.anoprise.dualcrud.Query;
 import net.anotheria.anoprise.dualcrud.SaveableID;
 import net.anotheria.anosite.photoserver.api.photo.PhotoFileHolder;
 import net.anotheria.anosite.photoserver.api.photo.PhotoStorageUtil;
+import net.anotheria.anosite.photoserver.service.storage.StorageConfig;
 import net.anotheria.util.StringUtils;
 import net.anotheria.util.concurrency.IdBasedLock;
 import net.anotheria.util.concurrency.IdBasedLockManager;
@@ -110,6 +111,7 @@ public class PhotoStorageFSService implements CrudService<PhotoFileHolder> {
 
     @Override
     public void delete(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        photoFileHolder.setFileLocation(StorageConfig.getStoreFolderPath(String.valueOf(photoFileHolder.getUserId())));
         removePhoto(photoFileHolder);
     }
 
