@@ -5,6 +5,7 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageClass;
 import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
 import net.anotheria.anoprise.dualcrud.CrudService;
@@ -106,7 +107,10 @@ public class PhotoGoogleCloudStorageService implements CrudService<PhotoFileHold
         Bucket bucket = storage.get(bucketName, Storage.BucketGetOption.fields(Storage.BucketField.NAME));
         if (bucket == null) {
             //create bucket
-            bucket = storage.create(BucketInfo.of(bucketName));
+            bucket = storage.create(BucketInfo.newBuilder(bucketName)
+                            .setStorageClass(StorageClass.STANDARD)
+                            .setLocation("EU")
+                            .build());
             LOGGER.info("Bucket created: " + bucket.toString());
         }
     }
