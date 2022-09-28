@@ -21,11 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,9 +43,9 @@ public class PhotoGoogleCloudStorageService implements CrudService<PhotoFileHold
 
     public PhotoGoogleCloudStorageService() {
         try {
-            GoogleCredentials googleCredentials = GoogleCredentials.fromStream(Files.newInputStream(Paths.get(PhotoGoogleCloudStorageConfig.getInstance().getCredentialsPath())));
+            URL url = getClass().getClassLoader().getResource(PhotoGoogleCloudStorageConfig.getInstance().getCredentialsPath());
             storage = StorageOptions.newBuilder()
-                    .setCredentials(googleCredentials)
+                    .setCredentials(GoogleCredentials.fromStream(Objects.requireNonNull(url).openStream()))
                     .setProjectId(PhotoGoogleCloudStorageConfig.getInstance().getProjectId())
                     .build()
                     .getService();
