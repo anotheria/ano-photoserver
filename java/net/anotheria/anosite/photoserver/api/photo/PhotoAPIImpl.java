@@ -131,7 +131,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             config.setWriteToBoth(true);
             dualCrudService = DualCrudServiceFactory.createDualCrudService(photoStorageFSService, new PhotoCephClientService(), config);
         } else if (PhotoServerConfig.getInstance().isPhotoGoogleCloudEnabled()) {
-            CrudService<PhotoFileHolder> left = StringUtils.isEmpty(StorageConfig.getInstance().getStorageRootSecond()) ? photoStorageFSService : new PhotoGoogleCloudStorageService();
+            CrudService<PhotoFileHolder> left = StringUtils.isEmpty(StorageConfig.getInstance().getStorageRootSecond()) ? photoStorageFSService : new PhotoStorageToFoldersFSService();
             dualCrudService = DualCrudServiceFactory.createDualCrudService(left, new PhotoGoogleCloudStorageService(), DualCrudConfig.migrateOnTheFly());
         } else if (!StringUtils.isEmpty(StorageConfig.getInstance().getStorageRootSecond())) {
             dualCrudService = DualCrudServiceFactory.createDualCrudService(new PhotoStorageToFoldersFSService(), null, DualCrudConfig.useLeftOnly());
