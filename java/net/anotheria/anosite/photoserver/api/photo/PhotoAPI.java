@@ -386,6 +386,8 @@ public interface PhotoAPI extends API {
 	 */
 	InputStream getPhotoContent(PhotoAO photo) throws PhotoAPIException;
 
+	InputStream getPhotoContent(long photoId) throws PhotoAPIException;
+
 	/**
 	 *
 	 * @return		{@link InputStream} of changed photo

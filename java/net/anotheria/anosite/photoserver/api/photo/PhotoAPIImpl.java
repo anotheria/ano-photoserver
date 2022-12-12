@@ -806,6 +806,17 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     }
 
     @Override
+    public InputStream getPhotoContent(long photoId) throws PhotoAPIException {
+        try{
+            return getCachedPhotoContent(getPhoto(photoId), new ModifyPhotoSettings(), true, CroppingType.BOTH.getValue(), false);
+        } catch (Exception e) {
+            String message = "Unable to read photo stream from storage: " + e.getMessage();
+            LOG.error(message, e);
+            throw new PhotoAPIException(message, e);
+        }
+    }
+
+    @Override
     public InputStream getCachedPhotoContent(PhotoAO photoAO, ModifyPhotoSettings modifyPhotoSettings, boolean cropped, int croppingType, boolean blurred) throws PhotoAPIException {
         // preparing cached photo postfix
         String cachedFileName = String.valueOf(photoAO.getId());
