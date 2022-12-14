@@ -535,7 +535,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
             PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photo.getId()), photo.getId(), photo.getExtension(), photo.getUserId());
             photoFileHolder.setPhotoFileInputStream(Files.newInputStream(tempFile.toPath()));
-            photoFileHolder.setFileLocation(photo.getFileLocation());
+            photoFileHolder.setFileLocation(StorageConfig.getStoreFolderPath(String.valueOf(photo.getUserId())));
             dualCrudService.create(photoFileHolder);
             photoFileHolder.closeInputStream();
 
@@ -598,7 +598,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             storageService.removePhoto(photoId);
 
             PhotoFileHolder photoFileHolder = new PhotoFileHolder(String.valueOf(photoId), photoId, photo.getExtension(), photo.getUserId());
-            photoFileHolder.setFileLocation(photo.getFileLocation());
+            photoFileHolder.setFileLocation(StorageConfig.getStoreFolderPath(String.valueOf(photo.getUserId())));
             dualCrudService.delete(photoFileHolder);
 
             return photo;
@@ -960,7 +960,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
         PhotoFileHolder photoFileHolder = new PhotoFileHolder(cachedFileName, photoAO.getId(), photoAO.getExtension(), photoAO.getUserId());
         photoFileHolder.setPhotoFileInputStream(Files.newInputStream(tmpFile.toPath()));
-        photoFileHolder.setFileLocation(photoAO.getFileLocation());
+        photoFileHolder.setFileLocation(StorageConfig.getStoreFolderPath(String.valueOf(photoAO.getUserId())));
         dualCrudService.create(photoFileHolder);
         photoFileHolder.closeInputStream();
         tmpFile.delete();
@@ -968,7 +968,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
     private InputStream getPhotoContent(String id, PhotoAO photoAO) throws CrudServiceException {
         PhotoFileHolder photoFileHolder = new PhotoFileHolder(id, photoAO.getId(), photoAO.getExtension(), photoAO.getUserId());
-        photoFileHolder.setFileLocation(photoAO.getFileLocation());
+        photoFileHolder.setFileLocation(StorageConfig.getStoreFolderPath(String.valueOf(photoAO.getUserId())));
 
         SaveableID saveableID = new SaveableID();
         saveableID.setOwnerId(photoFileHolder.getOwnerId());
