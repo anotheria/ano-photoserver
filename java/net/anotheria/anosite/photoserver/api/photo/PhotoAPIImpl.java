@@ -25,6 +25,7 @@ import net.anotheria.anosite.photoserver.api.photo.google.cloud.PhotoGoogleCloud
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPIConfig;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoDimension;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtil;
+import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtilException;
 import net.anotheria.anosite.photoserver.service.storage.AlbumBO;
 import net.anotheria.anosite.photoserver.service.storage.AlbumNotFoundServiceException;
 import net.anotheria.anosite.photoserver.service.storage.AlbumWithPhotosServiceException;
@@ -885,7 +886,11 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
         // read photo file
         PhotoUtil putil = new PhotoUtil();
-        putil.read(getPhotoContent(photoAO));
+        try {
+            putil.read(getPhotoContent(photoAO));
+        } catch (PhotoUtilException e) {
+            throw new PhotoAPIException("Unable to read photo. " + e.getMessage());
+        }
 
         // if blur param is present or photo should be blurred for user we have to blur image
         if (modifyPhotoSettings.isBlurred())

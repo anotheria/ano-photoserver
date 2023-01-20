@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtil;
+import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtilException;
 import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
 
 /**
@@ -60,11 +61,11 @@ public class PhotoWorkbench {
 	 * @throws java.io.FileNotFoundException if any.
 	 * @throws java.io.IOException if any.
 	 */
-	public InputStream getWorkbenchImage(int rotation) throws FileNotFoundException, IOException {
+	public InputStream getWorkbenchImage(int rotation) throws FileNotFoundException, IOException, PhotoUtilException {
 		return new FileInputStream(getWorkbenchFile(rotation));
 	}
 
-	private File getWorkbenchFile(int rotation) throws IOException {
+	private File getWorkbenchFile(int rotation) throws IOException, PhotoUtilException {
 		if (workbenchFile[rotation] != null) {
 			return workbenchFile[rotation];
 		}

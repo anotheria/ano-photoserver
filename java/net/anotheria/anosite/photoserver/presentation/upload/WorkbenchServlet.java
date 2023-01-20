@@ -16,6 +16,7 @@ import net.anotheria.anosite.photoserver.api.upload.PhotoUploadAPI;
 import net.anotheria.anosite.photoserver.api.upload.PhotoUploader;
 import net.anotheria.anosite.photoserver.api.upload.PhotoWorkbench;
 import net.anotheria.anosite.photoserver.presentation.shared.BaseServlet;
+import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtilException;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
 import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
 import net.anotheria.util.StringUtils;
@@ -107,7 +108,11 @@ public class WorkbenchServlet extends BaseServlet {
 		}
 
 		PhotoWorkbench workbench = photoUploadAPI.getMyPhotoWorkbench(workbenchId);
-		stream(response, workbench.getWorkbenchImage(rotation));
+		try {
+			stream(response, workbench.getWorkbenchImage(rotation));
+		} catch (PhotoUtilException e) {
+			throw new ServletException("Unable to strema photo. " + e.getMessage());
+		}
 	}
 
 	/** {@inheritDoc} */

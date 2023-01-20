@@ -14,6 +14,7 @@ import net.anotheria.anoplass.api.generic.login.LoginAPI;
 import net.anotheria.anoplass.api.session.APISession;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoDimension;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtil;
+import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtilException;
 import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
 import net.anotheria.moskito.aop.annotation.Accumulate;
 import net.anotheria.moskito.aop.annotation.Accumulates;
@@ -121,8 +122,13 @@ public class PhotoUploadAPIImpl extends AbstractAPIImpl implements PhotoUploadAP
 			PhotoUtil photoUtil = new PhotoUtil();
 			FileInputStream in = new FileInputStream(photo.getFile());
 
-			photoUtil.read(in);
-			in.close();
+			try {
+				photoUtil.read(in);
+			} catch (PhotoUtilException e) {
+				throw new APIException("Unable to read photo. " + e.getMessage());
+			} finally {
+				in.close();
+			}
 
 			for (int i = 0; i < n; i++) {
 				photoUtil.rotate();

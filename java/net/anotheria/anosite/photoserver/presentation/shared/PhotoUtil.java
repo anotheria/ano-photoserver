@@ -80,7 +80,7 @@ public class PhotoUtil {
 	 * @param input a {@link java.io.File} object.
 	 * @throws java.io.IOException if any.
 	 */
-	public void read(File input) throws IOException {
+	public void read(File input) throws IOException, PhotoUtilException {
 		InputStream in = new FileInputStream(input);
 		read(in);
 	}
@@ -91,7 +91,7 @@ public class PhotoUtil {
 	 * @param filename a {@link java.lang.String} object.
 	 * @throws java.io.IOException if any.
 	 */
-	public void read(String filename) throws IOException {
+	public void read(String filename) throws IOException, PhotoUtilException {
 		File input = new File(filename);
 		read(input);
     }
@@ -102,7 +102,7 @@ public class PhotoUtil {
 	 * @param in a {@link java.io.InputStream} object.
 	 * @throws java.io.IOException if any.
 	 */
-	public void read(InputStream in) throws IOException {
+	public void read(InputStream in) throws IOException, PhotoUtilException {
     	read(in, getSelectedBackground());
     }
 	
@@ -112,10 +112,14 @@ public class PhotoUtil {
      * @param in a {@link java.io.InputStream} object.
      * @param bgColor background color
      * @throws java.io.IOException if any.
+	 * @throws PhotoUtilException if buffered image is null in this case.
      */
-    public void read(InputStream in, Color bgColor) throws IOException {
+    public void read(InputStream in, Color bgColor) throws IOException, PhotoUtilException {
     	BufferedImage readImage = ImageIO.read(in);
-    	
+
+		if (readImage == null)
+			throw new PhotoUtilException("Buffered image is null");
+
     	image =  new BufferedImage(readImage.getWidth(), readImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
     	Graphics graphics = image.getGraphics();
 		graphics.drawImage(readImage, 0, 0, bgColor, null);
@@ -278,17 +282,17 @@ public class PhotoUtil {
 	 * @param args an array of {@link java.lang.String} objects.
 	 * @throws java.io.IOException if any.
 	 */
-	public static void main(String[] args) throws IOException {
-		PhotoUploadAPIConfig.getInstance().setImageWriteFormat("png");
-		PhotoUploadAPIConfig.getInstance().setAllowTransparentBackground(true);
-		PhotoUtil photo = new PhotoUtil();
-		//photo.read("/home/oliver/Desktop/102702439_55cec15215.jpg");
-		photo.read("/Users/kapkan/Downloads/motorhead-band-vector-logo-400x400.png");
-		//photo.read("/home/oliver/Desktop/demo1.jpg");
+//	public static void main(String[] args) throws IOException {
+//		PhotoUploadAPIConfig.getInstance().setImageWriteFormat("png");
+//		PhotoUploadAPIConfig.getInstance().setAllowTransparentBackground(true);
+//		PhotoUtil photo = new PhotoUtil();
+//		photo.read("/home/oliver/Desktop/102702439_55cec15215.jpg");
+//		photo.read("/Users/kapkan/Downloads/motorhead-band-vector-logo-400x400.png");
+//		photo.read("/home/oliver/Desktop/demo1.jpg");
 //		photo.crop(10, 10, 100, 100);
 //		photo.pixelize();
 //		photo.blur();
 //		photo.write(100, "/Users/kapkan/Downloads/improvedscale.jpg");
-		photo.write(100, "/Users/kapkan/Downloads/improvedscale.png");
-	}
+//		photo.write(100, "/Users/kapkan/Downloads/improvedscale.png");
+//	}
 }

@@ -13,6 +13,7 @@ import java.util.List;
 
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoDimension;
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtil;
+import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtilException;
 import net.anotheria.anosite.photoserver.service.storage.StorageConfig;
 import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
 import net.anotheria.util.StringUtils;
@@ -156,10 +157,7 @@ public class PhotoUploader implements ProgressListener {
 		} catch (SizeLimitExceededException e) {
 			status.setStatus(UploadStatusAO.STATUS_ERROR_MAX_FILESIZE_EXCEEDED);
 			LOG.debug(id + ": UploadStatus=MAX_FILESIZE_EXCEEDED");
-		} catch (FileUploadException e) {
-			status.setStatus(UploadStatusAO.STATUS_ERROR_UPLOADEXCEPTION);
-			LOG.error(id, e);
-		} catch (IOException e) {
+		} catch (FileUploadException | PhotoUtilException | IOException e) {
 			status.setStatus(UploadStatusAO.STATUS_ERROR_UPLOADEXCEPTION);
 			LOG.error(id, e);
 		}
