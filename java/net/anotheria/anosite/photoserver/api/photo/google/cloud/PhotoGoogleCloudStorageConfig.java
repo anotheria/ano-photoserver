@@ -75,7 +75,7 @@ public class PhotoGoogleCloudStorageConfig implements Serializable {
     /**
      * Get {@link PhotoGoogleCloudStorageConfig} configured instance.
      *
-     * @return @link PhotoGoogleCloudStorageConfig} instance
+     * @return PhotoGoogleCloudStorageConfig instance
      */
     public static PhotoGoogleCloudStorageConfig getInstance() {
         if(instance == null){
