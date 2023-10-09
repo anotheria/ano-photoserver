@@ -21,6 +21,8 @@ public class PhotoAO extends PhotoVO {
 	 * Is photo blurred for user who requested this photo.
 	 */
 	private boolean isBlurred = false;
+
+	private String type;
 	
 	/**
 	 * Public constructor. Creates new PhotoAO.
@@ -75,6 +77,14 @@ public class PhotoAO extends PhotoVO {
 	 */
 	public void setBlurred(boolean aIsBlurred) {
 		this.isBlurred = aIsBlurred;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	/** {@inheritDoc} */

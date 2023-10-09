@@ -30,6 +30,15 @@ public interface PhotoAPI extends API {
 	AlbumAO getAlbum(long albumId) throws PhotoAPIException;
 
 	/**
+	 * Retrieves the owner's user ID of the album with the specified ID.
+	 *
+	 * @param albumId The ID of the album.
+	 * @return The user ID of the album's owner.
+	 * @throws PhotoAPIException If an error occurs during the retrieval process.
+	 */
+	String getAlbumOwnerId(long albumId) throws PhotoAPIException;
+
+	/**
 	 * Get album by id. Uses passed photos filtering(if null passed - uses PhotosFiltering.DEFAULT).
 	 *
 	 * @param albumId   - album id
@@ -59,6 +68,13 @@ public interface PhotoAPI extends API {
 	 */
 	List<AlbumAO> getAlbums(String userId) throws PhotoAPIException;
 
+	/**
+	 * Checks if the specified user has any photos.
+	 *
+	 * @param userId The ID of the user to check.
+	 * @return {@code true} if the user has photos; otherwise, {@code false}.
+	 */
+	boolean hasPhotos(String userId);
 	/**
 	 * Get all user albums. Uses passed photos filtering(if null passed - uses PhotosFiltering.DEFAULT).
 	 *
@@ -98,6 +114,16 @@ public interface PhotoAPI extends API {
 	 * @throws net.anotheria.anosite.photoserver.api.photo.PhotoAPIException if any.
 	 */
 	AlbumAO getDefaultAlbum(String userId, PhotosFiltering filtering) throws PhotoAPIException;
+
+	/**
+	 * Retrieves the ID of the default album for the specified user with optional photo filtering.
+	 *
+	 * @param userId    The ID of the user.
+	 * @param filtering The filtering criteria for photos in the album.
+	 * @return The ID of the user's default album.
+	 * @throws PhotoAPIException If an error occurs during the retrieval process.
+	 */
+	Long getDefaultAlbumId(String userId, PhotosFiltering filtering) throws PhotoAPIException;
 
     /**
      * Get user default album. Uses passed photos filtering(if null passed - uses PhotosFiltering.DEFAULT).

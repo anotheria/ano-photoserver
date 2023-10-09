@@ -28,6 +28,15 @@ public interface StorageService extends Service {
 	AlbumBO getAlbum(long albumId) throws StorageServiceException;
 
 	/**
+	 * Retrieves the owner's user ID of the album with the specified ID.
+	 *
+	 * @param albumId The ID of the album.
+	 * @return The user ID of the album's owner.
+	 * @throws StorageServiceException If an error occurs during the retrieval process.
+	 */
+	String getAlbumOwnerId(long albumId) throws StorageServiceException;
+
+	/**
 	 * Get all user albums.
 	 *
 	 * @param userId - user id
@@ -36,6 +45,13 @@ public interface StorageService extends Service {
 	 */
 	List<AlbumBO> getAlbums(String userId) throws StorageServiceException;
 
+	/**
+	 * Checks if the specified user has any photos.
+	 *
+	 * @param userId The ID of the user to check.
+	 * @return {@code true} if the user has photos; otherwise, {@code false}.
+	 */
+	boolean hasPhotos(String userId);
 	/**
 	 * Get user default album. New default album will be created if no one can't be found.
 	 *
