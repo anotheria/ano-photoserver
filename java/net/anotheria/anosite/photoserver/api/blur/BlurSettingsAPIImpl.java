@@ -103,7 +103,7 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 				try {
 					String albumOwnerId = photoAPI.getAlbumOwnerId(albumId);
 					// Show all unBlured for My album!!!\
-					if (!StringUtils.isEmpty(albumOwnerId) && myId.equals(albumOwnerId)) {
+					if (myId.equals(albumOwnerId)) {
 						LOG.debug("viewing self settings!");
 						for (Long pictureId : pictureIds)
 							result.put(pictureId, false);
