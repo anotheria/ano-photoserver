@@ -174,7 +174,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             List<PhotoAO> approvedPhotos = new ArrayList<>();
             if (!album.getPhotosOrder().isEmpty()) {
                 approvedPhotos = filterNotApproved(album.getUserId(), album.getId(), filtering);
-                album.setPhotosOrder(approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList())); // filtering not approved photos from
+                List<Long> approvedPhotosOrder = approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList());
+                album.setPhotosOrder(album.getPhotosOrder().stream().filter(approvedPhotosOrder::contains).collect(Collectors.toList())); // filtering not approved photos from
             }
 
             return new AlbumAO(album, approvedPhotos);
@@ -218,7 +219,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
                 List<PhotoAO> approvedPhotos = new ArrayList<>();
                 if (!album.getPhotosOrder().isEmpty()) {
                     approvedPhotos = filterNotApproved(album.getUserId(), album.getId(), filtering);
-                    album.setPhotosOrder(approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList())); // filtering not approved photos from
+                    List<Long> approvedPhotosOrder = approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList());
+                    album.setPhotosOrder(album.getPhotosOrder().stream().filter(approvedPhotosOrder::contains).collect(Collectors.toList())); // filtering not approved photos from
                 }
                 result.add(new AlbumAO(album, approvedPhotos));
             }
@@ -268,7 +270,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             List<PhotoAO> approvedPhotos = new ArrayList<>();
             if (!album.getPhotosOrder().isEmpty()) {
                 approvedPhotos = filterNotApproved(album.getUserId(), album.getId(), filtering);
-                album.setPhotosOrder(approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList())); // filtering not approved photos from
+                List<Long> approvedPhotosOrder = approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList());
+                album.setPhotosOrder(album.getPhotosOrder().stream().filter(approvedPhotosOrder::contains).collect(Collectors.toList())); // filtering not approved photos from
             }
 
             return new AlbumAO(album, approvedPhotos);
