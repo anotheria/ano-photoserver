@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -566,6 +567,7 @@ public class PhotoAPITest {
 			photoAO.setBlurred(true);
 			expectedPhotos.add(photoAO);
 		}
+		testAlbum1_BO.setPhotosOrder(photoBOS.stream().map(PhotoBO::getId).collect(Collectors.toList()));
 
 		Map<Long, Boolean> blurSettingMap = new HashMap<>();
 		for (PhotoAO photoAO: expectedPhotos) {
@@ -885,6 +887,7 @@ public class PhotoAPITest {
 			PhotoBO photo = new PhotoBO();
 			result.add(photo);
 
+			photo.setId(amount);
 			photo.setDescription("desc");
 			photo.setName("my_photo!!");
 			photo.setUserId(userId);
