@@ -4,9 +4,7 @@ import net.anotheria.anosite.photoserver.shared.IdCrypter;
 import net.anotheria.anosite.photoserver.shared.vo.AlbumVO;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User photo album information.
@@ -69,22 +67,6 @@ public class AlbumAO extends AlbumVO {
 
 	public void setPhotos(List<PhotoAO> photos) {
 		this.photos = photos;
-	}
-
-	public List<PhotoAO> getPhotosOrdered() {
-		Map<Long, PhotoAO> photosMap = new LinkedHashMap<>();
-		List<PhotoAO> result = new ArrayList<>();
-		for (PhotoAO photo : photos)
-			photosMap.put(photo.getId(), photo);
-
-		for (Long id : getPhotosOrder()) {
-			PhotoAO photo = photosMap.remove(id);
-			if (photo != null) {
-				result.add(photo);
-			}
-		}
-		result.addAll(photosMap.values());
-		return result;
 	}
 
 	/** {@inheritDoc} */

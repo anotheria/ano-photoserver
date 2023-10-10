@@ -267,11 +267,10 @@ public interface PhotoAPI extends API {
 	 *
 	 * @param albumId			- album id
 	 * @param filtering		  - optional bean defining how to filter out photos by their approval status.
-	 * @param orderByPhotosOrder - if true passed, returned list of photos will be ordered.
 	 * @return {@link java.util.List} of {@link net.anotheria.anosite.photoserver.api.photo.PhotoAO}
 	 * @throws net.anotheria.anosite.photoserver.api.photo.PhotoAPIException if any.
 	 */
-	List<PhotoAO> getPhotos(long albumId, PhotosFiltering filtering, boolean orderByPhotosOrder) throws PhotoAPIException;
+	List<PhotoAO> getPhotos(long albumId, PhotosFiltering filtering) throws PhotoAPIException;
 
 	/**
 	 * Create new photo in default album.

@@ -173,9 +173,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
 
             List<PhotoAO> approvedPhotos = new ArrayList<>();
             if (!album.getPhotosOrder().isEmpty()) {
-                approvedPhotos = filterNotApproved(album.getUserId(), album.getId(), filtering);
-                List<Long> approvedPhotosOrder = approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList());
-                album.setPhotosOrder(album.getPhotosOrder().stream().filter(approvedPhotosOrder::contains).collect(Collectors.toList())); // filtering not approved photos from
+                approvedPhotos = filterNotApproved(album, filtering);
+                album.setPhotosOrder(approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList())); // filtering not approved photos from
             }
 
             return new AlbumAO(album, approvedPhotos);
@@ -218,9 +217,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             for (AlbumBO album : storageService.getAlbums(userId)) {
                 List<PhotoAO> approvedPhotos = new ArrayList<>();
                 if (!album.getPhotosOrder().isEmpty()) {
-                    approvedPhotos = filterNotApproved(album.getUserId(), album.getId(), filtering);
-                    List<Long> approvedPhotosOrder = approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList());
-                    album.setPhotosOrder(album.getPhotosOrder().stream().filter(approvedPhotosOrder::contains).collect(Collectors.toList())); // filtering not approved photos from
+                    approvedPhotos = filterNotApproved(album, filtering);
+                    album.setPhotosOrder(approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList())); // filtering not approved photos from
                 }
                 result.add(new AlbumAO(album, approvedPhotos));
             }
@@ -269,9 +267,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             isAllowedForAction(AlbumAction.VIEW, album.getUserId(), authorId); // security check
             List<PhotoAO> approvedPhotos = new ArrayList<>();
             if (!album.getPhotosOrder().isEmpty()) {
-                approvedPhotos = filterNotApproved(album.getUserId(), album.getId(), filtering);
-                List<Long> approvedPhotosOrder = approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList());
-                album.setPhotosOrder(album.getPhotosOrder().stream().filter(approvedPhotosOrder::contains).collect(Collectors.toList())); // filtering not approved photos from
+                approvedPhotos = filterNotApproved(album, filtering);
+                album.setPhotosOrder(approvedPhotos.stream().map(PhotoAO::getId).collect(Collectors.toList())); // filtering not approved photos from
             }
 
             return new AlbumAO(album, approvedPhotos);
@@ -444,18 +441,16 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     /** {@inheritDoc} */
     @Override
     public List<PhotoAO> getPhotos(long albumId) throws PhotoAPIException {
-        return getPhotos(albumId, PhotosFiltering.DEFAULT, false);
+        return getPhotos(albumId, PhotosFiltering.DEFAULT);
     }
 
     /** {@inheritDoc} */
     @Override
-    public List<PhotoAO> getPhotos(long albumId, PhotosFiltering filtering, boolean orderByPhotosOrder) throws PhotoAPIException {
+    public List<PhotoAO> getPhotos(long albumId, PhotosFiltering filtering) throws PhotoAPIException {
 
         final String defaultPhotoOwnerId = "-10"; //remove  after  refactoring - for  now  it's  actual for  failing security check.
         isAllowedToMe(PhotoAction.VIEW, defaultPhotoOwnerId, defaultPhotoOwnerId); // security check
-
-        AlbumAO album = getAlbum(albumId, filtering);
-        return orderByPhotosOrder ? album.getPhotosOrdered() : album.getPhotos();
+        return getAlbum(albumId, filtering).getPhotos();
     }
 
      /**
@@ -1018,38 +1013,32 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
         photoUtil.scale(size);
     }
 
-    private List<PhotoAO> filterNotApproved(List<PhotoAO> photos, PhotosFiltering filtering) throws PhotoAPIException {
-        if (filtering == null)
-            filtering = PhotosFiltering.DEFAULT;
-        if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled())
-            return photos;
-
-        List<PhotoAO> result = new ArrayList<>();
+    private List<PhotoAO> filterNotApproved(AlbumBO album, PhotosFiltering filtering) throws PhotoAPIException {
         try {
+            List<PhotoAO> photos = preparePhotos(album.getId(), storageService.getPhotos(album.getUserId(), album.getId()));
+            if (filtering == null)
+                filtering = PhotosFiltering.DEFAULT;
+            if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled())
+                return photos;
+            Map<Long, PhotoAO> photosMap = new LinkedHashMap<>();
+            List<PhotoAO> result = new ArrayList<>();
             for (PhotoAO photo : photos) {
                 if (loginAPI.isLogedIn() && loginAPI.getLogedUserId().equalsIgnoreCase(String.valueOf(photo.getUserId()))) {
-                    result.add(photo);
+                    photosMap.put(photo.getId(), photo);
                     continue;
                 }
                 if (filtering.allowedStatuses.contains(photo.getApprovalStatus()))
-                    result.add(photo);
+                    photosMap.put(photo.getId(), photo);
             }
-        } catch (APIException e) {
-            throw new PhotoAPIException("filterNotApproved(" + photos + ") fail.", e);
-        }
-
-        return result;
-    }
-
-    private List<PhotoAO> filterNotApproved(String ownerId, long albumId, PhotosFiltering filtering) throws PhotoAPIException {
-        if (StringUtils.isEmpty(ownerId))
-            throw new IllegalArgumentException("ownerId is not valid");
-        try {
-            List<PhotoAO> photos = preparePhotos(albumId, storageService.getPhotos(ownerId, albumId));
-            return filterNotApproved(photos, filtering);
-
-        } catch (StorageServiceException | BlurSettingsAPIException e) {
-            throw new PhotoAPIException("filterNotApproved(" + albumId + ") fail.", e);
+            for (Long id : album.getPhotosOrder()) {
+                PhotoAO photo = photosMap.remove(id);
+                if (photo != null) {
+                    result.add(photo);
+                }
+            }
+            return result;
+        } catch (APIException | StorageServiceException | BlurSettingsAPIException e) {
+            throw new PhotoAPIException("filterNotApproved(" + album.getId() + ") fail.", e);
         }
     }
 }
