@@ -1016,20 +1016,23 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     private List<PhotoAO> filterNotApproved(AlbumBO album, PhotosFiltering filtering) throws PhotoAPIException {
         try {
             List<PhotoAO> photos = preparePhotos(album.getId(), storageService.getPhotos(album.getUserId(), album.getId()));
-            if (filtering == null)
-                filtering = PhotosFiltering.DEFAULT;
-            if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled())
-                return photos;
             Map<Long, PhotoAO> photosMap = new LinkedHashMap<>();
             List<PhotoAO> result = new ArrayList<>();
-            for (PhotoAO photo : photos) {
-                if (loginAPI.isLogedIn() && loginAPI.getLogedUserId().equalsIgnoreCase(String.valueOf(photo.getUserId()))) {
-                    photosMap.put(photo.getId(), photo);
-                    continue;
+            if (filtering == null)
+                filtering = PhotosFiltering.DEFAULT;
+            if (!filtering.filteringEnabled || !PhotoServerConfig.getInstance().isPhotoApprovingEnabled()) {
+                photosMap = photos.stream().collect(Collectors.toMap(PhotoAO::getId, photo -> photo));
+            } else {
+                for (PhotoAO photo : photos) {
+                    if (loginAPI.isLogedIn() && loginAPI.getLogedUserId().equalsIgnoreCase(String.valueOf(photo.getUserId()))) {
+                        photosMap.put(photo.getId(), photo);
+                        continue;
+                    }
+                    if (filtering.allowedStatuses.contains(photo.getApprovalStatus()))
+                        photosMap.put(photo.getId(), photo);
                 }
-                if (filtering.allowedStatuses.contains(photo.getApprovalStatus()))
-                    photosMap.put(photo.getId(), photo);
             }
+
             for (Long id : album.getPhotosOrder()) {
                 PhotoAO photo = photosMap.remove(id);
                 if (photo != null) {
