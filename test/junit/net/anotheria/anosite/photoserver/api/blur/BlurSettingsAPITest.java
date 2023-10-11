@@ -300,10 +300,10 @@ public class BlurSettingsAPITest {
 			albumAO.setId(albumId);
 			albumAO.setUserId(userIdStr);
 			when(loginAPI.isLogedIn()).thenReturn(true);
-			when(photoAPI.getAlbum(albumId)).thenReturn(albumAO);
+			when(photoAPI.getAlbumOwnerId(albumId)).thenReturn(albumAO.getUserId());
 			boolean result = blurSettingsAPI.readMyBlurSettings(albumId, pictureId);
 			verify(loginAPI, atLeastOnce()).isLogedIn();
-			verify(photoAPI, atLeastOnce()).getAlbum(albumId);
+			verify(photoAPI, atLeastOnce()).getAlbumOwnerId(albumId);
 			Assert.assertFalse("Should not be blurred", result);
 
 		} catch (BlurSettingsAPIException e) {

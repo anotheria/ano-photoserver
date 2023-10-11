@@ -118,6 +118,16 @@ public final class StorageServiceCache {
 	}
 
 	/**
+	 * Retrieves the owner's user ID of the album with the specified ID.
+	 *
+	 * @param albumId The ID of the album.
+	 * @return The user ID of the album's owner.
+	 */
+	protected String getAlbumOwnerId(final long albumId) {
+		return albumsCache.get(albumId);
+	}
+
+	/**
 	 * Return album with selected id if such was cached.
 	 * 
 	 * @param userId
@@ -225,6 +235,36 @@ public final class StorageServiceCache {
 			return null;
 		// call to all albums!
 		return data.getCachedAlbums();
+	}
+
+	/**
+	 * Checks if the specified user has any photos.
+	 *
+	 * @param userId The ID of the user to check.
+	 * @return {@code true} if the user has photos; otherwise, {@code false}.
+	 */
+	protected boolean hasPhotos(String userId) {
+		if (StringUtils.isEmpty(userId))
+			return false;
+		UserMediaData data = userDataCache.get(userId);
+		if (data == null)
+			return false;
+		return data.hasPhotos();
+	}
+
+	/**
+	 * Checks if all user albums for the specified user have been loaded.
+	 *
+	 * @param userId The ID of the user to check.
+	 * @return {@code true} if all user albums are loaded; otherwise, {@code false}.
+	 */
+	protected boolean isAllUserAlbumsLoaded(String userId) {
+		if (StringUtils.isEmpty(userId))
+			return false;
+		UserMediaData data = userDataCache.get(userId);
+		if (data == null)
+			return false;
+		return data.isAllUserAlbumsLoaded();
 	}
 
 	/**
@@ -616,6 +656,32 @@ public final class StorageServiceCache {
 				return;
 
 			userPhotos.remove(toRemove.getId());
+		}
+
+		/**
+		 * Checks if the user has any photos in their albums.
+		 *
+		 * @return {@code true} if the user has photos; otherwise, {@code false}.
+		 */
+		protected boolean hasPhotos() {
+			if (userAlbums == null || userAlbums.isEmpty()) {
+				return false;
+			}
+			for (AlbumBO albumBO : userAlbums.values()) {
+				if (albumBO.getPhotosOrder() != null && !albumBO.getPhotosOrder().isEmpty()) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * Checks if all user albums have been loaded.
+		 *
+		 * @return {@code true} if all user albums are loaded; otherwise, {@code false}.
+		 */
+		protected boolean isAllUserAlbumsLoaded() {
+			return isAllUserAlbumsLoaded;
 		}
 
 		/**
