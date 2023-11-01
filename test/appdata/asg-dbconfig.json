@@ -5,13 +5,13 @@
     test:{
 
         junit: {
-                driver: "org.h2.jdbcx.JdbcDataSource",
+                driver: "org.h2.Driver",
                 preconfiguredJdbcUrl: "jdbc:h2:mem:moses;IGNORECASE=TRUE",
                 vendor: "h2",
                 host: "localhost",
                 username: "moses",
-                password: "",
-        },
-	},
+                password: ""
+        }
+	}
 }
 

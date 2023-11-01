@@ -14,8 +14,8 @@ import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.stubbing.Answer;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

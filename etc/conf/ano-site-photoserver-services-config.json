@@ -1,5 +1,5 @@
 {
 	remoteServices: false,
 	storageServiceRemote: true,
-	blurSettingsServiceRemote: true,
+	blurSettingsServiceRemote: true
 }

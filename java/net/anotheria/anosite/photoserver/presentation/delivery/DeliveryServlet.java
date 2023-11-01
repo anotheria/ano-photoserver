@@ -17,10 +17,10 @@ import net.anotheria.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -297,9 +297,9 @@ public class DeliveryServlet extends BaseServlet {
 	/**
 	 * <p>getCookieByName.</p>
 	 *
-	 * @param req a {@link javax.servlet.http.HttpServletRequest} object.
+	 * @param req a {@link jakarta.servlet.http.HttpServletRequest} object.
 	 * @param name a {@link java.lang.String} object.
-	 * @return a {@link javax.servlet.http.Cookie} object.
+	 * @return a {@link jakarta.servlet.http.Cookie} object.
 	 */
 	public static Cookie getCookieByName(HttpServletRequest req, String name) {
 		Cookie result = null;
@@ -317,7 +317,7 @@ public class DeliveryServlet extends BaseServlet {
 	/**
 	 * <p>getCookieValue.</p>
 	 *
-	 * @param req a {@link javax.servlet.http.HttpServletRequest} object.
+	 * @param req a {@link jakarta.servlet.http.HttpServletRequest} object.
 	 * @param name a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */

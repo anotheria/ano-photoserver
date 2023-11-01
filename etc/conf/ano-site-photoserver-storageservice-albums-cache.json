@@ -9,11 +9,11 @@
 
     test:{
        startSize: 2000,
-       maxSize: 5000,
+       maxSize: 5000
     },
 
     prod:{
 
-    },
+    }
 
 }
