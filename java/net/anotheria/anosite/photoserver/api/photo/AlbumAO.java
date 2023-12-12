@@ -5,6 +5,7 @@ import net.anotheria.anosite.photoserver.shared.vo.AlbumVO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * User photo album information.
@@ -67,6 +68,7 @@ public class AlbumAO extends AlbumVO {
 
 	public void setPhotos(List<PhotoAO> photos) {
 		this.photos = photos;
+		setPhotosOrder(photos.stream().map(PhotoAO::getId).collect(Collectors.toList()));
 	}
 
 	/** {@inheritDoc} */
