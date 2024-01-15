@@ -613,7 +613,7 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
             LOG.warn(message, e);
             throw new PhotoAPIException(message, e);
         } finally {
-            AlbumAO album = getAlbum(photo.getAlbumId());
+            AlbumAO album = getAlbum(photo.getAlbumId(), PhotosFiltering.DISABLED);
             album.removePhotofromPhotoOrder(photoId);
             try {
                 storageService.updateAlbum(new AlbumBO(album));
@@ -764,8 +764,8 @@ public class PhotoAPIImpl extends AbstractAPIImpl implements PhotoAPI {
     @Override
     public PhotoAO movePhoto(long photoId, long newAlbumId) throws PhotoAPIException {
         PhotoAO photo = getPhoto(photoId);
-        AlbumAO album = getAlbum(newAlbumId);
-        AlbumAO oldAlbum = getAlbum(photo.getAlbumId());
+        AlbumAO album = getAlbum(newAlbumId, PhotosFiltering.DISABLED);
+        AlbumAO oldAlbum = getAlbum(photo.getAlbumId(), PhotosFiltering.DISABLED);
 
         if (!album.getUserId().equals(photo.getUserId()))
             throw new NoAccessPhotoAPIException("No access.");
