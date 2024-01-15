@@ -17,14 +17,7 @@ import net.anotheria.anosite.photoserver.api.blur.AlbumIsBlurredAPIException;
 import net.anotheria.anosite.photoserver.api.blur.AlbumIsNotBlurredAPIException;
 import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPI;
 import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPIException;
-import net.anotheria.anosite.photoserver.api.photo.AlbumAO;
-import net.anotheria.anosite.photoserver.api.photo.AlbumNotFoundPhotoAPIException;
-import net.anotheria.anosite.photoserver.api.photo.AlbumWithPhotosPhotoAPIException;
-import net.anotheria.anosite.photoserver.api.photo.NoAccessPhotoAPIException;
-import net.anotheria.anosite.photoserver.api.photo.PhotoAO;
-import net.anotheria.anosite.photoserver.api.photo.PhotoAPI;
-import net.anotheria.anosite.photoserver.api.photo.PhotoAPIException;
-import net.anotheria.anosite.photoserver.api.photo.PhotoNotFoundPhotoAPIException;
+import net.anotheria.anosite.photoserver.api.photo.*;
 import net.anotheria.anosite.photoserver.presentation.shared.BaseServlet;
 import net.anotheria.anosite.photoserver.shared.IdCrypter;
 import net.anotheria.maf.json.JSONResponse;
@@ -459,7 +452,7 @@ public class ActionsServlet extends BaseServlet {
 	 */
 	private void updateAlbum(final long albumId, final JSONResponse response, final HttpServletRequest req) {
 		try {
-			AlbumAO album = photoAPI.getAlbum(albumId);
+			AlbumAO album = photoAPI.getAlbum(albumId, PhotosFiltering.DISABLED);
 			album.setName(req.getParameter(PARAM_NAME));
 			album.setDescription(req.getParameter(PARAM_DESCRIPTION));
 
@@ -501,7 +494,7 @@ public class ActionsServlet extends BaseServlet {
 		}
 
 		try {
-			AlbumAO album = photoAPI.getAlbum(albumId);
+			AlbumAO album = photoAPI.getAlbum(albumId, PhotosFiltering.DISABLED);
 			album.setPhotosOrder(photosIds);
 			photoAPI.updateAlbum(album);
 		} catch (NoAccessPhotoAPIException e) {
