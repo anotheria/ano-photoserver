@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>net.anotheria</groupId>
 		<artifactId>parent</artifactId>
-		<version>4.0-SNAPSHOT</version>
+		<version>4.0</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -15,28 +15,28 @@
 		<target-version>11</target-version>
 		<aspectj-maven-plugin.version>1.14.0</aspectj-maven-plugin.version>
 		<aspectj-maven-plugin.complianceLevel>11</aspectj-maven-plugin.complianceLevel>
-		<distributeme-version>4.0.0-SNAPSHOT</distributeme-version>
+		<distributeme-version>4.0.0</distributeme-version>
 
-		<ano-db-version>4.0.0-SNAPSHOT</ano-db-version>
-		<ano-util-version>4.0.0-SNAPSHOT</ano-util-version>
+		<ano-db-version>4.0.0</ano-db-version>
+		<ano-util-version>4.0.0</ano-util-version>
 
-		<moskito-version>4.0.0-SNAPSHOT</moskito-version>
+		<moskito-version>4.0.0</moskito-version>
 		<moskito-webui-version>${moskito-version}</moskito-webui-version>
 
-		<ano-plass-version>4.0.0-SNAPSHOT</ano-plass-version>
-		<ano-prise-version>4.0.0-SNAPSHOT</ano-prise-version>
+		<ano-plass-version>4.0.0</ano-plass-version>
+		<ano-prise-version>4.0.0</ano-prise-version>
 
-		<ano-doc-version>4.0.0-SNAPSHOT</ano-doc-version>
+		<ano-doc-version>4.0.0</ano-doc-version>
 
-		<ano-web-version>4.0.0-SNAPSHOT</ano-web-version>
-		<ano-maf-version>4.0.0-SNAPSHOT</ano-maf-version>
-		<ano-tags-version>4.0.0-SNAPSHOT</ano-tags-version>
+		<ano-web-version>4.0.0</ano-web-version>
+		<ano-maf-version>4.0.0</ano-maf-version>
+		<ano-tags-version>4.0.0</ano-tags-version>
 		<ano-site-parents-version>2.5.1</ano-site-parents-version>
-		<ano-site-version>4.0.0-SNAPSHOT</ano-site-version>
+		<ano-site-version>4.0.0</ano-site-version>
 
-		<ano-access-version>4.0.0-SNAPSHOT</ano-access-version>
+		<ano-access-version>4.0.0</ano-access-version>
 
-		<configureme-version>4.0.0-SNAPSHOT</configureme-version>
+		<configureme-version>4.0.0</configureme-version>
 
 		<cobertura-version>2.5.1</cobertura-version>
 		<checkstyle-version>2.7</checkstyle-version>
@@ -75,6 +75,20 @@
 			<groupId>net.anotheria</groupId>
 			<artifactId>moskito-webui</artifactId>
 			<version>${moskito-version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>net.anotheria</groupId>
+					<artifactId>distributeme-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>net.anotheria</groupId>
+					<artifactId>distributeme-generator</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>net.anotheria</groupId>
+					<artifactId>distributeme-support</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.anotheria</groupId>
