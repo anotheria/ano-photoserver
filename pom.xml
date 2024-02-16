@@ -15,7 +15,7 @@
 		<target-version>11</target-version>
 		<aspectj-maven-plugin.version>1.14.0</aspectj-maven-plugin.version>
 		<aspectj-maven-plugin.complianceLevel>11</aspectj-maven-plugin.complianceLevel>
-		<distributeme-version>4.0.0</distributeme-version>
+		<distributeme-version>4.0.2</distributeme-version>
 
 		<ano-db-version>4.0.0</ano-db-version>
 		<ano-util-version>4.0.0</ano-util-version>
