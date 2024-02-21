@@ -8,7 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>ano-photoserver</artifactId>
 	<name>ano-photoserver</name>
-	<version>4.0.1-SNAPSHOT</version>
+	<version>4.0.1</version>
 
 	<properties>
 		<source-version>11</source-version>
