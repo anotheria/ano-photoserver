@@ -5,15 +5,10 @@ import net.anotheria.anoplass.api.APIException;
 import net.anotheria.anoplass.api.generic.login.LoginAPI;
 import net.anotheria.anoprise.dualcrud.DualCrudService;
 import net.anotheria.anosite.photoserver.api.blur.BlurSettingsAPI;
-import net.anotheria.anosite.photoserver.service.storage.AlbumBO;
-import net.anotheria.anosite.photoserver.service.storage.AlbumNotFoundServiceException;
-import net.anotheria.anosite.photoserver.service.storage.PhotoBO;
-import net.anotheria.anosite.photoserver.service.storage.PhotoNotFoundServiceException;
-import net.anotheria.anosite.photoserver.service.storage.StorageService;
-import net.anotheria.anosite.photoserver.service.storage.StorageServiceException;
+import net.anotheria.anosite.photoserver.service.storage.*;
 import net.anotheria.anosite.photoserver.shared.ApprovalStatus;
 import net.anotheria.anosite.photoserver.shared.vo.PreviewSettingsVO;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -21,11 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -68,10 +60,27 @@ public class PhotoAPITest {
 	private static AlbumBO testAlbum2_BO;
 	private static AlbumAO defaultAlbum;
 	private static AlbumBO defaultAlbum_BO;
+	private static PhotoBO testPhotoBO;
+	private static PhotoAO testPhotoAO;
 	private static PhotoFileHolder photoFileHolder;
 
-	@BeforeClass
-	public static void init() throws APIException {
+	@Before
+	public void init() throws APIException {
+		PreviewSettingsVO previewSettingsVO = new PreviewSettingsVO(1,1,1,1);
+		testPhotoAO = new PhotoAO();
+		testPhotoAO.setAlbumId(1L);
+		testPhotoAO.setId(1L);
+		testPhotoAO.setName("Photo1");
+		testPhotoAO.setPreviewSettings(previewSettingsVO);
+
+		testPhotoBO = new PhotoBO();
+		testPhotoBO.setAlbumId(1L);
+		testPhotoBO.setId(1L);
+		testPhotoBO.setName("Photo1");
+		testPhotoBO.setPreviewSettings(previewSettingsVO);
+
+		List<Long> photoOrder = Collections.singletonList(1L);
+		List<PhotoAO> photoAOS = Collections.singletonList(testPhotoAO);
 		//test data creating
 		testAlbum1 = new AlbumAO();
 		testAlbum1.setId(1L);
@@ -79,6 +88,8 @@ public class PhotoAPITest {
 		testAlbum1.setDescription("description");
 		testAlbum1.setName("name");
 		testAlbum1.setDefault(false);
+		testAlbum1.setPhotosOrder(photoOrder);
+		testAlbum1.setPhotos(Collections.singletonList(testPhotoAO));
 
 		testAlbum1_BO = new AlbumBO();
 		testAlbum1_BO.setId(1L);
@@ -86,6 +97,7 @@ public class PhotoAPITest {
 		testAlbum1_BO.setDescription("description");
 		testAlbum1_BO.setName("name");
 		testAlbum1_BO.setDefault(false);
+		testAlbum1_BO.setPhotosOrder(photoOrder);
 
 		testAlbum2 = new AlbumAO();
 		testAlbum2.setId(2L);
@@ -93,6 +105,8 @@ public class PhotoAPITest {
 		testAlbum2.setDescription("description2");
 		testAlbum2.setName("name2");
 		testAlbum2.setDefault(false);
+		testAlbum2.setPhotosOrder(photoOrder);
+		testAlbum2.setPhotos(photoAOS);
 
 		testAlbum2_BO = new AlbumBO();
 		testAlbum2_BO.setId(2L);
@@ -100,21 +114,26 @@ public class PhotoAPITest {
 		testAlbum2_BO.setDescription("description2");
 		testAlbum2_BO.setName("name2");
 		testAlbum2_BO.setDefault(false);
+		testAlbum2_BO.setPhotosOrder(photoOrder);
 
 		defaultAlbum = new AlbumAO();
 		defaultAlbum.setId(3L);
 		defaultAlbum.setUserId(USER1_ID);
 		defaultAlbum.setDefault(true);
+		defaultAlbum.setPhotosOrder(photoOrder);
+		defaultAlbum.setPhotos(photoAOS);
 
 		defaultAlbum_BO = new AlbumBO();
 		defaultAlbum_BO.setId(3L);
 		defaultAlbum_BO.setUserId(USER1_ID);
 		defaultAlbum_BO.setDefault(true);
+		defaultAlbum_BO.setPhotosOrder(photoOrder);
 	}
 
 	@Test
 	public void testGetAlbum() throws Exception {
 		when(storageService.getAlbum(testAlbum1.getId())).thenReturn(testAlbum1_BO);
+		when(storageService.getPhotos(USER1_ID, testAlbum1_BO.getId())).thenReturn(Arrays.asList(testPhotoBO));
 		when(loginAPI.isLogedIn()).thenReturn(true);
 		when(loginAPI.getLogedUserId()).thenReturn(USER1_ID);
 
@@ -141,6 +160,7 @@ public class PhotoAPITest {
 	@Test
 	public void testGetAlbumByAlbumIdAndPhotosFiltering() throws Exception {
 		when(storageService.getAlbum(testAlbum1.getId())).thenReturn(testAlbum1_BO);
+		when(storageService.getPhotos(USER1_ID, testAlbum1_BO.getId())).thenReturn(Arrays.asList(testPhotoBO));
 		when(loginAPI.isLogedIn()).thenReturn(true);
 		when(loginAPI.getLogedUserId()).thenReturn(USER1_ID);
 
@@ -155,6 +175,7 @@ public class PhotoAPITest {
 	@Test
 	public void testGetAlbumByAlbumIdAndPhotosFilteringAndAuthorIdSame() throws Exception {
 		when(storageService.getAlbum(testAlbum1.getId())).thenReturn(testAlbum1_BO);
+		when(storageService.getPhotos(USER1_ID, testAlbum1_BO.getId())).thenReturn(Arrays.asList(testPhotoBO));
 		when(loginAPI.isLogedIn()).thenReturn(true);
 		when(loginAPI.getLogedUserId()).thenReturn(USER1_ID);
 
@@ -169,6 +190,7 @@ public class PhotoAPITest {
 	@Test
 	public void testGetAlbumByAlbumIdAndPhotosFilteringAndAuthorIdDifferent() throws Exception {
 		when(storageService.getAlbum(testAlbum1.getId())).thenReturn(testAlbum1_BO);
+		when(storageService.getPhotos(USER1_ID, testAlbum1.getId())).thenReturn(Arrays.asList(testPhotoBO));
 		when(loginAPI.isLogedIn()).thenReturn(true);
 		when(loginAPI.getLogedUserId()).thenReturn(USER1_ID);
 
@@ -184,6 +206,8 @@ public class PhotoAPITest {
 	public void testGetAlbums() throws Exception {
 		List<AlbumAO> expected = Arrays.asList(defaultAlbum, testAlbum1, testAlbum2);
 		when(storageService.getAlbums(USER1_ID)).thenReturn(Arrays.asList(defaultAlbum_BO, testAlbum1_BO, testAlbum2_BO));
+		when(storageService.getPhotos(USER1_ID, testAlbum1_BO.getId())).thenReturn(Arrays.asList(testPhotoBO));
+		when(storageService.getAlbum(testPhotoBO.getAlbumId())).thenReturn(testAlbum1_BO);
 		when(loginAPI.isLogedIn()).thenReturn(true);
 		when(loginAPI.getLogedUserId()).thenReturn(USER1_ID);
 
@@ -212,6 +236,8 @@ public class PhotoAPITest {
 	@Test
 	public void testGetDefaultAlbum() throws Exception {
 		when(storageService.getDefaultAlbum(USER1_ID)).thenReturn(defaultAlbum_BO);
+		when(storageService.getPhotos(USER1_ID, defaultAlbum_BO.getId())).thenReturn(Arrays.asList(testPhotoBO));
+		when(storageService.getAlbum(testPhotoBO.getAlbumId())).thenReturn(defaultAlbum_BO);
 		when(loginAPI.isLogedIn()).thenReturn(true);
 		when(loginAPI.getLogedUserId()).thenReturn(USER1_ID);
 
@@ -427,6 +453,7 @@ public class PhotoAPITest {
 		PhotoAO expected = new PhotoAO(photoBO);
 		expected.setBlurred(true);
 		when(storageService.getDefaultPhoto(USER1_ID)).thenReturn(photoBO);
+		when(storageService.getAlbum(photoBO.getAlbumId())).thenReturn(testAlbum1_BO);
 		when(blurSettingsAPI.readMyBlurSettings(photoBO.getAlbumId(), photoBO.getId())).thenReturn(true);
 
 		PhotoAO actual = photoAPI.getDefaultPhoto(USER1_ID);
@@ -446,6 +473,7 @@ public class PhotoAPITest {
 		PhotoAO expected = new PhotoAO(photoBO);
 		expected.setBlurred(true);
 		when(storageService.getDefaultPhoto(USER1_ID)).thenReturn(photoBO);
+		when(storageService.getAlbum(photoBO.getAlbumId())).thenReturn(testAlbum1_BO);
 		when(blurSettingsAPI.readMyBlurSettings(photoBO.getAlbumId(), photoBO.getId())).thenReturn(true);
 
 		PhotoAO actual = photoAPI.getMyDefaultPhoto();
@@ -474,6 +502,7 @@ public class PhotoAPITest {
 		PhotoAO expected = new PhotoAO(photoBO);
 		expected.setBlurred(true);
 		when(storageService.getDefaultPhoto(USER1_ID, testAlbum1.getId())).thenReturn(photoBO);
+		when(storageService.getAlbum(photoBO.getAlbumId())).thenReturn(testAlbum1_BO);
 		when(blurSettingsAPI.readMyBlurSettings(photoBO.getAlbumId(), photoBO.getId())).thenReturn(true);
 
 		PhotoAO actual = photoAPI.getDefaultPhoto(USER1_ID, testAlbum1.getId());
@@ -502,6 +531,7 @@ public class PhotoAPITest {
 		PhotoAO expected = new PhotoAO(photoBO);
 		expected.setBlurred(true);
 		when(storageService.getPhoto(expected.getId())).thenReturn(photoBO);
+		when(storageService.getAlbum(photoBO.getAlbumId())).thenReturn(testAlbum1_BO);
 		when(blurSettingsAPI.readMyBlurSettings(photoBO.getAlbumId(), photoBO.getId())).thenReturn(true);
 
 		PhotoAO actual = photoAPI.getPhoto(expected.getId());
@@ -537,6 +567,7 @@ public class PhotoAPITest {
 			photoAO.setBlurred(true);
 			expectedPhotos.add(photoAO);
 		}
+		testAlbum1_BO.setPhotosOrder(photoBOS.stream().map(PhotoBO::getId).collect(Collectors.toList()));
 
 		Map<Long, Boolean> blurSettingMap = new HashMap<>();
 		for (PhotoAO photoAO: expectedPhotos) {
@@ -734,6 +765,7 @@ public class PhotoAPITest {
 		PhotoAO expected = new PhotoAO(photoBO);
 
 		when(storageService.getPhoto(expected.getId())).thenReturn(photoBO);
+		when(storageService.getAlbum(photoBO.getAlbumId())).thenReturn(testAlbum1_BO);
 		when(blurSettingsAPI.readMyBlurSettings(expected.getAlbumId(), expected.getId())).thenReturn(true);
 
 		try {
@@ -746,7 +778,6 @@ public class PhotoAPITest {
 		verify(storageService, atLeastOnce()).getPhoto(expected.getId());
 		verify(blurSettingsAPI, atLeastOnce()).readMyBlurSettings(expected.getAlbumId(),  expected.getId());
 		verify(storageService, never()).removePhoto(anyLong());
-		verify(storageService, never()).getAlbum(anyLong());
 		verify(storageService, never()).updateAlbum(any(AlbumBO.class));
 	}
 
@@ -856,6 +887,7 @@ public class PhotoAPITest {
 			PhotoBO photo = new PhotoBO();
 			result.add(photo);
 
+			photo.setId(amount);
 			photo.setDescription("desc");
 			photo.setName("my_photo!!");
 			photo.setUserId(userId);

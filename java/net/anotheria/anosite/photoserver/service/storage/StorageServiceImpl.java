@@ -135,6 +135,11 @@ public class StorageServiceImpl implements StorageService {
 		}
 	}
 
+	@Override
+	public String getAlbumOwnerId(long albumId) throws StorageServiceException {
+		return cache.getAlbumOwnerId(albumId);
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public List<AlbumBO> getAlbums(final String userId) throws StorageServiceException {
@@ -153,6 +158,21 @@ public class StorageServiceImpl implements StorageService {
 			LOG.warn(message, e);
 			throw new StorageServiceException(message, e);
 		}
+	}
+
+	@Override
+	public boolean hasPhotos(String userId) {
+		if (!cache.isAllUserAlbumsLoaded(userId)) {
+			List<AlbumBO> result = new ArrayList<>();
+			try {
+				result = albumPersistenceService.getAlbums(userId);
+			} catch (AlbumPersistenceServiceException e) {
+				String message = "hasPhotos(" + userId + ") fail.";
+				LOG.warn(message, e);
+			}
+			cache.cacheAlbums(userId, result);
+		}
+		return cache.hasPhotos(userId);
 	}
 
 	/** {@inheritDoc} */
@@ -300,7 +320,7 @@ public class StorageServiceImpl implements StorageService {
 	public PhotoBO getDefaultPhoto(String userId, long albumId) throws StorageServiceException {
 		AlbumBO album = getAlbum(albumId);
 		if (album.getUserId().equals(userId))
-			return getDefaultPhoto(getAlbum(albumId));
+			return getDefaultPhoto(album);
 		// this is actually more runtime exception! then Checked!
 		throw new StorageServiceException("Album[" + albumId + "] does not belongs to User[" + userId + "]");
 
