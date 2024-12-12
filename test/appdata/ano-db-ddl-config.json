@@ -1,6 +1,6 @@
 {
     test :{
-		dbOwnerName : "moses",     
-    },
+		dbOwnerName : "moses"
+    }
 
 }

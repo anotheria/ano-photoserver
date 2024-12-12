@@ -7,8 +7,8 @@ import net.anotheria.moskito.web.MoskitoHttpServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -68,7 +68,7 @@ public class BaseServlet extends MoskitoHttpServlet {
 	/**
 	 * <p>writeResponseJSONPResponse.</p>
 	 *
-	 * @param response a {@link javax.servlet.http.HttpServletResponse} object.
+	 * @param response a {@link jakarta.servlet.http.HttpServletResponse} object.
 	 * @param methodCallbackName a {@link java.lang.String} object.
 	 * @param content a {@link java.lang.String} object.
 	 * @throws java.io.IOException if any.
@@ -86,7 +86,7 @@ public class BaseServlet extends MoskitoHttpServlet {
 	/**
 	 * Splits the REST-like path of the request URI into tokens.
 	 *
-	 * @param request a {@link javax.servlet.http.HttpServletRequest} object.
+	 * @param request a {@link jakarta.servlet.http.HttpServletRequest} object.
 	 * @return an array of {@link java.lang.String} objects.
 	 */
 	protected String[] parsePathParameters(HttpServletRequest request) {
@@ -96,7 +96,7 @@ public class BaseServlet extends MoskitoHttpServlet {
 	/**
 	 * Streams a JPEG file to the response. Headers will be sent to disable caching.
 	 *
-	 * @param response a {@link javax.servlet.http.HttpServletResponse} object.
+	 * @param response a {@link jakarta.servlet.http.HttpServletResponse} object.
 	 * @param anImageFile a {@link java.io.File} object.
 	 * @throws java.io.IOException if any.
 	 */
@@ -108,7 +108,7 @@ public class BaseServlet extends MoskitoHttpServlet {
 	/**
 	 * Streams a JPEG file to the response. Headers will be sent to disable caching.
 	 *
-	 * @param response a {@link javax.servlet.http.HttpServletResponse} object.
+	 * @param response a {@link jakarta.servlet.http.HttpServletResponse} object.
 	 * @param in a {@link java.io.InputStream} object.
 	 * @throws java.io.IOException if any.
 	 */
@@ -130,7 +130,7 @@ public class BaseServlet extends MoskitoHttpServlet {
 	/**
 	 * Write headers for a jpeg response
 	 *
-	 * @param response a {@link javax.servlet.http.HttpServletResponse} object.
+	 * @param response a {@link jakarta.servlet.http.HttpServletResponse} object.
 	 * @throws java.io.IOException if any.
 	 */
 	protected void writeImageHeaders(HttpServletResponse response) throws IOException {

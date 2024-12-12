@@ -1,10 +1,5 @@
 package net.anotheria.anosite.photoserver.api.blur;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.anotheria.anoplass.api.APIFinder;
 import net.anotheria.anoplass.api.APIInitException;
 import net.anotheria.anoplass.api.AbstractAPIImpl;
@@ -12,23 +7,20 @@ import net.anotheria.anoplass.api.NoLoggedInUserException;
 import net.anotheria.anoplass.api.generic.login.LoginAPI;
 import net.anotheria.anoprise.metafactory.MetaFactory;
 import net.anotheria.anoprise.metafactory.MetaFactoryException;
-import net.anotheria.anosite.photoserver.api.photo.AlbumAO;
 import net.anotheria.anosite.photoserver.api.photo.PhotoAPI;
 import net.anotheria.anosite.photoserver.api.photo.PhotoAPIException;
-import net.anotheria.anosite.photoserver.service.blur.AlbumIsBlurredException;
-import net.anotheria.anosite.photoserver.service.blur.AlbumIsNotBlurredException;
-import net.anotheria.anosite.photoserver.service.blur.BlurSettingBO;
-import net.anotheria.anosite.photoserver.service.blur.BlurSettingsService;
-import net.anotheria.anosite.photoserver.service.blur.BlurSettingsServiceException;
-import net.anotheria.anosite.photoserver.service.blur.PictureIsBlurredException;
-import net.anotheria.anosite.photoserver.service.blur.PictureIsNotBlurredException;
+import net.anotheria.anosite.photoserver.service.blur.*;
 import net.anotheria.moskito.aop.annotation.Accumulate;
 import net.anotheria.moskito.aop.annotation.Accumulates;
 import net.anotheria.moskito.aop.annotation.Monitor;
 import net.anotheria.util.StringUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * BlurSettingsAPI implementation.
@@ -109,9 +101,9 @@ public class BlurSettingsAPIImpl extends AbstractAPIImpl implements BlurSettings
 			if (loginAPI.isLogedIn()) {
 				String myId = getMyUserId();
 				try {
-					AlbumAO album = photoAPI.getAlbum(albumId);
+					String albumOwnerId = photoAPI.getAlbumOwnerId(albumId);
 					// Show all unBlured for My album!!!\
-					if (myId.equals(album.getUserId())) {
+					if (myId.equals(albumOwnerId)) {
 						LOG.debug("viewing self settings!");
 						for (Long pictureId : pictureIds)
 							result.put(pictureId, false);

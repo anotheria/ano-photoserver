@@ -3,6 +3,10 @@ package net.anotheria.anosite.photoserver.api.photo;
 import net.anotheria.anosite.photoserver.shared.IdCrypter;
 import net.anotheria.anosite.photoserver.shared.vo.AlbumVO;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * User photo album information.
  *
@@ -16,6 +20,7 @@ public class AlbumAO extends AlbumVO {
 	 */
 	private static final long serialVersionUID = -8392874328183792765L;
 
+	private List<PhotoAO> photos = new ArrayList<>();
 	/**
 	 * Public constructor. Creates new AlbumAO.
 	 */
@@ -37,6 +42,16 @@ public class AlbumAO extends AlbumVO {
 		setDescription(albumVO.getDescription());
 		setPhotosOrder(albumVO.getPhotosOrder());
 	}
+	public AlbumAO(AlbumVO albumVO, List<PhotoAO> photos) {
+		super();
+		setId(albumVO.getId());
+		setUserId(albumVO.getUserId());
+		setDefault(albumVO.isDefault());
+		setName(albumVO.getName());
+		setDescription(albumVO.getDescription());
+		setPhotosOrder(albumVO.getPhotosOrder());
+		this.photos = photos;
+	}
 
 	/**
 	 * Method encodes ID for use in the frontend.
@@ -45,6 +60,15 @@ public class AlbumAO extends AlbumVO {
 	 */
 	public String getEncodedId() {
 		return IdCrypter.encode(getId());
+	}
+
+	public List<PhotoAO> getPhotos() {
+		return photos;
+	}
+
+	public void setPhotos(List<PhotoAO> photos) {
+		this.photos = photos;
+		setPhotosOrder(photos.stream().map(PhotoAO::getId).collect(Collectors.toList()));
 	}
 
 	/** {@inheritDoc} */

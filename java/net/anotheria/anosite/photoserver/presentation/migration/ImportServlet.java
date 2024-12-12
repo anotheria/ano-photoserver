@@ -13,15 +13,15 @@ import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
  * This is a generic photo import servlet.
- * {@link javax.servlet.http.HttpServletRequest} should contain such parameters.
+ * {@link jakarta.servlet.http.HttpServletRequest} should contain such parameters.
  * <ul>
  * <li>
  *   {@link java.lang.String} pLink - link on photo location for loading by link (example: http://my.server.com/).

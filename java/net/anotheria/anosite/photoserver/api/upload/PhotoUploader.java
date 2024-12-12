@@ -1,6 +1,6 @@
 package net.anotheria.anosite.photoserver.api.upload;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +9,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import net.anotheria.anosite.photoserver.presentation.shared.PhotoDimension;
@@ -17,17 +18,11 @@ import net.anotheria.anosite.photoserver.presentation.shared.PhotoUtilException;
 import net.anotheria.anosite.photoserver.service.storage.StorageConfig;
 import net.anotheria.anosite.photoserver.shared.vo.TempPhotoVO;
 import net.anotheria.util.StringUtils;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.ProgressListener;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.core.*;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.BASE64Encoder;
 
 /**
  * <p>PhotoUploader class.</p>
@@ -95,22 +90,22 @@ public class PhotoUploader implements ProgressListener {
 	/**
 	 * <p>doUpload.</p>
 	 *
-	 * @param request a {@link javax.servlet.http.HttpServletRequest} object.
+	 * @param request a {@link jakarta.servlet.http.HttpServletRequest} object.
 	 */
 	@SuppressWarnings("unchecked")
 	public void doUpload(HttpServletRequest request) {
 		// Create a factory for disk-based file items
-		FileItemFactory factory = new DiskFileItemFactory();
+		FileItemFactory factory = new DiskFileItemFactory.Builder().get();
 
 		// Create a new file upload handler
-		ServletFileUpload upload = new ServletFileUpload(factory);
+		JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
 		upload.setSizeMax(uploadConfig.getMaxUploadFileSize());
 		upload.setProgressListener(this);
 
 		try {
-			List<FileItem> items = new ArrayList<FileItem>();
+			List<FileItem> items = new ArrayList<>();
 
-			if (ServletFileUpload.isMultipartContent(request))
+			if (JakartaServletFileUpload.isMultipartContent(request))
 				items.addAll(upload.parseRequest(request)); // uploading form data
 
 			// uploading by link (if link exist)
@@ -154,10 +149,7 @@ public class PhotoUploader implements ProgressListener {
 					item.delete();
 				}
 			}
-		} catch (SizeLimitExceededException e) {
-			status.setStatus(UploadStatusAO.STATUS_ERROR_MAX_FILESIZE_EXCEEDED);
-			LOG.debug(id + ": UploadStatus=MAX_FILESIZE_EXCEEDED");
-		} catch (FileUploadException | PhotoUtilException | IOException e) {
+		} catch (PhotoUtilException | IOException e) {
 			status.setStatus(UploadStatusAO.STATUS_ERROR_UPLOADEXCEPTION);
 			LOG.error(id, e);
 		}
@@ -181,7 +173,7 @@ public class PhotoUploader implements ProgressListener {
 				conn.setConnectTimeout(CONNECTION_TIMEOUT);
 				//authorizate connection is username and password present in URL
 				if (authName != null && authName.length() > 0 && authPassword != null && authPassword.length() > 0) {
-					String encoding = new BASE64Encoder().encode((authName + ":" + authPassword).getBytes());
+					String encoding = Base64.getEncoder().encodeToString((authName + ":" + authPassword).getBytes());
 					conn.setRequestProperty("Authorization", "Basic " + encoding);
 				}
 				conn.connect();
@@ -196,8 +188,12 @@ public class PhotoUploader implements ProgressListener {
 				String resourceName = "uploaded";
 				if (linkSegments != null && linkSegments.length > 0)
 					resourceName = linkSegments[linkSegments.length - 1];
-
-				FileItem file = factory.createItem(PARAM_UPLOAD_LINK, conn.getContentType(), false, resourceName);
+				FileItem file = ((DiskFileItemFactory)factory).fileItemBuilder()
+						.setFieldName(PARAM_UPLOAD_LINK)
+						.setContentType(conn.getContentType())
+						.setFormField(false)
+						.setFileName(resourceName)
+						.get();
 				is = conn.getInputStream();
 				IOUtils.copyLarge(is, file.getOutputStream());
 				file.getOutputStream().flush();
