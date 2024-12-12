@@ -28,7 +28,6 @@
 
 		<ano-doc-version>4.0.0</ano-doc-version>
 
-		<ano-web-version>4.0.0</ano-web-version>
 		<ano-maf-version>4.0.0</ano-maf-version>
 		<ano-tags-version>4.0.0</ano-tags-version>
 		<ano-site-parents-version>2.5.1</ano-site-parents-version>
@@ -131,13 +130,6 @@
 			<artifactId>ano-access</artifactId>
 			<version>${ano-access-version}</version>
 		</dependency>
-		<dependency>
-			<groupId>net.anotheria</groupId>
-			<artifactId>ano-web</artifactId>
-			<version>${ano-web-version}</version>
-		</dependency>
-
-
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
