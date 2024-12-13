@@ -40,6 +40,7 @@ public class PhotoGoogleCloudStorageService implements CrudService<PhotoFileHold
      * {@link Storage} instance.
      */
     private final Storage storage;
+    private volatile boolean bucketsInitialized = false;
 
     public PhotoGoogleCloudStorageService() {
         try {
@@ -49,15 +50,25 @@ public class PhotoGoogleCloudStorageService implements CrudService<PhotoFileHold
                     .setProjectId(PhotoGoogleCloudStorageConfig.getInstance().getProjectId())
                     .build()
                     .getService();
-
-            initializeBuckets();
         } catch (Exception e) {
             throw new RuntimeException("Unable to initialize google storage. ", e);
         }
     }
 
+    private void ensureBucketsInitialized() {
+        if (!bucketsInitialized) {
+            synchronized (this) {
+                if (!bucketsInitialized) {
+                    initializeBuckets();
+                    bucketsInitialized = true;
+                }
+            }
+        }
+    }
+
     @Override
     public PhotoFileHolder create(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        ensureBucketsInitialized();
         BlobId blobId = BlobId.of(getBucket(photoFileHolder), getFilePath(photoFileHolder));
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
         try {
@@ -70,16 +81,19 @@ public class PhotoGoogleCloudStorageService implements CrudService<PhotoFileHold
 
     @Override
     public PhotoFileHolder save(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        ensureBucketsInitialized();
         return create(photoFileHolder);
     }
 
     @Override
     public PhotoFileHolder update(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        ensureBucketsInitialized();
         return create(photoFileHolder);
     }
 
     @Override
     public PhotoFileHolder read(SaveableID id) throws CrudServiceException, ItemNotFoundException {
+        ensureBucketsInitialized();
         String userId = id.getSaveableId().split("______USER_ID______")[1];
         PhotoFileHolder photoFileHolder = new PhotoFileHolder(PhotoStorageUtil.getId(id.getOwnerId()), PhotoStorageUtil.getOriginalId(id.getOwnerId()), PhotoStorageUtil.getExtension(id.getOwnerId()), userId);
         try {
@@ -96,16 +110,19 @@ public class PhotoGoogleCloudStorageService implements CrudService<PhotoFileHold
 
     @Override
     public void delete(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        ensureBucketsInitialized();
         storage.delete(getBucket(photoFileHolder), getFilePath(photoFileHolder));
     }
 
     @Override
     public boolean exists(PhotoFileHolder photoFileHolder) throws CrudServiceException {
+        ensureBucketsInitialized();
         return Objects.nonNull(storage.get(getBucket(photoFileHolder), getFilePath(photoFileHolder)));
     }
 
     @Override
     public List<PhotoFileHolder> query(Query q) throws CrudServiceException {
+        ensureBucketsInitialized();
         return null;
     }
 
