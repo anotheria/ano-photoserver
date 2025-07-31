@@ -17,7 +17,10 @@ public enum ApprovalStatus {
 	APPROVED(20),
 
 	/** Status assigned to photos by responsible person. Means that photo/album can be shown only to their owner - for fixing or removing. */
-	REJECTED(30);
+	REJECTED(30),
+
+	/** Status assigned to photos by responsible person. Means that photo can be used for age verification process. */
+	AWAITING_AGE_VERIFICATION(40);
 
 	/**
 	 * Default approval status.
